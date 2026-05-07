@@ -11,9 +11,9 @@ from apps.api.services import session_service
 from opentalking.core.in_memory_redis import InMemoryRedis
 from opentalking.core.redis_keys import TASK_QUEUE
 from opentalking.core.session_store import get_session_record, session_key
-import opentalking.worker.task_consumer as task_consumer
-from opentalking.worker.session_runner import SessionRunner
-from opentalking.worker.task_consumer import handle_worker_task
+import opentalking.runtime.task_consumer as task_consumer
+from opentalking.pipeline.session.runner import SessionRunner
+from opentalking.runtime.task_consumer import handle_worker_task
 
 
 class StubRunner:
@@ -180,7 +180,7 @@ async def test_handle_worker_task_tracks_runner_lifecycle(monkeypatch: pytest.Mo
     def fake_create_runner(*_args, **_kwargs) -> StubRunner:
         return runner
 
-    monkeypatch.setattr("opentalking.worker.task_consumer._create_runner", fake_create_runner)
+    monkeypatch.setattr("opentalking.runtime.task_consumer._create_runner", fake_create_runner)
 
     redis = InMemoryRedis()
     sid = "sess_test"

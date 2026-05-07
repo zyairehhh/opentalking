@@ -42,7 +42,7 @@ from opentalking.providers.stt.dashscope.adapter import (
 from opentalking.providers.tts.edge_zh_voices import normalize_optional_edge_voice
 from opentalking.providers.tts.providers import BAILIAN_TTS_PROVIDERS, normalize_tts_provider
 from opentalking.providers.tts.qwen_tts_voices import normalize_optional_qwen_voice, sanitize_qwen_model
-from opentalking.worker.flashtalk_recording import (
+from opentalking.pipeline.recording.recording import (
     export_flashtalk_recording,
     flashtalk_recording_session_dir,
 )
@@ -288,7 +288,7 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
         settings = request.app.state.settings
 
         if is_flashtalk:
-            from opentalking.worker.task_consumer import slot_is_occupied
+            from opentalking.runtime.task_consumer import slot_is_occupied
             if slot_is_occupied():
                 # Slot busy: return immediately, client waits via SSE session.queued
                 return CreateSessionResponse(session_id=sid, status="queued")

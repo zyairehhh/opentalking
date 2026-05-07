@@ -21,8 +21,8 @@ from apps.api.core.config import get_settings
 from apps.api.routes import avatars, events, health, models, sessions, tts_preview, voices
 from opentalking.voice.store import init_voice_store
 from opentalking.core.in_memory_redis import InMemoryRedis
-from opentalking.worker.session_runner import SessionRunner
-from opentalking.worker.task_consumer import consume_task_queue
+from opentalking.pipeline.session.runner import SessionRunner
+from opentalking.runtime.task_consumer import consume_task_queue
 
 log = logging.getLogger(__name__)
 

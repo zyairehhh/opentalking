@@ -14,8 +14,8 @@ from opentalking.core.model_config import get_model_config
 from opentalking.core.queue_status import set_flashtalk_queue_status
 from opentalking.core.redis_keys import TASK_QUEUE
 from opentalking.core.session_store import set_session_state
-from opentalking.worker.bus import publish_event
-from opentalking.worker.session_runner import SessionRunner
+from opentalking.runtime.bus import publish_event
+from opentalking.pipeline.session.runner import SessionRunner
 
 log = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ def _create_runner(
     settings = get_settings()
 
     if model in {"flashtalk", "flashhead"}:
-        from opentalking.worker.flashtalk_runner import FlashTalkRunner
+        from opentalking.pipeline.speak.synthesis_runner import FlashTalkRunner
 
         flashtalk_client = None
         flashtalk_ws_url: str | None = None
@@ -418,8 +418,8 @@ async def handle_worker_task(
         import numpy as np
 
         from opentalking.core.redis_keys import offline_bundle_job_key
-        from opentalking.worker.flashtalk_offline_export import run_flashtalk_offline_av_bundle
-        from opentalking.worker.flashtalk_runner import FlashTalkRunner
+        from opentalking.pipeline.recording.offline_export import run_flashtalk_offline_av_bundle
+        from opentalking.pipeline.speak.synthesis_runner import FlashTalkRunner
 
         k = offline_bundle_job_key(str(job_id))
         if not isinstance(runner, FlashTalkRunner):

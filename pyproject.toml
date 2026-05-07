@@ -74,7 +74,7 @@ dev = [
 
 [project.scripts]
 opentalking-api = "apps.api.main:main"
-opentalking-worker = "opentalking.worker.main:main"
+opentalking-worker = "opentalking.runtime.main:main"
 opentalking-unified = "apps.unified.main:main"
 opentalking-download = "apps.cli.download_models:main"
 
@@ -96,23 +96,15 @@ target-version = "py310"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-testpaths = ["tests", "apps/api/tests", "apps/worker/tests"]
+testpaths = ["tests", "apps/api/tests"]
 
 [[tool.mypy.overrides]]
 module = [
-  "opentalking.engine.*",
-  "opentalking.models.*",
-  "opentalking.server.idle_cache",
-  "opentalking.rtc.aiortc_adapter",
-  "opentalking.tts.dashscope_qwen.*",
-  "opentalking.tts.edge.*",
-  "opentalking.tts.factory",
-  "opentalking.voices.*",
-  "opentalking.worker.flashtalk_runner",
+  "opentalking.providers.*",
+  "opentalking.pipeline.*",
+  "opentalking.runtime.*",
+  "opentalking.voice.*",
   "apps.api.tests.*",
-  "apps.worker.tests.*",
   "tests.*",
-  "test_aiortc_adapter",
-  "test_smoke",
 ]
 ignore_errors = true

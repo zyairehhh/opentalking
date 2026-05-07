@@ -15,9 +15,9 @@ from opentalking.core.session_store import (
     apply_flashtalk_recording_start,
     apply_flashtalk_recording_stop,
 )
-from opentalking.worker.flashtalk_recording import export_flashtalk_recording
-from opentalking.worker.session_runner import SessionRunner
-from opentalking.worker.task_consumer import consume_task_queue
+from opentalking.pipeline.recording.recording import export_flashtalk_recording
+from opentalking.pipeline.session.runner import SessionRunner
+from opentalking.runtime.task_consumer import consume_task_queue
 
 runners: dict[str, SessionRunner] = {}
 

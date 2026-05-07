@@ -24,8 +24,8 @@ from opentalking.providers.llm.openai_compatible.conversation import Conversatio
 from opentalking.providers.synthesis.flashtalk.ws_client import FlashTalkWSClient
 from opentalking.providers.rtc.aiortc.adapter import WebRTCSession
 from opentalking.providers.tts.factory import create_tts_adapter, tts_log_profile
-from opentalking.worker.bus import publish_event
-from opentalking.worker.text_sanitize import sanitize_tts_text, strip_emoji
+from opentalking.runtime.bus import publish_event
+from opentalking.pipeline.speak.text_sanitize import sanitize_tts_text, strip_emoji
 
 log = logging.getLogger(__name__)
 

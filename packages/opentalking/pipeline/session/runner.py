@@ -60,13 +60,13 @@ except Exception:
 
     def load_video_frames(video_path: Path) -> list[np.ndarray]:
         raise RuntimeError("wav2lip official runtime is unavailable")
-from opentalking.worker.bus import publish_event
-from opentalking.worker.pipeline.render_pipeline import (
+from opentalking.runtime.bus import publish_event
+from opentalking.pipeline.speak.render_pipeline import (
     render_audio_chunk_sync,
     reset_avatar_speech_state,
 )
-from opentalking.worker.text_sanitize import strip_emoji
-from opentalking.worker.timing import SpeechTiming
+from opentalking.pipeline.speak.text_sanitize import strip_emoji
+from opentalking.runtime.timing import SpeechTiming
 
 log = logging.getLogger(__name__)
 _SETTINGS = get_settings()

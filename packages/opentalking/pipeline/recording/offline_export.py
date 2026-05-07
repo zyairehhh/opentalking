@@ -14,8 +14,8 @@ import cv2
 import numpy as np
 
 from opentalking.core.config import get_settings
-from opentalking.worker.flashtalk_recording import flashtalk_recording_session_dir
-from opentalking.worker.flashtalk_runner import (
+from opentalking.pipeline.recording.recording import flashtalk_recording_session_dir
+from opentalking.pipeline.speak.synthesis_runner import (
     FlashTalkRunner,
     _env_float,
     _fade_head_i16,

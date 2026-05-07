@@ -9,7 +9,7 @@ def main() -> None:
     host = os.environ.get("OPENTALKING_WORKER_HOST", "0.0.0.0")
     port = int(os.environ.get("OPENTALKING_WORKER_PORT", "9001"))
     uvicorn.run(
-        "opentalking.worker.server:create_app",
+        "opentalking.runtime.server:create_app",
         host=host,
         port=port,
         factory=True,

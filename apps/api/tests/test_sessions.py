@@ -15,11 +15,11 @@ import apps.api.main as api_main
 import apps.api.routes.health as health_routes
 import apps.api.routes.sessions as sessions_routes
 import apps.unified.main as unified_main
-import opentalking.worker.task_consumer as task_consumer
+import opentalking.runtime.task_consumer as task_consumer
 from opentalking.core.in_memory_redis import InMemoryRedis
 from opentalking.core.redis_keys import FLASHTALK_QUEUE_STATUS
 from opentalking.core.session_store import set_session_state
-from opentalking.worker.flashtalk_recording import append_flashtalk_frames
+from opentalking.pipeline.recording.recording import append_flashtalk_frames
 
 
 def test_normalize_voice_for_speak_accepts_elevenlabs_voice_id() -> None:
@@ -389,7 +389,7 @@ def test_worker_flashtalk_recording_endpoint_exports_mp4(
     tmp_path: Path,
 ) -> None:
     monkeypatch.setenv("OPENTALKING_FLASHTALK_RECORDINGS_DIR", str(tmp_path))
-    from opentalking.worker.server import create_app as create_worker_app
+    from opentalking.runtime.server import create_app as create_worker_app
 
     session_id = "sess_worker_dl"
     append_flashtalk_frames(

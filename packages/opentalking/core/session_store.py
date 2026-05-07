@@ -17,7 +17,7 @@ FLASHTALK_RECORDING_EPOCH_FIELD = "flashtalk_recording_epoch"
 
 async def apply_flashtalk_recording_start(r: Any, session_id: str) -> None:
     """清空本会话录制文件、打开录制开关并递增 epoch。"""
-    from opentalking.worker.flashtalk_recording import clear_flashtalk_recording_files
+    from opentalking.pipeline.recording.recording import clear_flashtalk_recording_files
 
     clear_flashtalk_recording_files(session_id)
     key = session_key(session_id)
