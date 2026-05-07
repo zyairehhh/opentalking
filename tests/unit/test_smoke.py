@@ -2,16 +2,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import opentalking.models
 from opentalking.avatars.manifest import parse_manifest
 from opentalking.avatars.validator import validate_avatar_dir
+from opentalking.providers.synthesis import list_available_synthesis
 
 
 def test_list_models() -> None:
-    assert "wav2lip" in opentalking.models.list_models()
-    assert "musetalk" in opentalking.models.list_models()
-    assert "flashtalk" in opentalking.models.list_models()
-    assert "flashhead" in opentalking.models.list_models()
+    keys = list_available_synthesis()
+    assert "wav2lip" in keys
+    assert "musetalk" in keys
+    assert "flashtalk" in keys
+    assert "flashhead" in keys
 
 
 def test_demo_avatar_valid() -> None:

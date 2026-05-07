@@ -5,7 +5,7 @@ import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-import opentalking.models  # noqa: F401
+# legacy registry import removed
 import redis.asyncio as redis
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse

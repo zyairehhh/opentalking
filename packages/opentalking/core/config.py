@@ -303,7 +303,7 @@ class Settings(BaseSettings):
 
     @property
     def normalized_tts_provider(self) -> str:
-        from opentalking.tts.providers import normalize_tts_provider
+        from opentalking.providers.tts.providers import normalize_tts_provider
 
         try:
             provider = normalize_tts_provider(self.tts_provider, default="edge")

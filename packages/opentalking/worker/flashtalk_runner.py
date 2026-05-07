@@ -16,14 +16,14 @@ from typing import Any
 import numpy as np
 
 from opentalking.core.config import get_settings
-from opentalking.models.flashtalk.idle_generator import IdleVideoGenerator
+from opentalking.providers.synthesis.flashtalk.idle_generator import IdleVideoGenerator
 from opentalking.core.session_store import set_session_state
-from opentalking.llm.openai_compatible import OpenAICompatibleLLMClient
-from opentalking.llm.sentence_splitter import SentenceSplitter
-from opentalking.llm.conversation import ConversationHistory
-from opentalking.models.flashtalk.ws_client import FlashTalkWSClient
-from opentalking.rtc.aiortc_adapter import WebRTCSession
-from opentalking.tts.factory import create_tts_adapter, tts_log_profile
+from opentalking.providers.llm.openai_compatible.adapter import OpenAICompatibleLLMClient
+from opentalking.providers.llm.openai_compatible.sentence_splitter import SentenceSplitter
+from opentalking.providers.llm.openai_compatible.conversation import ConversationHistory
+from opentalking.providers.synthesis.flashtalk.ws_client import FlashTalkWSClient
+from opentalking.providers.rtc.aiortc.adapter import WebRTCSession
+from opentalking.providers.tts.factory import create_tts_adapter, tts_log_profile
 from opentalking.worker.bus import publish_event
 from opentalking.worker.text_sanitize import sanitize_tts_text, strip_emoji
 
@@ -822,7 +822,7 @@ class FlashTalkRunner:
             key = gen._cache_key(w, h, fps, cs)
             cached = gen.load_from_disk(key)
             if cached:
-                from opentalking.models.flashtalk.idle_generator import _prompt_fingerprint
+                from opentalking.providers.synthesis.flashtalk.idle_generator import _prompt_fingerprint
                 fp = _prompt_fingerprint(gen._init_prompt)
                 log.info(
                     "Idle cache hit (disk): avatar=%s frames=%d cache_key=%s prompt_fp=%s seed=%d prompt_len=%d",

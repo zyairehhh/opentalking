@@ -34,14 +34,14 @@ from opentalking.core.session_store import (
     apply_flashtalk_recording_start,
     apply_flashtalk_recording_stop,
 )
-from opentalking.stt.dashscope_asr import (
+from opentalking.providers.stt.dashscope.adapter import (
     decode_audio_file_to_pcm_i16,
     transcribe_audio_file_path,
     transcribe_pcm_chunk_queue_sync,
 )
-from opentalking.tts.edge_zh_voices import normalize_optional_edge_voice
-from opentalking.tts.providers import BAILIAN_TTS_PROVIDERS, normalize_tts_provider
-from opentalking.tts.qwen_tts_voices import normalize_optional_qwen_voice, sanitize_qwen_model
+from opentalking.providers.tts.edge_zh_voices import normalize_optional_edge_voice
+from opentalking.providers.tts.providers import BAILIAN_TTS_PROVIDERS, normalize_tts_provider
+from opentalking.providers.tts.qwen_tts_voices import normalize_optional_qwen_voice, sanitize_qwen_model
 from opentalking.worker.flashtalk_recording import (
     export_flashtalk_recording,
     flashtalk_recording_session_dir,

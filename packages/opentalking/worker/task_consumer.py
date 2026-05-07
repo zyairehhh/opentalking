@@ -96,7 +96,7 @@ def _create_runner(
         flashtalk_ws_url: str | None = None
 
         if model == "flashhead":
-            from opentalking.models.flashhead import FlashHeadWSClient
+            from opentalking.providers.synthesis.flashhead import FlashHeadWSClient
 
             flashtalk_client = FlashHeadWSClient(
                 ws_url=settings.flashhead_ws_url,

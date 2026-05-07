@@ -22,9 +22,12 @@ from av.audio.resampler import AudioResampler
 from opentalking.core.session_store import set_session_state
 from opentalking.core.config import Settings, get_settings
 from opentalking.core.types.frames import AudioChunk, VideoFrameData
-from opentalking.models.registry import get_adapter
-from opentalking.rtc.aiortc_adapter import WebRTCSession
-from opentalking.tts import build_tts_adapter
+from opentalking.providers.synthesis import list_available_synthesis as _list_synth
+# legacy: get_adapter shim raises
+def get_adapter(model_type):
+    raise NotImplementedError(f'local adapter {model_type!r} removed; route via omnirt')
+from opentalking.providers.rtc.aiortc.adapter import WebRTCSession
+from opentalking.providers.tts import build_tts_adapter
 try:
     from opentalking.models.wav2lip.official_runtime import (
         load_video_frames,

@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from opentalking.models.registry import list_available_models
+from opentalking.providers.synthesis import list_available_synthesis
 
 router = APIRouter(prefix="/models", tags=["models"])
 
 
 @router.get("")
 async def list_registered_models() -> dict[str, list[str]]:
-    return {"models": list_available_models()}
+    return {"models": list_available_synthesis()}
