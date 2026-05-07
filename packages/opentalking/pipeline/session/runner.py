@@ -28,38 +28,20 @@ def get_adapter(model_type):
     raise NotImplementedError(f'local adapter {model_type!r} removed; route via omnirt')
 from opentalking.providers.rtc.aiortc.adapter import WebRTCSession
 from opentalking.providers.tts import build_tts_adapter
-try:
-    from opentalking.models.wav2lip.official_runtime import (
-        load_video_frames,
-        official_runtime_available,
-        run_official_inference,
-    )
-except Exception:
-    # official wav2lip runtime is optional; keep unified startup resilient
-    # when the module is absent in lightweight or customized deployments.
-    def official_runtime_available() -> bool:
-        return False
 
-    def run_official_inference(
-        *,
-        avatar_path: Path,
-        face_image: Path | None = None,
-        pcm: np.ndarray,
-        sample_rate: int,
-        fps: int,
-        ffmpeg_bin: str,
-        checkpoint_path: Path | None = None,
-        pads: tuple[int, int, int, int] = (0, 10, 0, 0),
-        box: tuple[int, int, int, int] | None = None,
-        resize_factor: int = 1,
-        face_det_batch_size: int = 8,
-        wav2lip_batch_size: int = 64,
-        nosmooth: bool = False,
-    ) -> tuple[Path, Path, Path]:
-        raise RuntimeError("wav2lip official runtime is unavailable")
+# Local wav2lip runtime was removed (delegated to omnirt). Keep no-op shims so
+# legacy code paths in this runner still import; the real synthesis path goes
+# through opentalking.providers.synthesis.* now.
+def official_runtime_available() -> bool:
+    return False
 
-    def load_video_frames(video_path: Path) -> list[np.ndarray]:
-        raise RuntimeError("wav2lip official runtime is unavailable")
+
+def run_official_inference(*args, **kwargs) -> tuple[Path, Path, Path]:
+    raise RuntimeError("wav2lip local runtime removed; route via omnirt")
+
+
+def load_video_frames(video_path: Path) -> list[np.ndarray]:
+    raise RuntimeError("wav2lip local runtime removed; route via omnirt")
 from opentalking.runtime.bus import publish_event
 from opentalking.pipeline.speak.render_pipeline import (
     render_audio_chunk_sync,
