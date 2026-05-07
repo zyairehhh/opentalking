@@ -111,118 +111,147 @@ These demo videos show how the OpenTalking pipeline behaves across different rea
 
 ```text
 opentalking/
-├── src/opentalking/
-│   ├── core/         # config, interface protocols, type definitions
-│   ├── engine/       # FlashTalk-compatible local inference path
-│   ├── server/       # distributed WebSocket inference service
-│   ├── models/       # avatar model adapters
-│   ├── worker/       # session orchestration
-│   ├── llm/          # OpenAI-compatible LLM client
-│   ├── tts/          # TTS adapters
-│   ├── rtc/          # WebRTC transport
-│   ├── voices/       # voice profiles and provider integration
-│   └── events/       # SSE and runtime events
+├── opentalking/                  # orchestration Python package (flat layout)
+│   ├── core/                     # interfaces, types, config, registry
+│   ├── providers/                # capability adapters (capability / vendor)
+│   │   ├── stt/dashscope/        # speech-to-text
+│   │   ├── tts/{edge,dashscope_qwen,cosyvoice_ws,...}/   # text-to-speech + cloning
+│   │   ├── llm/openai_compatible/                        # large language model
+│   │   ├── rtc/aiortc/                                   # WebRTC transport
+│   │   └── synthesis/{flashtalk,flashhead,omnirt,mock}/  # avatar synthesis (thin client)
+│   ├── avatar/                   # avatar asset management
+│   ├── voice/                    # voice asset management
+│   ├── media/                    # neutral DSP utilities
+│   ├── pipeline/{session,speak,recording}/   # business orchestration
+│   └── runtime/                  # process glue (task_consumer / bus / timing)
 ├── apps/
-│   ├── api/          # FastAPI service
-│   ├── unified/      # single-process mode
-│   ├── web/          # React frontend
-│   └── cli/          # model download, video generation, demo tools
-├── configs/          # YAML config samples
-├── docker/           # Docker Compose
-├── scripts/          # startup and deployment scripts
-├── tests/            # unit / integration tests
-└── docs/             # documentation
+│   ├── api/                      # FastAPI service
+│   ├── unified/                  # single-process mode (dev friendly)
+│   ├── web/                      # React frontend
+│   └── cli/                      # download_models / doctor / ...
+├── configs/                      # YAML config (profiles / inference / synthesis)
+├── docker/ + docker-compose.yml  # container deployments
+├── scripts/                      # helpers (run_omnirt.sh / prepare-avatar.sh)
+├── tests/                        # unit / integration tests
+└── docs/                         # documentation
 ```
 
 ## Quickstart
 
-OpenTalking decouples the **orchestration layer** (API + Worker + frontend) from the **inference service** ([OmniRT](https://github.com/datascale-ai/omnirt))—they can run on the same machine or on separate hosts. Pick one of the two paths below.
+OpenTalking's **orchestration layer** (API + Worker + frontend) and the **inference service** ([OmniRT](https://github.com/datascale-ai/omnirt)) deploy independently—they can run on the same host or on different hosts. The three paths below are organised by *what you want to do*. For Docker, see [docs/deployment.md](docs/deployment.en.md).
 
-> **Three things to remember**
-> - LLM / STT / TTS go through cloud APIs (an OpenAI-compatible key is enough; TTS defaults to Edge TTS, no key).
-> - The inference service runs independently. **For the first run you can use the built-in Mock and skip a real backend**—works on CPU.
-> - Run `opentalking-doctor` any time to see what's missing.
-
-### Path A: Docker (fastest, 5-minute experience)
-
-For **first-run** and **single-host** users. One command brings up Redis + API + Worker + frontend with mock synthesis.
+### Step 0 (shared): install the orchestration layer
 
 ```bash
-git clone https://github.com/datascale-ai/opentalking.git && cd opentalking
-cp .env.example .env                               # set OPENTALKING_LLM_API_KEY
-docker compose up                                  # mock synthesis, runs on CPU
-```
-
-Open `http://localhost:5173`, pick a built-in avatar, and start chatting.
-
-Upgrade to real synthesis (NVIDIA GPU + nvidia-container-toolkit required):
-
-```bash
-docker compose --profile gpu -f docker-compose.yml -f docker-compose.gpu.yml up
-```
-
-This additionally pulls and starts an [OmniRT](https://github.com/datascale-ai/omnirt) container and switches API/Worker to the real inference path.
-
-### Path B: Python venv (development / multi-host deployments)
-
-For **frontend work**, **adapter development**, and **OpenTalking-and-inference-on-different-hosts** scenarios. The orchestration layer is installed locally; the inference backend is **yours to control**.
-
-```bash
-# 1. Install the orchestration layer
 git clone https://github.com/datascale-ai/opentalking.git && cd opentalking
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 cp .env.example .env
-
-# 2. Edit .env
-#    - At minimum set OPENTALKING_LLM_API_KEY (DashScope / OpenAI / Bailian)
-#    - Pick one inference path:
-#       (a) Built-in mock:    add  OPENTALKING_INFERENCE_MOCK=1
-#       (b) Local OmniRT:     bash scripts/run_omnirt.sh   then write OMNIRT_ENDPOINT
-#       (c) Remote OmniRT:    just point OMNIRT_ENDPOINT at it
-$EDITOR .env
-
-# 3. Health check
-opentalking-doctor
-
-# 4. Start
-opentalking-unified                                 # single process, in-memory bus, no redis needed
-# Multi-process:
-# opentalking-api & opentalking-worker &
 ```
 
-Frontend:
+Requirements: Python ≥ 3.10, Node.js ≥ 18, FFmpeg.
+
+> Run `opentalking-doctor` any time to see what's missing.
+
+### Path 1: Quick experience (recommended for first-run)
+
+**Goal**: see the digital human chat in your browser within 5 minutes — **no GPU, no model service required**.
+**How**: synthesis goes through the built-in Mock; LLM/STT/TTS use cloud APIs.
+
+In `.env` you only need two things:
+
+```env
+# Enable Mock synthesis (uses the avatar reference image as static frames)
+OPENTALKING_INFERENCE_MOCK=1
+
+# LLM: DashScope / Bailian / any OpenAI-compatible endpoint
+OPENTALKING_LLM_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+OPENTALKING_LLM_API_KEY=sk-your-key
+OPENTALKING_LLM_MODEL=qwen-flash
+
+# STT: reuses the same DashScope key
+DASHSCOPE_API_KEY=sk-your-key
+
+# TTS: defaults to Edge TTS, no key (nothing to change)
+```
+
+Two terminals:
 
 ```bash
+# Terminal 1: backend (single process, in-memory bus, no Redis)
+opentalking-unified
+
+# Terminal 2: frontend
 cd apps/web && npm ci && npm run dev -- --host 0.0.0.0
 ```
 
-Open `http://localhost:5173`.
+Open `http://localhost:5173` and pick a built-in avatar. Frames are static (reference image)—**LLM reply, streaming TTS, subtitle events, and WebRTC delivery are real**; only lip-sync is faked.
 
-Requirements: Python ≥ 3.10, Node.js ≥ 18, FFmpeg; distributed mode also requires Redis.
+### Path 2: Lightweight adapter validation
 
-### About the inference service (OmniRT)
+**Goal**: iterate on Avatar assets, validate model adapters, run wav2lip / musetalk-class lightweight models.
+**How**: run an OmniRT (locally or remotely) hosting a lightweight model; everything else matches Path 1.
 
-OmniRT is an independent multimodal inference runtime serving FlashTalk / MuseTalk / Wav2Lip and others. It does **not** need to live on the same machine as OpenTalking:
+Start a local OmniRT container (CUDA / Ascend / CPU all work):
 
-| Your situation | Recommended approach |
-|---|---|
-| 5-minute demo | Path A default (mock) |
-| Single host with GPU, want real output | `docker compose --profile gpu` or `bash scripts/run_omnirt.sh` |
-| Remote GPU server already available | Run OmniRT there, set `OMNIRT_ENDPOINT=http://<gpu-host>:9000` locally |
-| Enterprise / Ascend 910B | See the [OmniRT docs](https://github.com/datascale-ai/omnirt) |
+```bash
+bash scripts/run_omnirt.sh                    # default cuda; for CPU set OMNIRT_BACKEND=cpu
+```
 
-Full notes in [docs/quickstart.en.md](docs/quickstart.en.md).
+In `.env` drop the mock and add the endpoint:
+
+```env
+# OPENTALKING_INFERENCE_MOCK=0          # remove or comment out
+OMNIRT_ENDPOINT=http://localhost:9000
+
+OPENTALKING_DEFAULT_MODEL=wav2lip       # or musetalk
+```
+
+Start exactly the same way as Path 1 (`opentalking-unified` + frontend). Avatar asset format: see [docs/avatar-format.md](docs/avatar-format.md).
+
+### Path 3: High-quality deployment
+
+**Goal**: run FlashTalk 14B / FlashHead-class high-quality models for private deployments / production.
+**How**: deploy OmniRT on a GPU server (4090 / 910B recommended); the orchestration layer can sit on the same machine or a separate one.
+
+OmniRT deployment: see [datascale-ai/omnirt](https://github.com/datascale-ai/omnirt). On the OpenTalking side, point `.env` at it:
+
+```env
+OMNIRT_ENDPOINT=http://<gpu-host>:9000
+
+OPENTALKING_DEFAULT_MODEL=flashtalk     # or flashhead
+OPENTALKING_TORCH_DEVICE=cuda           # for orchestration-layer audio PCM acceleration
+OPENTALKING_REDIS_URL=redis://redis:6379/0    # multi-process needs a real Redis
+```
+
+Multi-process startup (recommended for production):
+
+```bash
+opentalking-api &
+opentalking-worker &
+# Build the frontend separately and serve via nginx
+cd apps/web && npm ci && npm run build
+```
+
+Avatar manifest, inference endpoint mapping, hardware profiles: see [docs/configuration.md](docs/configuration.md) and [docs/hardware.md](docs/hardware.md).
+
+### Three paths at a glance
+
+| Path | Inference backend | GPU | Best for |
+| --- | --- | --- | --- |
+| 1. Quick experience | Built-in Mock | not required | First-run, frontend dev, pipeline validation |
+| 2. Lightweight adapter validation | Local OmniRT + lightweight model | entry-level GPU (3060+) | Model / Avatar adapter development |
+| 3. High-quality deployment | OmniRT + FlashTalk/FlashHead | 4090 / 910B | Private deployment, production, high-quality |
 
 ### Supported models
 
-| Model | Input | OpenTalking integration |
-| --- | --- | --- |
-| `mock` (default, no GPU required) | reference image | Pipeline / frontend validation only; not real lip-sync |
-| `wav2lip` | frames + audio | OmniRT, lightweight lip-sync |
-| `musetalk` | full frames + audio | OmniRT, lightweight talking-head |
-| `soulx-flashtalk-14b` | portrait + audio | OmniRT, high-quality FlashTalk |
-| `soulx-flashhead-1.3b` | portrait + audio | direct FlashHead WebSocket |
+| Model | Input | OpenTalking integration | Recommended path |
+| --- | --- | --- | --- |
+| `mock` | reference image | Built-in static frames | Path 1 |
+| `wav2lip` | frames + audio | OmniRT lightweight lip-sync | Path 2 |
+| `musetalk` | full frames + audio | OmniRT lightweight talking-head | Path 2 |
+| `soulx-flashtalk-14b` | portrait + audio | OmniRT high-quality FlashTalk | Path 3 |
+| `soulx-flashhead-1.3b` | portrait + audio | direct FlashHead WebSocket | Path 3 |
 
 
 ## Roadmap
