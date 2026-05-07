@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from urllib.parse import urlsplit, urlunsplit
 
-DEFAULT_PATH_TEMPLATE = "/v1/audio2video/{model}"
+DEFAULT_PATH_TEMPLATE = "/v1/avatar/{model}"
 
 
 def derive_audio2video_ws_url(
@@ -79,7 +79,7 @@ def resolve_synthesis_ws_url(model: str, settings) -> str:
         if ws:
             return ws
 
-    return f"ws://localhost:8765/v1/audio2video/{model}"
+    return f"ws://localhost:8765{DEFAULT_PATH_TEMPLATE.format(model=model)}"
 
 
 def auth_headers(settings) -> dict[str, str]:
