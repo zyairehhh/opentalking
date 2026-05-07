@@ -131,7 +131,7 @@ def _create_runner(
             # legacy fallback to OPENTALKING_FLASHTALK_WS_URL when only
             # flashtalk needs servicing.
             from opentalking.providers.synthesis.omnirt import (
-                omnirt_auth_headers,
+                auth_headers as omnirt_auth_headers,
                 resolve_synthesis_ws_url,
             )
             from opentalking.providers.synthesis.flashtalk.ws_client import FlashTalkWSClient

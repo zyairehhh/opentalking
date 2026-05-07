@@ -208,8 +208,8 @@ class FlashTalkRunner:
         self._flashtalk_ws_url = flashtalk_ws_url or _default_flashtalk_ws_url()
         self._custom_ref_image_path = custom_ref_image_path.strip()
         # Auth headers for OmniRT (empty when OMNIRT_API_KEY is unset).
-        from opentalking.providers.synthesis.omnirt import omnirt_auth_headers
-        self._extra_ws_headers = omnirt_auth_headers(get_settings())
+        from opentalking.providers.synthesis.omnirt import auth_headers as _omnirt_auth_headers
+        self._extra_ws_headers = _omnirt_auth_headers(get_settings())
 
         self.flashtalk = flashtalk_client or FlashTalkWSClient(
             self._flashtalk_ws_url,
