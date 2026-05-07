@@ -94,61 +94,34 @@ opentalking/
 │   ├── gateway/                   # （可选）后续抽出的 RTC/SFU
 │   └── web/                       # 前端
 │
-├── packages/                      # ② 可复用库代码（pip 安装即得）
-│   └── opentalking/               # 顶层 Python 包（= 现在的 src/opentalking）
-│       ├── core/                  # 协议 / 类型 / 事件 / 接口 / 配置 / Bus
-│       │   ├── interfaces/        # 所有 Adapter Protocol（stt / tts / llm / rtc / synthesis）
-│       │   ├── types/             # frames / events / session / avatar 数据类
-│       │   ├── config/            # 配置加载、Schema、env 映射
-│       │   ├── bus/               # Redis / InMemoryRedis 抽象
-│       │   └── registry.py        # 统一 provider 注册器（装饰器 + 字符串 key 选择）
-│       │
-│       ├── providers/             # ③ 所有外部能力（"能力域 / 提供方"两级）
-│       │   ├── stt/
-│       │   │   ├── base.py
-│       │   │   ├── dashscope/
-│       │   │   ├── whisper/       # 未来（走 vllm/omnirt）
-│       │   │   └── funasr/        # 未来
-│       │   ├── tts/
-│       │   │   ├── base.py
-│       │   │   ├── dashscope_qwen/
-│       │   │   │   ├── adapter.py
-│       │   │   │   └── clone.py   # 声音复刻：同 SDK 紧凑落位
-│       │   │   ├── dashscope_sambert/
-│       │   │   ├── cosyvoice_ws/
-│       │   │   ├── edge/
-│       │   │   └── elevenlabs/
-│       │   ├── llm/
-│       │   │   └── openai_compatible/
-│       │   ├── rtc/
-│       │   │   └── aiortc/
-│       │   └── synthesis/         # ★ 与 STT/TTS 同级，全部为 thin client
-│       │       ├── base.py        # SynthesisAdapter（音频流 → 视频帧流）
-│       │       ├── flashtalk/     # 接 omnirt / 自建 FlashTalk 服务
-│       │       │   ├── omnirt_client.py
-│       │       │   └── ws_client.py
-│       │       ├── musetalk/      # 全部走推理服务，仓库内仅 client
-│       │       ├── wav2lip/
-│       │       └── flashhead/
-│       │
-│       ├── media/                 # ④ 中性算子工具：loudness、frame compose、idle frame、face crop
-│       │
-│       ├── avatar/                # ⑤ 数字人聚合根：identity + appearance + voice + brain
-│       │   ├── manifest.py        # 解析 avatar manifest（含 ref 字段）
-│       │   ├── loader.py
-│       │   ├── validator.py
-│       │   ├── store.py
-│       │   └── assemble.py        # 装配 DigitalHuman：解析 ref → 拉资产 → 绑 provider
-│       │
-│       ├── voice/                 # ⑥ 仅资产管理（voice_id 索引、样本、与 avatar 的引用）
-│       │   └── store.py
-│       │
-│       ├── pipeline/              # ⑦ 业务编排
-│       │   ├── session/           # session_runner 拆出来
-│       │   ├── speak/             # audio_pipeline + render_pipeline
-│       │   └── recording/         # 离线导出 / 录制
-│       │
-│       └── runtime/               # ⑧ 进程级胶水：worker_loop / idle_cache / broadcast
+├── opentalking/                   # ② 可复用库代码（flat layout，根目录直接 import）
+│   ├── core/                      # 协议 / 类型 / 事件 / 接口 / 配置 / Bus
+│   │   ├── interfaces/            # 所有 Adapter Protocol（stt / tts / llm / rtc / synthesis）
+│   │   ├── types/                 # frames / events / session / avatar 数据类
+│   │   └── registry.py            # 统一 provider 注册器（装饰器 + 字符串 key 选择）
+│   │
+│   ├── providers/                 # ③ 所有外部能力（"能力域 / 提供方"两级）
+│   │   ├── stt/dashscope/
+│   │   ├── tts/
+│   │   │   ├── edge/
+│   │   │   ├── dashscope_qwen/
+│   │   │   │   ├── adapter.py
+│   │   │   │   └── clone.py       # 声音复刻：同 SDK 紧凑落位
+│   │   │   ├── dashscope_sambert/
+│   │   │   ├── cosyvoice_ws/
+│   │   │   └── elevenlabs/
+│   │   ├── llm/openai_compatible/
+│   │   ├── rtc/aiortc/
+│   │   └── synthesis/             # ★ 与 STT/TTS 同级，全部为 thin client
+│   │       ├── flashtalk/         # 接 omnirt / 自建 FlashTalk 服务
+│   │       ├── flashhead/
+│   │       └── omnirt.py          # OmniRTSynthesisAdapter（注册为 musetalk/wav2lip/flashtalk 三键）
+│   │
+│   ├── media/                     # ④ 中性算子工具：loudness、frame compose、idle frame、face crop
+│   ├── avatar/                    # ⑤ 数字人聚合根：identity + appearance + voice + brain
+│   ├── voice/                     # ⑥ 仅资产管理（voice_id 索引、样本、与 avatar 的引用）
+│   ├── pipeline/                  # ⑦ 业务编排：session / speak / recording
+│   └── runtime/                   # ⑧ 进程级胶水：task_consumer / bus / timing / main
 │
 ├── assets/                        # ⑨ 仓库内**示例**数字人 / 音色（manifest 占位为主，重资产走 LFS）
 │   ├── avatars/
@@ -242,7 +215,7 @@ behavior:
 
 ### 阶段 2：目录搬家到目标结构（1–2 天）
 直接落地 § 三的目标分层：
-- 建 `packages/opentalking/{core,providers,media,avatar,voice,pipeline,runtime}/` 全套骨架。
+- 建 `opentalking/{core,providers,media,avatar,voice,pipeline,runtime}/` 全套骨架。
 - 现有 STT/TTS/LLM/RTC 适配器迁入 `providers/<能力>/<vendor>/`，对齐 `core/registry.py` 装饰器注册。
 - 新增 `providers/synthesis/`：单一 `OmniRTSynthesisAdapter` + 三个 provider key 注册（flashtalk / musetalk / wav2lip）。
 - `voices/bailian_clone.py` 移入 `providers/tts/dashscope/clone.py`；`voices/store.py` 移入 `packages/voice/store.py`。
@@ -624,7 +597,7 @@ endpoints:
 
 #### D. omnirt client（在最终目录直接落位）—— P0
 
-`packages/opentalking/providers/synthesis/omnirt.py`：
+`opentalking/providers/synthesis/omnirt.py`：
 
 ```python
 class OmniRTSynthesisAdapter(SynthesisAdapter):

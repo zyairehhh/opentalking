@@ -5,7 +5,7 @@ OpenTalking is composed of:
 - **apps/api** — FastAPI HTTP entry (sessions, avatars, SSE)
 - **apps/unified** — single-process dev runner (no external Redis, in-memory bus)
 - **apps/web** — React control console
-- **src/opentalking/** *(being relocated to `packages/opentalking/` per the refactor plan)*
+- **opentalking/** — library code (flat layout at repo root, like FastAPI / pydantic / requests)
   - `core/` — interfaces, registry, types, config, bus
   - `models/` — synthesis client shims (FlashTalk WS / FlashHead WS / HTTP); local inference removed (delegated to omnirt)
   - `tts/`, `stt/`, `llm/`, `rtc/`, `voices/`, `avatars/` — capability adapters and asset loaders
