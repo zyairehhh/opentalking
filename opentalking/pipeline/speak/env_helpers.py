@@ -11,8 +11,26 @@ log = logging.getLogger(__name__)
 
 
 def default_flashtalk_ws_url() -> str:
+    """Resolve a default FlashTalk WS URL.
+
+    Precedence: OMNIRT_ENDPOINT (preferred) → OPENTALKING_FLASHTALK_WS_URL
+    (legacy override) → ws://<SERVER_HOST or localhost>:8765 fallback.
+    """
+    omnirt = (os.environ.get("OMNIRT_ENDPOINT") or "").strip()
+    if omnirt:
+        from opentalking.providers.synthesis.omnirt import derive_audio2video_ws_url
+        path_template = (
+            os.environ.get("OPENTALKING_OMNIRT_AUDIO2VIDEO_PATH_TEMPLATE")
+            or "/v1/audio2video/{model}"
+        )
+        return derive_audio2video_ws_url(omnirt, "flashtalk", path_template=path_template)
+
+    legacy = (os.environ.get("OPENTALKING_FLASHTALK_WS_URL") or "").strip()
+    if legacy:
+        return legacy
+
     server_host = os.environ.get("SERVER_HOST", "localhost")
-    return os.environ.get("OPENTALKING_FLASHTALK_WS_URL", f"ws://{server_host}:8765")
+    return f"ws://{server_host}:8765"
 
 
 def env_float(name: str, default: float) -> float:

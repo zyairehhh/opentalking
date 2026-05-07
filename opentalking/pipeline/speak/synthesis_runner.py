@@ -207,9 +207,13 @@ class FlashTalkRunner:
         self.redis = redis
         self._flashtalk_ws_url = flashtalk_ws_url or _default_flashtalk_ws_url()
         self._custom_ref_image_path = custom_ref_image_path.strip()
+        # Auth headers for OmniRT (empty when OMNIRT_API_KEY is unset).
+        from opentalking.providers.synthesis.omnirt import omnirt_auth_headers
+        self._extra_ws_headers = omnirt_auth_headers(get_settings())
 
         self.flashtalk = flashtalk_client or FlashTalkWSClient(
-            self._flashtalk_ws_url
+            self._flashtalk_ws_url,
+            extra_headers=self._extra_ws_headers,
         )
         # Remote FlashTalk serves a single active session; a second background
         # init for idle-cache building can replace the live session underneath us.
@@ -431,6 +435,7 @@ class FlashTalkRunner:
                 mouth_lock=max(0.0, min(1.0, s.flashtalk_idle_mouth_lock)),
                 mouth_temporal=max(0.0, min(1.0, _env_float("FLASHTALK_IDLE_MOUTH_TEMPORAL", 0.85))),
                 reference_frame=self._reference_frame,
+                extra_headers=self._extra_ws_headers,
             )
 
             # Try disk cache first — no need to touch the main WS connection.
@@ -668,7 +673,7 @@ class FlashTalkRunner:
         playback_mode = os.environ.get("FLASHTALK_IDLE_CACHE_PLAYBACK", "pingpong").strip().lower()
         mouth_lock = max(0.0, min(1.0, _env_float("FLASHTALK_IDLE_MOUTH_LOCK", 0.97)))
         mouth_temporal = max(0.0, min(1.0, _env_float("FLASHTALK_IDLE_MOUTH_TEMPORAL", 0.85)))
-        temp_client = FlashTalkWSClient(self._flashtalk_ws_url)
+        temp_client = FlashTalkWSClient(self._flashtalk_ws_url, extra_headers=self._extra_ws_headers)
         try:
             # Close the main session first so the server (single-session
             # architecture) doesn't deadlock on a concurrent HCCL broadcast.

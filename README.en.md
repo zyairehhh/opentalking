@@ -190,37 +190,38 @@ Open `http://localhost:5173` and pick a built-in avatar. Frames are static (refe
 ### Path 2: Lightweight adapter validation
 
 **Goal**: iterate on Avatar assets, validate model adapters, run real wav2lip / musetalk / flashtalk models.
-**How**: run a SoulX FlashTalk WS inference service locally or remotely; OpenTalking connects directly.
+**How**: run an [OmniRT](https://github.com/datascale-ai/omnirt) inference service locally or remotely; OpenTalking routes every audio2video model through one `OMNIRT_ENDPOINT`.
 
-Start a backend (OmniRT / FlashTalk / any compatible service):
+Start a backend:
 
 ```bash
 # Local container (default cuda; for CPU set OMNIRT_BACKEND=cpu)
 bash scripts/run_omnirt.sh
 
-# Or remote: launch a SoulX FlashTalk service on a GPU server (see its upstream repo)
+# Or remote: deploy OmniRT on a GPU host and expose its port
 ```
 
-In `.env` drop the mock and point at the WebSocket:
+In `.env` drop the mock and point at OmniRT:
 
 ```env
 # OPENTALKING_INFERENCE_MOCK=0          # remove or comment out
-OPENTALKING_FLASHTALK_WS_URL=ws://<host>:8765
+OMNIRT_ENDPOINT=http://localhost:9000   # or http://<gpu-host>:9000
 
-OPENTALKING_DEFAULT_MODEL=flashtalk      # or musetalk / wav2lip (depending on what your backend serves)
+OPENTALKING_DEFAULT_MODEL=flashtalk      # or musetalk / wav2lip
 ```
 
-> **`OPENTALKING_FLASHTALK_WS_URL` vs `OMNIRT_ENDPOINT`**: today the code talks directly to the FlashTalk WebSocket protocol (`OPENTALKING_FLASHTALK_WS_URL`). `OMNIRT_ENDPOINT` is a placeholder for a future unified HTTP API in OmniRT, **not yet wired**.
+OpenTalking routes per model by path: `OMNIRT_ENDPOINT=http://omnirt:9000` + `model=musetalk` becomes `ws://omnirt:9000/v1/audio2video/musetalk`. All three audio2video models (flashtalk / musetalk / wav2lip) share this rule — no per-model URL configs needed.
 
 Start exactly the same way as Path 1 (`opentalking-unified` + frontend). Avatar asset format: see [docs/avatar-format.md](docs/avatar-format.md).
 
 ### Path 3: High-quality deployment
 
 **Goal**: run FlashTalk 14B / FlashHead-class high-quality models for private deployments / production.
-**How**: same `OPENTALKING_FLASHTALK_WS_URL` as Path 2, plus multi-process / Redis / GPU orchestration:
+**How**: same `OMNIRT_ENDPOINT` as Path 2, plus multi-process / Redis / GPU orchestration:
 
 ```env
-OPENTALKING_FLASHTALK_WS_URL=ws://<gpu-host>:8765
+OMNIRT_ENDPOINT=http://<gpu-host>:9000
+OMNIRT_API_KEY=sk-omnirt-xxx           # if your OmniRT enforces auth
 OPENTALKING_DEFAULT_MODEL=flashtalk     # or flashhead
 
 OPENTALKING_TORCH_DEVICE=cuda           # for orchestration-layer audio PCM acceleration

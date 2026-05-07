@@ -1,42 +1,90 @@
-"""OmniRT thin client — single adapter, registered under flashtalk/musetalk/wav2lip keys.
+"""OmniRT integration helpers.
 
-omnirt is the upstream multimodal inference runtime
-(https://github.com/datascale-ai/omnirt). Per-key model binding is provided
-via configs/inference/omnirt.yaml at construction time.
+OmniRT (https://github.com/datascale-ai/omnirt) is a multimodal inference
+runtime that serves multiple synthesis models (FlashTalk / MuseTalk / Wav2Lip)
+behind a single endpoint, distinguishing models by URL path.
+
+This module provides the URL derivation OpenTalking uses to talk to OmniRT.
+The actual streaming protocol is the existing FlashTalk-compatible WebSocket
+binary protocol (`opentalking.providers.synthesis.flashtalk.ws_client`),
+which OmniRT speaks for all `audio2video`-class models.
 """
 from __future__ import annotations
 
-import logging
-from dataclasses import dataclass
-from typing import AsyncIterator
+from urllib.parse import urlsplit, urlunsplit
 
-logger = logging.getLogger(__name__)
+DEFAULT_PATH_TEMPLATE = "/v1/audio2video/{model}"
 
 
-@dataclass
-class OmniRTSynthesisAdapter:
-    endpoint: str
-    model: str
-    timeout_s: float = 30.0
+def derive_audio2video_ws_url(
+    endpoint: str,
+    model: str,
+    *,
+    path_template: str = DEFAULT_PATH_TEMPLATE,
+) -> str:
+    """Build the model-specific WebSocket URL behind an OmniRT endpoint.
 
-    async def stream_audio_to_video(
-        self,
-        audio_chunks: AsyncIterator[bytes],
-        *,
-        reference_image: bytes,
-        params: dict | None = None,
-    ) -> AsyncIterator[bytes]:
-        """Stream audio chunks to omnirt's audio2video task and yield decoded frames.
+    >>> derive_audio2video_ws_url("http://omnirt:9000", "flashtalk")
+    'ws://omnirt:9000/v1/audio2video/flashtalk'
+    >>> derive_audio2video_ws_url("https://omnirt.example.com", "musetalk")
+    'wss://omnirt.example.com/v1/audio2video/musetalk'
+    >>> derive_audio2video_ws_url("ws://omnirt:9000", "wav2lip")
+    'ws://omnirt:9000/v1/audio2video/wav2lip'
 
-        Wire protocol is intentionally not finalized here — the canonical
-        endpoint shape is defined in configs/inference/omnirt.yaml and
-        implemented against omnirt's stable schema in a follow-up PR.
+    Trailing slashes and existing paths on the endpoint are preserved as a
+    prefix; the template is appended.
+    """
+    if not endpoint:
+        raise ValueError("OMNIRT_ENDPOINT is empty")
 
-        Until omnirt's streaming RPC is wired in, callers go through the
-        existing FlashTalkWSClient / FlashHeadWSClient paths under
-        opentalking.providers.synthesis.{flashtalk,flashhead}.
-        """
-        raise NotImplementedError(
-            "OmniRTSynthesisAdapter streaming is pending the omnirt schema lock-in; "
-            "current sessions still use FlashTalk/FlashHead WS clients directly."
+    parts = urlsplit(endpoint)
+    scheme_map = {"http": "ws", "https": "wss", "ws": "ws", "wss": "wss"}
+    scheme = scheme_map.get(parts.scheme.lower())
+    if scheme is None:
+        raise ValueError(f"Unsupported OMNIRT_ENDPOINT scheme: {parts.scheme!r}")
+
+    base_path = parts.path.rstrip("/")
+    suffix = path_template.format(model=model)
+    if not suffix.startswith("/"):
+        suffix = "/" + suffix
+
+    return urlunsplit((scheme, parts.netloc, base_path + suffix, "", ""))
+
+
+def resolve_synthesis_ws_url(model: str, settings) -> str:
+    """Resolve the WS URL for a synthesis model, with backward-compat precedence.
+
+    Precedence:
+        1. OMNIRT_ENDPOINT  (if set, derive per-model URL from it — recommended)
+        2. Model-specific override (settings.flashtalk_ws_url etc.)
+        3. localhost default (port 8765 for FlashTalk-protocol services)
+    """
+    endpoint = (getattr(settings, "omnirt_endpoint", "") or "").strip()
+    if endpoint:
+        return derive_audio2video_ws_url(
+            endpoint,
+            model,
+            path_template=(
+                getattr(settings, "omnirt_audio2video_path_template", DEFAULT_PATH_TEMPLATE)
+                or DEFAULT_PATH_TEMPLATE
+            ),
         )
+
+    if model == "flashtalk":
+        ws = (getattr(settings, "flashtalk_ws_url", "") or "").strip()
+        if ws:
+            return ws
+    if model == "flashhead":
+        ws = (getattr(settings, "flashhead_ws_url", "") or "").strip()
+        if ws:
+            return ws
+
+    return f"ws://localhost:8765/v1/audio2video/{model}"
+
+
+def auth_headers(settings) -> dict[str, str]:
+    """HTTP/WS headers to authenticate against OmniRT (empty if no key set)."""
+    api_key = (getattr(settings, "omnirt_api_key", "") or "").strip()
+    if not api_key:
+        return {}
+    return {"Authorization": f"Bearer {api_key}"}

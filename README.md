@@ -190,38 +190,38 @@ cd apps/web && npm ci && npm run dev -- --host 0.0.0.0
 ### 路径 2：轻量适配验证
 
 **目标**：调 Avatar 资产、验证模型适配器、跑 wav2lip / musetalk / flashtalk 这类真实模型。
-**做法**：本地或远端跑一个 SoulX FlashTalk WS 推理服务，OpenTalking 直连。
+**做法**：本地或远端起一个 [OmniRT](https://github.com/datascale-ai/omnirt) 推理服务，OpenTalking 通过 `OMNIRT_ENDPOINT` 一个变量统一路由到所有模型。
 
-起一个推理后端（OmniRT / FlashTalk / 其它兼容服务都行）：
+起一个推理后端：
 
 ```bash
 # 本地容器（默认 cuda；CPU 改 OMNIRT_BACKEND=cpu）
 bash scripts/run_omnirt.sh
 
-# 或远端：在 GPU 服务器上启动 SoulX FlashTalk 服务（参考其官方仓库）
+# 或远端：在 GPU 服务器部署 OmniRT，把端口暴露出来
 ```
 
-`.env` 里去掉 Mock，指向推理服务：
+`.env` 里去掉 Mock，指向 OmniRT：
 
 ```env
 # OPENTALKING_INFERENCE_MOCK=0          ← 删除或注释
-OPENTALKING_FLASHTALK_WS_URL=ws://<host>:8765
+OMNIRT_ENDPOINT=http://localhost:9000   # 或 http://<gpu-host>:9000
 
-# 默认合成模型
-OPENTALKING_DEFAULT_MODEL=flashtalk      # 或 musetalk / wav2lip（取决于你的推理服务支持）
+OPENTALKING_DEFAULT_MODEL=flashtalk      # 或 musetalk / wav2lip
 ```
 
-> **`OPENTALKING_FLASHTALK_WS_URL` vs `OMNIRT_ENDPOINT`**：当前代码直连 FlashTalk WebSocket 协议（`OPENTALKING_FLASHTALK_WS_URL`）。`OMNIRT_ENDPOINT` 是后续把多模型推理统一收口到 OmniRT HTTP API 的占位字段，**当前不生效**。
+OpenTalking 会按 path 路由到具体模型：`OMNIRT_ENDPOINT=http://omnirt:9000` + `model=musetalk` 自动得到 `ws://omnirt:9000/v1/audio2video/musetalk`。三个 audio2video 模型 (flashtalk / musetalk / wav2lip) 都走这个统一规则，不用单独配每个模型的 WS URL。
 
 启动方式跟路径 1 完全一样（`opentalking-unified` + 前端）。Avatar 配置见 [docs/avatar-format.md](docs/avatar-format.md)。
 
 ### 路径 3：高质量部署
 
 **目标**：上 FlashTalk 14B / FlashHead 等高质量模型，面向私有化或生产。
-**做法**：跟路径 2 一样配 `OPENTALKING_FLASHTALK_WS_URL`，再加多进程 / Redis / GPU 编排：
+**做法**：跟路径 2 一样配 `OMNIRT_ENDPOINT`，再加多进程 / Redis / GPU 编排：
 
 ```env
-OPENTALKING_FLASHTALK_WS_URL=ws://<gpu-host>:8765
+OMNIRT_ENDPOINT=http://<gpu-host>:9000
+OMNIRT_API_KEY=sk-omnirt-xxx           # OmniRT 启用了鉴权时填
 OPENTALKING_DEFAULT_MODEL=flashtalk     # 或 flashhead
 
 OPENTALKING_TORCH_DEVICE=cuda           # 编排层加速（音频 PCM 处理）

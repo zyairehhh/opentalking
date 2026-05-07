@@ -271,6 +271,18 @@ class Settings(BaseSettings):
     # Toggle via OPENTALKING_INFERENCE_MOCK=1.
     inference_mock: bool = False
 
+    # ---- OmniRT inference runtime ----
+    # When OMNIRT_ENDPOINT is set, OpenTalking derives per-model WS URLs from
+    # it instead of needing OPENTALKING_FLASHTALK_WS_URL etc. The legacy
+    # *_ws_url fields above still take precedence if set, for backward compat.
+    # Example: OMNIRT_ENDPOINT=http://gpu-host:9000
+    omnirt_endpoint: str = ""
+    omnirt_api_key: str = ""
+    # Path template for the audio2video task. {model} is substituted at
+    # connect time. Override only if your OmniRT instance uses a different
+    # routing convention.
+    omnirt_audio2video_path_template: str = "/v1/audio2video/{model}"
+
     # FlashTalk slot queue: max sessions waiting behind the active one (0 = unlimited)
     flashtalk_max_queue_size: int = 3
     # Seconds a session may wait in queue before being rejected (0 = no timeout)

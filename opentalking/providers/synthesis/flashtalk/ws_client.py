@@ -60,10 +60,16 @@ def _decode_jpeg(jpeg_bytes: bytes) -> np.ndarray:
 class FlashTalkWSClient:
     """Async client for the FlashTalk WebSocket inference server."""
 
-    def __init__(self, ws_url: str | None = None) -> None:
+    def __init__(
+        self,
+        ws_url: str | None = None,
+        *,
+        extra_headers: dict[str, str] | None = None,
+    ) -> None:
         if websockets is None:
             raise RuntimeError("websockets package required: pip install websockets")
         self._ws_url = ws_url or _default_ws_url()
+        self._extra_headers = dict(extra_headers or {})
         self._ws = None
         # Populated after init_session
         self.frame_num: int = 0
@@ -76,12 +82,27 @@ class FlashTalkWSClient:
         self.audio_chunk_samples: int = 0  # slice_len * sample_rate // fps
 
     async def connect(self) -> None:
-        self._ws = await ws_connect(
-            self._ws_url,
+        kwargs: dict = dict(
             max_size=50 * 1024 * 1024,  # 50 MB
             open_timeout=30,
             close_timeout=10,
         )
+        if self._extra_headers:
+            # websockets >= 13: prefer additional_headers; fall back to extra_headers.
+            try:
+                self._ws = await ws_connect(
+                    self._ws_url,
+                    additional_headers=self._extra_headers,
+                    **kwargs,
+                )
+            except TypeError:
+                self._ws = await ws_connect(
+                    self._ws_url,
+                    extra_headers=self._extra_headers,
+                    **kwargs,
+                )
+        else:
+            self._ws = await ws_connect(self._ws_url, **kwargs)
         log.info("Connected to FlashTalk server at %s", self._ws_url)
 
     async def init_session(

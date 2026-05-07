@@ -20,4 +20,5 @@ def test_resolve_returns_class() -> None:
     assert cls.__name__ == "EdgeTTSAdapter"
 
     syn = resolve("synthesis", "musetalk")
-    assert syn.__name__ == "OmniRTSynthesisAdapter"
+    # All audio2video models behind OmniRT speak the FlashTalk-compatible WS protocol.
+    assert syn.__name__ == "FlashTalkWSClient"

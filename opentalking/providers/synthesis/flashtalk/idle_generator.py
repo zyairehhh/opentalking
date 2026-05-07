@@ -213,8 +213,10 @@ class IdleVideoGenerator:
         mouth_lock: float = 0.97,
         mouth_temporal: float = 0.85,
         reference_frame: np.ndarray | None = None,
+        extra_headers: dict[str, str] | None = None,
     ) -> None:
         self._ws_url = ws_url
+        self._extra_headers = dict(extra_headers or {})
         self._avatar_id = avatar_id
         self._ref_image_path = ref_image_path
         self._cache_dir = cache_dir
@@ -274,7 +276,7 @@ class IdleVideoGenerator:
     async def generate(self) -> list[np.ndarray]:
         """Connect to FlashTalk WS, generate idle frames, return optimized loop."""
         from opentalking.providers.synthesis.flashtalk.ws_client import FlashTalkWSClient
-        client = FlashTalkWSClient(self._ws_url)
+        client = FlashTalkWSClient(self._ws_url, extra_headers=self._extra_headers)
         try:
             await client.connect()
             fp = _prompt_fingerprint(self._init_prompt)

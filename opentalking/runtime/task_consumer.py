@@ -94,7 +94,12 @@ def _create_runner(
     # work without any inference service.
     mock_mode = getattr(settings, "inference_mock", False) or model == "mock"
 
-    if mock_mode or model in {"flashtalk", "flashhead"}:
+    # Audio2video models served by OmniRT (or a FlashTalk-compatible WS server)
+    # all speak the same binary protocol. flashhead has its own protocol and
+    # stays on its dedicated track.
+    OMNIRT_MODELS = {"flashtalk", "musetalk", "wav2lip"}
+
+    if mock_mode or model in OMNIRT_MODELS or model == "flashhead":
         from opentalking.pipeline.speak.synthesis_runner import FlashTalkRunner
 
         flashtalk_client = None
@@ -122,9 +127,21 @@ def _create_runner(
             )
             effective_model = "flashhead"
         else:
-            # All synthesis routes through omnirt now; ws_url points to the
-            # omnirt-backed FlashTalk endpoint.
-            flashtalk_ws_url = settings.flashtalk_ws_url
+            # Resolve WS URL via OmniRT endpoint (path-based per model) with a
+            # legacy fallback to OPENTALKING_FLASHTALK_WS_URL when only
+            # flashtalk needs servicing.
+            from opentalking.providers.synthesis.omnirt import (
+                omnirt_auth_headers,
+                resolve_synthesis_ws_url,
+            )
+            from opentalking.providers.synthesis.flashtalk.ws_client import FlashTalkWSClient
+
+            flashtalk_ws_url = resolve_synthesis_ws_url(model, settings)
+            headers = omnirt_auth_headers(settings)
+            if headers:
+                # Prebuild client so we can pass auth headers; FlashTalkRunner
+                # accepts a ready-made client and will use it instead of a URL.
+                flashtalk_client = FlashTalkWSClient(flashtalk_ws_url, extra_headers=headers)
             effective_model = "flashtalk"
 
         return FlashTalkRunner(
