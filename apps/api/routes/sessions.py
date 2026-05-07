@@ -251,7 +251,10 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
         bundle = load_avatar_bundle(avatar_dir, strict=False)
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=400, detail=f"invalid avatar: {exc}") from exc
-    if bundle.manifest.model_type != body.model:
+    # In mock mode we accept any avatar regardless of its declared model_type;
+    # the runtime swaps in MockFlashTalkClient (no real synthesis backend needed).
+    mock_mode = getattr(settings, "inference_mock", False) or body.model == "mock"
+    if not mock_mode and bundle.manifest.model_type != body.model:
         raise HTTPException(
             status_code=400,
             detail=(

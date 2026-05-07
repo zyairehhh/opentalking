@@ -89,13 +89,23 @@ def _create_runner(
     avatar_id = str(task["avatar_id"])
     settings = get_settings()
 
-    if model in {"flashtalk", "flashhead"}:
+    # Mock mode: route any session through FlashTalkRunner with an in-process
+    # mock client that echoes the reference image. Lets path 1 (quick experience)
+    # work without any inference service.
+    mock_mode = getattr(settings, "inference_mock", False) or model == "mock"
+
+    if mock_mode or model in {"flashtalk", "flashhead"}:
         from opentalking.pipeline.speak.synthesis_runner import FlashTalkRunner
 
         flashtalk_client = None
         flashtalk_ws_url: str | None = None
 
-        if model == "flashhead":
+        if mock_mode:
+            from opentalking.providers.synthesis.mock_client import MockFlashTalkClient
+
+            flashtalk_client = MockFlashTalkClient()
+            effective_model = "flashtalk"  # FlashTalkRunner has the mature pipeline; mock just swaps the client
+        elif model == "flashhead":
             from opentalking.providers.synthesis.flashhead import FlashHeadWSClient
 
             flashtalk_client = FlashHeadWSClient(
@@ -110,10 +120,12 @@ def _create_runner(
                     "chunk_samples": int(settings.flashhead_chunk_samples),
                 },
             )
+            effective_model = "flashhead"
         else:
             # All synthesis routes through omnirt now; ws_url points to the
             # omnirt-backed FlashTalk endpoint.
             flashtalk_ws_url = settings.flashtalk_ws_url
+            effective_model = "flashtalk"
 
         return FlashTalkRunner(
             session_id=sid,
@@ -128,7 +140,7 @@ def _create_runner(
             llm_model=settings.llm_model,
             system_prompt=str(task.get("llm_system_prompt", "") or settings.llm_system_prompt)
             or "你是一个友好的数字人助手，请用简洁的语言回答问题。不要使用表情符号或emoji。",
-            model_type=model,
+            model_type=effective_model,
         )
 
     return SessionRunner(
