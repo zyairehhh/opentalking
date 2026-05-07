@@ -1,0 +1,75 @@
+=== engine imports ===
+src/opentalking/server/broadcast.py
+src/opentalking/server/worker_loop.py
+src/opentalking/server/idle_cache.py
+src/opentalking/server/runtime.py
+src/opentalking/server/video_codec.py
+src/opentalking/server/__main__.py
+src/opentalking/models/flashtalk/local_adapter.py
+src/opentalking/engine/__init__.py
+src/opentalking/engine/pipeline/flash_talk_pipeline.py
+src/opentalking/engine/distributed/__init__.py
+src/opentalking/engine/pipeline/__init__.py
+src/opentalking/engine/audio/__init__.py
+src/opentalking/engine/distributed/usp_device.py
+src/opentalking/engine/inference.py
+src/opentalking/engine/wan/modules/t5.py
+src/opentalking/engine/wan/modules/model.py
+src/opentalking/engine/wan/modules/vace_model.py
+src/opentalking/engine/distributed/xdit_context_parallel.py
+src/opentalking/engine/wan/modules/clip.py
+src/opentalking/engine/wan/__init__.py
+src/opentalking/engine/modules/multitalk_attention.py
+src/opentalking/engine/wan/modules/__init__.py
+src/opentalking/engine/modules/multitalk_model.py
+src/opentalking/engine/modules/__init__.py
+apps/cli/gradio_app.py
+apps/cli/generate_video.py
+
+=== local FlashTalk impl imports ===
+src/opentalking/models/flashtalk/local_client.py
+src/opentalking/models/flashtalk/__init__.py
+src/opentalking/worker/flashtalk_runner.py
+
+=== local MuseTalk impl imports ===
+src/opentalking/models/registry.py
+src/opentalking/models/musetalk/adapter.py
+src/opentalking/models/musetalk/composer.py
+tests/unit/test_smoke.py
+tests/unit/test_model_config.py
+
+=== local Wav2Lip impl imports ===
+src/opentalking/models/wav2lip/adapter.py
+src/opentalking/models/wav2lip/loader.py
+src/opentalking/worker/session_runner.py
+
+=== FLASHTALK_MODE refs ===
+src/opentalking/core/config.py:27:            "mode": "flashtalk_mode",
+src/opentalking/core/config.py:81:                    if mapped_key == "flashtalk_mode" and isinstance(inner_value, bool):
+src/opentalking/core/config.py:186:    flashtalk_mode: str = "off"
+src/opentalking/core/config.py:309:    def normalized_flashtalk_mode(self) -> str:
+src/opentalking/core/config.py:310:        mode = self.flashtalk_mode.strip().lower()
+src/opentalking/models/registry.py:43:def list_available_models(*, flashtalk_mode: str) -> list[str]:
+src/opentalking/models/registry.py:44:    return list_models(include_flashtalk=flashtalk_mode.strip().lower() != "off")
+src/opentalking/models/flashtalk/local_client.py:60:                "Download the model first or switch OPENTALKING_FLASHTALK_MODE=off."
+src/opentalking/models/flashtalk/local_client.py:65:                "Download the wav2vec model first or switch OPENTALKING_FLASHTALK_MODE=off."
+src/opentalking/worker/task_consumer.py:114:            flashtalk_mode = settings.normalized_flashtalk_mode
+src/opentalking/worker/task_consumer.py:115:            if flashtalk_mode == "remote":
+src/opentalking/worker/task_consumer.py:117:            elif flashtalk_mode == "local":
+src/opentalking/worker/task_consumer.py:135:                    "FlashTalk is disabled (OPENTALKING_FLASHTALK_MODE=off). "
+src/opentalking.egg-info/PKG-INFO:206:默认快速体验使用 `demo-avatar / wav2lip`，`OPENTALKING_FLASHTALK_MODE=off`，不需要先下载 FlashTalk 权重或启动 OmniRT。LLM / STT 可走阿里云百炼 API，TTS 默认 Edge TTS，无需 key。完整说明见 [docs/quickstart.md](docs/quickstart.md)。
+src/opentalking.egg-info/PKG-INFO:226:OPENTALKING_FLASHTALK_MODE=off
+src/opentalking.egg-info/PKG-INFO:270:| 快速体验 | 第一次运行、普通用户 | `.env.example`，`OPENTALKING_FLASHTALK_MODE=off`，`OPENTALKING_DEFAULT_MODEL=wav2lip` | 不需要独立模型服务，默认 `demo-avatar / wav2lip` |
+apps/api/tests/test_sessions.py:193:        normalized_flashtalk_mode="remote",
+apps/api/tests/test_sessions.py:232:        normalized_flashtalk_mode="remote",
+apps/api/routes/models.py:15:    return {"models": list_available_models(flashtalk_mode=settings.normalized_flashtalk_mode)}
+apps/api/routes/sessions.py:262:    if body.model == "flashtalk" and settings.normalized_flashtalk_mode == "off":
+apps/api/routes/sessions.py:268:                "OPENTALKING_FLASHTALK_MODE to remote/local."
+tests/unit/test_smoke.py:21:    assert "flashtalk" not in opentalking.models.list_available_models(flashtalk_mode="off")
+tests/unit/test_smoke.py:22:    assert "flashhead" in opentalking.models.list_available_models(flashtalk_mode="off")
+tests/unit/test_smoke.py:23:    assert "wav2lip" in opentalking.models.list_available_models(flashtalk_mode="off")
+tests/unit/test_smoke.py:24:    assert "flashtalk" in opentalking.models.list_available_models(flashtalk_mode="local")
+
+=== voices/bailian_clone refs ===
+src/opentalking.egg-info/SOURCES.txt
+apps/api/routes/voices.py
