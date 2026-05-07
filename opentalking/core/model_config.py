@@ -88,7 +88,7 @@ def _load_yaml(path: Path) -> dict[str, Any]:
 
 def _builtin_model_config(model_type: str) -> dict[str, Any]:
     # Built-in synthesis model defaults live in repo-root configs/synthesis/<model>.yaml.
-    repo_root = Path(__file__).resolve().parents[3]
+    repo_root = Path(__file__).resolve().parents[2]
     candidate = repo_root / "configs" / "synthesis" / f"{model_type}.yaml"
     if not candidate.is_file():
         raise ValueError(f"Unknown model config: {model_type}")
