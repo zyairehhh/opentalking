@@ -63,9 +63,6 @@ examples/avatars/*/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a
 # Backup files
 *.bak*
 
-# Server-side packaging
-packages/
-
 # Machine-specific credentials
 machine.md
 
