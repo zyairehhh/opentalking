@@ -1,0 +1,144 @@
+warning: `VIRTUAL_ENV=/opt/homebrew/opt/python@3.13/Frameworks/Python.framework/Versions/3.13` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+F401 `.wan_multitalk_14B.multitalk_14B` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+ --> src/opentalking/engine/configs/__init__.py:4:32
+  |
+2 | import os
+3 | os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+4 | from .wan_multitalk_14B import multitalk_14B
+  |                                ^^^^^^^^^^^^^
+  |
+help: Use an explicit re-export: `multitalk_14B as multitalk_14B`
+
+F401 [*] `torch` imported but unused
+ --> src/opentalking/engine/distributed/usp_device.py:4:8
+  |
+2 | from loguru import logger
+3 | import datetime
+4 | import torch
+  |        ^^^^^
+5 | import torch.distributed as dist
+  |
+help: Remove unused import: `torch`
+
+E402 Module level import not at top of file
+  --> src/opentalking/engine/distributed/xdit_context_parallel.py:44:1
+   |
+42 |     from opentalking.engine import attention_ops
+43 |
+44 | from opentalking.engine.modules.multitalk_model import sinusoidal_embedding_1d, _parse_block_cache_blocks
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+45 | from opentalking.engine.audio.loudness import get_attn_map_with_target, split_token_counts_and_frame_ids, normalize_and_scale
+46 | from opentalking.engine.modules.multitalk_attention import SingleStreamMutiAttention
+   |
+
+E402 Module level import not at top of file
+  --> src/opentalking/engine/distributed/xdit_context_parallel.py:45:1
+   |
+44 | from opentalking.engine.modules.multitalk_model import sinusoidal_embedding_1d, _parse_block_cache_blocks
+45 | from opentalking.engine.audio.loudness import get_attn_map_with_target, split_token_counts_and_frame_ids, normalize_and_scale
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+46 | from opentalking.engine.modules.multitalk_attention import SingleStreamMutiAttention
+   |
+
+E402 Module level import not at top of file
+  --> src/opentalking/engine/distributed/xdit_context_parallel.py:46:1
+   |
+44 | from opentalking.engine.modules.multitalk_model import sinusoidal_embedding_1d, _parse_block_cache_blocks
+45 | from opentalking.engine.audio.loudness import get_attn_map_with_target, split_token_counts_and_frame_ids, normalize_and_scale
+46 | from opentalking.engine.modules.multitalk_attention import SingleStreamMutiAttention
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+47 |
+48 | _BLOCK_PROFILE = os.environ.get("FLASHTALK_BLOCK_PROFILE", "0") == "1"
+   |
+
+F841 Local variable `N_t` is assigned to but never used
+   --> src/opentalking/engine/distributed/xdit_context_parallel.py:400:5
+    |
+399 |     _, T, H, W = x[0].shape
+400 |     N_t = T // self.patch_size[0]
+    |     ^^^
+401 |     N_h = H // self.patch_size[1]
+402 |     N_w = W // self.patch_size[2]
+    |
+help: Remove assignment to unused variable `N_t`
+
+F541 [*] f-string without any placeholders
+  --> src/opentalking/engine/modules/multitalk_attention.py:82:40
+   |
+81 |         if enable_sp:
+82 |             assert kv_seq is not None, f"kv_seq should not be None."
+   |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+83 |             # context parallel
+84 |             if visual_seqlen is None:
+   |
+help: Remove extraneous `f` prefix
+
+F841 Local variable `N_t` is assigned to but never used
+   --> src/opentalking/engine/modules/multitalk_model.py:667:9
+    |
+666 |         _, T, H, W = x[0].shape
+667 |         N_t = T // self.patch_size[0]
+    |         ^^^
+668 |         N_h = H // self.patch_size[1]
+669 |         N_w = W // self.patch_size[2]
+    |
+help: Remove assignment to unused variable `N_t`
+
+E722 Do not use bare `except`
+   --> src/opentalking/engine/wan/modules/attention.py:259:9
+    |
+257 |         try:
+258 |             x = x.unflatten(0, (b, lq))
+259 |         except:
+    |         ^^^^^^
+260 |             x = x[0].unflatten(0, (b, lq))
+261 |     else:
+    |
+
+F401 [*] `optimum.quanto.quantize` imported but unused
+  --> src/opentalking/engine/wan/modules/t5.py:13:28
+   |
+12 | from safetensors.torch import load_file
+13 | from optimum.quanto import quantize, freeze, qint8,requantize
+   |                            ^^^^^^^^
+14 |
+15 | from opentalking.engine.accelerator import current_device
+   |
+help: Remove unused import
+
+F401 [*] `optimum.quanto.freeze` imported but unused
+  --> src/opentalking/engine/wan/modules/t5.py:13:38
+   |
+12 | from safetensors.torch import load_file
+13 | from optimum.quanto import quantize, freeze, qint8,requantize
+   |                                      ^^^^^^
+14 |
+15 | from opentalking.engine.accelerator import current_device
+   |
+help: Remove unused import
+
+F401 [*] `optimum.quanto.qint8` imported but unused
+  --> src/opentalking/engine/wan/modules/t5.py:13:46
+   |
+12 | from safetensors.torch import load_file
+13 | from optimum.quanto import quantize, freeze, qint8,requantize
+   |                                              ^^^^^
+14 |
+15 | from opentalking.engine.accelerator import current_device
+   |
+help: Remove unused import
+
+F401 [*] `typing.Any` imported but unused
+ --> src/opentalking/models/flashtalk/local_adapter.py:5:20
+  |
+3 | from dataclasses import dataclass
+4 | from pathlib import Path
+5 | from typing import Any
+  |                    ^^^
+6 |
+7 | import numpy as np
+  |
+help: Remove unused import: `typing.Any`
+
+Found 13 errors.
+[*] 6 fixable with the `--fix` option (2 hidden fixes can be enabled with the `--unsafe-fixes` option).
