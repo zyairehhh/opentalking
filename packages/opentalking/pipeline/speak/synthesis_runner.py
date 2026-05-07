@@ -37,133 +37,18 @@ _TTS_OPENER_CACHE_LOCKS: dict[str, asyncio.Lock] = {}
 _TTS_OPENER_PRELOAD_TASK: asyncio.Task[None] | None = None
 _SENTINEL = object()  # unique marker for "not yet set"
 
-# Opener rules — improvement backlog (not implemented here):
-# - Taxonomy: only greeting/task/explain/confirm; no thanks/apology/small-talk,
-#   English, typos, or multi-intent utterances.
-# - Keywords: hard-coded substrings; no segmentation, negation, or weighting.
-# - Text: fixed short lines; not per-avatar / locale / brand / configurable via env.
-# - Selection: keyword first match + PCM length + recent-id rotation; no LLM-based
-#   intent, confidence, or A/B testing.
-# - Timing: opener is fully enqueued before LLM+TTS runs; if FlashTalk drains opener
-#   faster than the first LLM sentence is synthesized, the audio queue can go dry
-#   briefly (heard as pause/stutter) — see speak() pipeline ordering.
-# - Coherence with reply: mitigated by system nudge + lead trim, still model-dependent.
-_TTS_OPENER_RULES: tuple[tuple[str, tuple[str, ...], tuple[tuple[str, str], ...]], ...] = (
-    (
-        "greeting",
-        ("你好", "您好", "哈喽", "嗨", "在吗", "早安", "晚安", "喂"),
-        (
-            ("greeting_1", "我在，请讲。"),
-            ("greeting_2", "听到啦，你说。"),
-            ("greeting_3", "随时在。"),
-        ),
-    ),
-    (
-        "task",
-        ("帮我", "处理", "看下", "看看", "怎么弄", "怎么办", "查一下", "帮忙", "执行", "设置", "找一下"),
-        (
-            ("task_1", "好的，我来看看。"),
-            ("task_2", "明白，马上处理。"),
-            ("task_3", "收到，这就去办。"),
-        ),
-    ),
-    (
-        "explain",
-        ("为什么", "怎么", "是什么", "原理", "区别", "原因", "介绍", "详细", "意思"),
-        (
-            ("explain_1", "这个我来解释。"),
-            ("explain_2", "好，我给你说明。"),
-            ("explain_3", "马上为你解答。"),
-        ),
-    ),
-    (
-        "confirm",
-        ("能不能", "可以吗", "是否", "有没有", "行不行", "对不对", "对吗", "真的"),
-        (
-            ("confirm_1", "可以，我告诉你。"),
-            ("confirm_2", "这个我来确认。"),
-            ("confirm_3", "稍等，我核实下。"),
-        ),
-    ),
-    (
-        "create",
-        ("写一个", "写一篇", "生成", "画", "起名", "设计", "草拟", "大纲"),
-        (
-            ("create_1", "好的，这就生成。"),
-            ("create_2", "收到，我来构思。"),
-        ),
-    ),
-    (
-        "calculate",
-        ("算一下", "多少", "统计", "计算", "汇总"),
-        (
-            ("calc_1", "我来算一下。"),
-            ("calc_2", "好，这就看数据。"),
-        ),
-    ),
-    (
-        "opinion",
-        ("觉得", "看法", "建议", "推荐", "评价", "哪个好"),
-        (
-            ("opinion_1", "我的看法是这样。"),
-            ("opinion_2", "好，给你几个建议。"),
-        ),
-    ),
-    (
-        "identity",
-        ("你叫什么名字", "你的名字", "你是谁", "怎么称呼", "你叫啥"),
-        (
-            ("identity_1", "嗯，很高兴认识你。"),
-        ),
-    ),
-)
-
-_TTS_OPENER_FALLBACKS: tuple[tuple[str, str], ...] = (
-    ("fallback_1", "明白，马上处理。"),
-    ("fallback_2", "好的，我来看看。"),
-    ("fallback_3", "马上为你解答。"),
-    ("fallback_4", "收到，请稍等。"),
+from opentalking.pipeline.speak.tts_openers import (
+    TTS_OPENER_FALLBACKS as _TTS_OPENER_FALLBACKS,
+    TTS_OPENER_RULES as _TTS_OPENER_RULES,
 )
 
 
-def _default_flashtalk_ws_url() -> str:
-    server_host = os.environ.get("SERVER_HOST", "localhost")
-    return os.environ.get("OPENTALKING_FLASHTALK_WS_URL", f"ws://{server_host}:8765")
-
-
-def _env_float(name: str, default: float) -> float:
-    raw = os.environ.get(name)
-    if raw is None and name.startswith("FLASHTALK_"):
-        raw = os.environ.get(f"OPENTALKING_{name}")
-    if raw is None:
-        return default
-    try:
-        return float(raw)
-    except ValueError:
-        log.warning("Invalid %s=%r, using %.1f", name, raw, default)
-        return default
-
-
-def _env_int(name: str, default: int) -> int:
-    raw = os.environ.get(name)
-    if raw is None and name.startswith("FLASHTALK_"):
-        raw = os.environ.get(f"OPENTALKING_{name}")
-    if raw is None:
-        return default
-    try:
-        return int(raw)
-    except ValueError:
-        log.warning("Invalid %s=%r, using %d", name, raw, default)
-        return default
-
-
-def _env_bool(name: str, default: bool) -> bool:
-    raw = os.environ.get(name)
-    if raw is None and name.startswith("FLASHTALK_"):
-        raw = os.environ.get(f"OPENTALKING_{name}")
-    if raw is None:
-        return default
-    return raw.strip().lower() not in {"0", "false", "no", "off"}
+from opentalking.pipeline.speak.env_helpers import (
+    default_flashtalk_ws_url as _default_flashtalk_ws_url,
+    env_bool as _env_bool,
+    env_float as _env_float,
+    env_int as _env_int,
+)
 
 
 def _idle_cache_dir() -> Path:
@@ -173,47 +58,11 @@ def _idle_cache_dir() -> Path:
     return Path(s.models_dir) / ".idle_cache"
 
 
-def _fade_edges_i16(pcm: np.ndarray, sample_rate: int, fade_ms: float) -> np.ndarray:
-    """Apply a tiny sentence-boundary fade to reduce TTS splice clicks."""
-    arr = np.asarray(pcm, dtype=np.int16)
-    fade_samples = int(sample_rate * max(0.0, fade_ms) / 1000.0)
-    if arr.size == 0 or fade_samples <= 1:
-        return arr
-
-    fade_samples = min(fade_samples, arr.size // 2)
-    if fade_samples <= 1:
-        return arr
-
-    out = arr.astype(np.float32, copy=True)
-    out[:fade_samples] *= np.linspace(0.0, 1.0, fade_samples, dtype=np.float32)
-    out[-fade_samples:] *= np.linspace(1.0, 0.0, fade_samples, dtype=np.float32)
-    return np.clip(out, -32768, 32767).astype(np.int16)
-
-
-def _fade_head_i16(pcm: np.ndarray, sample_rate: int, fade_ms: float) -> np.ndarray:
-    """Fade the first samples of a streamed sentence."""
-    arr = np.asarray(pcm, dtype=np.int16)
-    fade_samples = int(sample_rate * max(0.0, fade_ms) / 1000.0)
-    if arr.size == 0 or fade_samples <= 1:
-        return arr
-
-    fade_samples = min(fade_samples, arr.size)
-    out = arr.astype(np.float32, copy=True)
-    out[:fade_samples] *= np.linspace(0.0, 1.0, fade_samples, dtype=np.float32)
-    return np.clip(out, -32768, 32767).astype(np.int16)
-
-
-def _fade_tail_i16(pcm: np.ndarray, sample_rate: int, fade_ms: float) -> np.ndarray:
-    """Fade the remaining tail before padding with silence."""
-    arr = np.asarray(pcm, dtype=np.int16)
-    fade_samples = int(sample_rate * max(0.0, fade_ms) / 1000.0)
-    if arr.size == 0 or fade_samples <= 1:
-        return arr
-
-    fade_samples = min(fade_samples, arr.size)
-    out = arr.astype(np.float32, copy=True)
-    out[-fade_samples:] *= np.linspace(1.0, 0.0, fade_samples, dtype=np.float32)
-    return np.clip(out, -32768, 32767).astype(np.int16)
+from opentalking.pipeline.speak.audio_utils import (
+    fade_edges_i16 as _fade_edges_i16,
+    fade_head_i16 as _fade_head_i16,
+    fade_tail_i16 as _fade_tail_i16,
+)
 
 
 def _idle_cache_lock(cache_key: str) -> asyncio.Lock:
@@ -257,264 +106,34 @@ def _build_idle_driver_pcm(
     return pcm.astype(np.int16)
 
 
-def _idle_frame_signature(frame: np.ndarray) -> np.ndarray:
-    """Downsample frames for loop-point search."""
-    arr = np.asarray(frame, dtype=np.float32)
-    if arr.ndim == 3 and arr.shape[2] >= 3:
-        gray = arr[:, :, 0] * 0.114 + arr[:, :, 1] * 0.587 + arr[:, :, 2] * 0.299
-    else:
-        gray = arr
-
-    h, w = gray.shape[:2]
-    step_y = max(1, h // 24)
-    step_x = max(1, w // 24)
-    sampled = gray[::step_y, ::step_x]
-    return sampled[:24, :24].astype(np.float32, copy=False)
+from opentalking.pipeline.speak.idle_frames import (
+    blend_frames as _blend_frames,
+    build_idle_playback_indices as _build_idle_playback_indices,
+    build_soft_ellipse_mask as _build_soft_ellipse_mask,
+    idle_frame_signature as _idle_frame_signature,
+    motion_score as _motion_score,
+    optimize_idle_loop as _optimize_idle_loop,
+    stabilize_idle_mouth as _stabilize_idle_mouth,
+)
 
 
-def _blend_frames(left: np.ndarray, right: np.ndarray, alpha: float) -> np.ndarray:
-    mixed = np.asarray(left, dtype=np.float32) * (1.0 - alpha)
-    mixed += np.asarray(right, dtype=np.float32) * alpha
-    return np.clip(mixed, 0.0, 255.0).astype(np.uint8)
+from opentalking.pipeline.speak.tts_openers import (
+    build_tts_opener_candidates as _build_tts_opener_candidates,
+    contains_any as _contains_any,
+    iter_tts_opener_variants as _iter_tts_opener_variants,
+    join_tts_fragments as _join_tts_fragments,
+    normalize_tts_lookup_text as _normalize_tts_lookup_text,
+    speech_char_count as _speech_char_count,
+)
 
 
-def _motion_score(signatures: list[np.ndarray], start: int, end: int) -> float:
-    score = 0.0
-    steps = 0
-    for idx in range(start, min(end, len(signatures) - 1)):
-        score += float(np.mean(np.abs(signatures[idx + 1] - signatures[idx])))
-        steps += 1
-    return score / max(1, steps)
+from opentalking.pipeline.speak.audio_utils import trim_trailing_silence_i16 as _trim_trailing_silence_i16
 
 
-def _optimize_idle_loop(
-    frames: list[np.ndarray],
-    *,
-    crossfade_frames: int,
-) -> list[np.ndarray]:
-    """Choose a smoother loop segment and soften the loop boundary."""
-    if len(frames) < 12:
-        return [np.ascontiguousarray(frame) for frame in frames]
-
-    signatures = [_idle_frame_signature(frame) for frame in frames]
-    total = len(signatures)
-    compare_span = max(3, min(8, crossfade_frames))
-    min_loop_frames = max(compare_span * 3, total // 2)
-    best_score: float | None = None
-    best_start = 0
-    best_end = total - 1
-
-    for start in range(max(1, total // 3)):
-        min_end = start + min_loop_frames - 1
-        if min_end >= total:
-            break
-        for end in range(min_end, total):
-            score = 0.0
-            for offset in range(compare_span):
-                head = signatures[start + offset]
-                tail = signatures[end - compare_span + 1 + offset]
-                score += float(np.mean(np.abs(head - tail)))
-            edge_motion = _motion_score(signatures, start, start + compare_span)
-            edge_motion += _motion_score(
-                signatures,
-                max(start + 1, end - compare_span),
-                end,
-            )
-            score += edge_motion * 0.35
-            if best_score is None or score < best_score:
-                best_score = score
-                best_start = start
-                best_end = end
-
-    segment = [np.ascontiguousarray(frame) for frame in frames[best_start:best_end + 1]]
-    overlap = max(2, min(crossfade_frames, len(segment) // 4))
-    if len(segment) <= overlap + 2:
-        return segment
-
-    smoothed = list(segment[:-overlap])
-    tail = segment[-overlap:]
-    head = segment[:overlap]
-    for idx in range(overlap):
-        alpha = (idx + 1) / (overlap + 1)
-        smoothed.append(_blend_frames(tail[idx], head[idx], alpha))
-
-    smoothed.append(segment[0])
-    return smoothed
-
-
-def _build_idle_playback_indices(frame_count: int, mode: str) -> list[int]:
-    if frame_count <= 1:
-        return [0] if frame_count == 1 else []
-    if mode == "pingpong":
-        return list(range(frame_count)) + list(range(frame_count - 2, 0, -1))
-    return list(range(frame_count))
-
-
-def _build_soft_ellipse_mask(
-    height: int,
-    width: int,
-    *,
-    center_x: float,
-    center_y: float,
-    radius_x: float,
-    radius_y: float,
-    feather: float = 0.35,
-) -> np.ndarray:
-    yy, xx = np.mgrid[0:height, 0:width].astype(np.float32)
-    xx = (xx - center_x) / max(radius_x, 1.0)
-    yy = (yy - center_y) / max(radius_y, 1.0)
-    dist = np.sqrt(xx * xx + yy * yy)
-    outer = 1.0 + max(0.05, feather)
-    mask = np.clip((outer - dist) / max(outer - 1.0, 1e-6), 0.0, 1.0)
-    return mask.astype(np.float32)
-
-
-def _stabilize_idle_mouth(
-    frames: list[np.ndarray],
-    reference_frame: np.ndarray | None,
-    *,
-    strength: float,
-    temporal_strength: float,
-) -> list[np.ndarray]:
-    if not frames or reference_frame is None or strength <= 0.0:
-        return [np.ascontiguousarray(frame) for frame in frames]
-
-    ref_arr = np.asarray(reference_frame)
-    sample_h, sample_w = frames[0].shape[:2]
-    if ref_arr.shape[:2] != (sample_h, sample_w):
-        try:
-            import cv2
-
-            ref_arr = cv2.resize(ref_arr, (sample_w, sample_h), interpolation=cv2.INTER_AREA)
-        except Exception:
-            y_idx = np.linspace(0, ref_arr.shape[0] - 1, sample_h).astype(np.int32)
-            x_idx = np.linspace(0, ref_arr.shape[1] - 1, sample_w).astype(np.int32)
-            ref_arr = ref_arr[y_idx][:, x_idx]
-
-    ref = np.asarray(ref_arr, dtype=np.float32)
-    h, w = ref.shape[:2]
-    mask = _build_soft_ellipse_mask(
-        h,
-        w,
-        center_x=w * 0.5,
-        center_y=h * 0.69,
-        radius_x=w * 0.16,
-        radius_y=h * 0.10,
-        feather=0.42,
-    )[:, :, None] * min(max(strength, 0.0), 1.0)
-
-    stabilized: list[np.ndarray] = []
-    prev_stable: np.ndarray | None = None
-    temporal_strength = min(max(temporal_strength, 0.0), 1.0)
-    for frame in frames:
-        cur = np.asarray(frame, dtype=np.float32)
-        blended = cur * (1.0 - mask) + ref * mask
-        if prev_stable is not None and temporal_strength > 0.0:
-            stable_mix = blended * (1.0 - temporal_strength) + prev_stable * temporal_strength
-            blended = blended * (1.0 - mask) + stable_mix * mask
-        prev_stable = blended
-        stabilized.append(np.clip(blended, 0.0, 255.0).astype(np.uint8))
-    return stabilized
-
-
-def _join_tts_fragments(left: str, right: str) -> str:
-    left = left.strip()
-    right = right.strip()
-    if not left:
-        return right
-    if not right:
-        return left
-
-    if left[-1].isascii() and left[-1].isalnum() and right[0].isascii() and right[0].isalnum():
-        return f"{left} {right}"
-    return f"{left}{right}"
-
-
-def _speech_char_count(text: str) -> int:
-    return sum(1 for ch in text if not ch.isspace())
-
-
-def _normalize_tts_lookup_text(text: str) -> str:
-    return "".join(ch.lower() for ch in text.strip() if not ch.isspace())
-
-
-def _contains_any(text: str, keywords: tuple[str, ...]) -> bool:
-    return any(keyword in text for keyword in keywords)
-
-
-def _iter_tts_opener_variants() -> list[tuple[str, str]]:
-    variants: list[tuple[str, str]] = []
-    seen: set[str] = set()
-    for _, _, choices in _TTS_OPENER_RULES:
-        for opener_id, opener_text in choices:
-            if opener_id in seen:
-                continue
-            variants.append((opener_id, opener_text))
-            seen.add(opener_id)
-    for opener_id, opener_text in _TTS_OPENER_FALLBACKS:
-        if opener_id in seen:
-            continue
-        variants.append((opener_id, opener_text))
-        seen.add(opener_id)
-    return variants
-
-
-def _build_tts_opener_candidates(user_text: str) -> list[tuple[str, str]]:
-    normalized = _normalize_tts_lookup_text(user_text)
-    for _, keywords, choices in _TTS_OPENER_RULES:
-        if _contains_any(normalized, keywords):
-            return list(choices) + list(_TTS_OPENER_FALLBACKS)
-    return list(_TTS_OPENER_FALLBACKS)
-
-
-def _trim_trailing_silence_i16(
-    pcm: np.ndarray,
-    sample_rate: int,
-    *,
-    threshold: int = 300,
-    min_tail_ms: float = 60.0,
-) -> np.ndarray:
-    """Remove trailing near-silence from PCM, keeping at least *min_tail_ms* ms."""
-    if pcm.size == 0:
-        return pcm
-    min_keep = max(1, int(sample_rate * min_tail_ms / 1000.0))
-    abs_pcm = np.abs(pcm)
-    indices = np.nonzero(abs_pcm > threshold)[0]
-    if indices.size == 0:
-        return pcm[:min_keep]
-    last_loud = int(indices[-1])
-    end = max(last_loud + 1 + min_keep, min_keep)
-    return pcm[: min(end, pcm.size)]
-
-
-def _strip_redundant_greeting_lead(text: str) -> str:
-    """Remove one leading greeting clause (after TTS opener already greeted the user)."""
-    t = text.strip()
-    if not t:
-        return t
-    for pat in (
-        r"^你好啊[，,\s]*",
-        r"^你好[，,\s]*",
-        r"^您好[，,\s]*",
-        r"^哈喽[，,\s]*",
-        r"^嗨[，,\s]*",
-    ):
-        nt = re.sub(pat, "", t, count=1)
-        if nt != t:
-            return nt.strip()
-    return t
-
-
-def _merge_spoken_reply(prefix: str, body: str) -> str:
-    prefix = prefix.strip()
-    body = body.strip()
-    if not prefix:
-        return body
-    if not body:
-        return prefix
-    if body.startswith(prefix):
-        return body
-    return _join_tts_fragments(prefix, body)
+from opentalking.pipeline.speak.tts_openers import (
+    merge_spoken_reply as _merge_spoken_reply,
+    strip_redundant_greeting_lead as _strip_redundant_greeting_lead,
+)
 
 
 async def _synthesize_tts_opener_pcm(
