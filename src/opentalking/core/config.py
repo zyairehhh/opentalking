@@ -24,7 +24,6 @@ def _flatten_config(raw: dict[str, Any] | None) -> dict[str, Any]:
             "worker_url": "worker_url",
         },
         "flashtalk": {
-            "mode": "flashtalk_mode",
             "ws_url": "flashtalk_ws_url",
             "ckpt_dir": "flashtalk_ckpt_dir",
             "wav2vec_dir": "flashtalk_wav2vec_dir",
@@ -78,8 +77,6 @@ def _flatten_config(raw: dict[str, Any] | None) -> dict[str, Any]:
             for inner_key, inner_value in value.items():
                 mapped_key = section_map[key].get(inner_key)
                 if mapped_key:
-                    if mapped_key == "flashtalk_mode" and isinstance(inner_value, bool):
-                        inner_value = "remote" if inner_value else "off"
                     flattened[mapped_key] = inner_value
             continue
         flattened[key] = value
@@ -183,7 +180,6 @@ class Settings(BaseSettings):
     models_dir: str = "./models"
     worker_url: str = "http://127.0.0.1:9001"
 
-    flashtalk_mode: str = "off"
     flashtalk_ws_url: str = f"ws://{os.environ.get('SERVER_HOST', 'localhost')}:8765"
     flashtalk_ckpt_dir: str = "./models/SoulX-FlashTalk-14B"
     flashtalk_wav2vec_dir: str = "./models/chinese-wav2vec2-base"
@@ -304,13 +300,6 @@ class Settings(BaseSettings):
         if self.cors_origins.strip() == "*":
             return ["*"]
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
-
-    @property
-    def normalized_flashtalk_mode(self) -> str:
-        mode = self.flashtalk_mode.strip().lower()
-        if mode in {"remote", "local", "off"}:
-            return mode
-        return "off"
 
     @property
     def normalized_tts_provider(self) -> str:

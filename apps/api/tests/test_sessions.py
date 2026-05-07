@@ -190,7 +190,6 @@ def test_split_flashtalk_create_returns_queued_until_worker_ready(
     app.state.redis = InMemoryRedis()
     app.state.settings = SimpleNamespace(
         avatars_dir=str(tmp_path),
-        normalized_flashtalk_mode="remote",
     )
     app.include_router(sessions_routes.router)
 
@@ -229,7 +228,6 @@ def test_split_flashtalk_create_returns_created_when_worker_ready(
     app.state.redis = redis
     app.state.settings = SimpleNamespace(
         avatars_dir=str(tmp_path),
-        normalized_flashtalk_mode="remote",
     )
     app.include_router(sessions_routes.router)
 

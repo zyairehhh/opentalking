@@ -259,15 +259,6 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
                 f"got '{body.model}'"
             ),
         )
-    if body.model == "flashtalk" and settings.normalized_flashtalk_mode == "off":
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "FlashTalk is disabled in this deployment. "
-                "Use demo-avatar/wav2lip for the quickstart path, or switch "
-                "OPENTALKING_FLASHTALK_MODE to remote/local."
-            ),
-        )
     try:
         tts_provider = normalize_tts_provider(body.tts_provider, default=None)
     except ValueError as e:

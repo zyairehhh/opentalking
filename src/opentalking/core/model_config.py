@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 from copy import deepcopy
 from functools import lru_cache
-from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
@@ -88,12 +87,12 @@ def _load_yaml(path: Path) -> dict[str, Any]:
 
 
 def _builtin_model_config(model_type: str) -> dict[str, Any]:
-    resource = files("opentalking.configs").joinpath("models", f"{model_type}.yaml")
-    try:
-        with resource.open("r", encoding="utf-8") as handle:
-            raw = yaml.safe_load(handle) or {}
-    except FileNotFoundError as exc:
-        raise ValueError(f"Unknown model config: {model_type}") from exc
+    # Built-in synthesis model defaults live in repo-root configs/synthesis/<model>.yaml.
+    repo_root = Path(__file__).resolve().parents[3]
+    candidate = repo_root / "configs" / "synthesis" / f"{model_type}.yaml"
+    if not candidate.is_file():
+        raise ValueError(f"Unknown model config: {model_type}")
+    raw = yaml.safe_load(candidate.read_text(encoding="utf-8")) or {}
     if not isinstance(raw, dict):
         raise ValueError(f"Model config YAML must contain a mapping: {model_type}")
     return raw

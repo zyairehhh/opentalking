@@ -111,31 +111,9 @@ def _create_runner(
                 },
             )
         else:
-            flashtalk_mode = settings.normalized_flashtalk_mode
-            if flashtalk_mode == "remote":
-                flashtalk_ws_url = settings.flashtalk_ws_url
-            elif flashtalk_mode == "local":
-                from opentalking.models.flashtalk import FlashTalkLocalClient
-
-                flashtalk_config = get_model_config("flashtalk")
-                flashtalk_client = FlashTalkLocalClient(
-                    ckpt_dir=settings.flashtalk_ckpt_dir,
-                    wav2vec_dir=settings.flashtalk_wav2vec_dir,
-                    device=settings.flashtalk_device,
-                    world_size=1,
-                    frame_num=int(flashtalk_config["frame_num"]),
-                    motion_frames_num=int(flashtalk_config["motion_frames_num"]),
-                    fps=int(flashtalk_config["tgt_fps"]),
-                    height=int(flashtalk_config["height"]),
-                    width=int(flashtalk_config["width"]),
-                    sample_rate=int(flashtalk_config["sample_rate"]),
-                )
-            else:
-                raise RuntimeError(
-                    "FlashTalk is disabled (OPENTALKING_FLASHTALK_MODE=off). "
-                    "Use demo-avatar/wav2lip for the open-source demo path, or switch "
-                    "FlashTalk mode to remote/local."
-                )
+            # All synthesis routes through omnirt now; ws_url points to the
+            # omnirt-backed FlashTalk endpoint.
+            flashtalk_ws_url = settings.flashtalk_ws_url
 
         return FlashTalkRunner(
             session_id=sid,
