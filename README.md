@@ -144,12 +144,12 @@ OpenTalking 的**编排层**（API + Worker + 前端）和**推理服务**（[Om
 
 ```bash
 git clone https://github.com/datascale-ai/opentalking.git && cd opentalking
-python3 -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
+uv sync && uv pip install -e ".[dev]"
+source .venv/bin/activate
 cp .env.example .env
 ```
 
-环境要求：Python ≥ 3.10、Node.js ≥ 18、FFmpeg。
+环境要求：UV, Python ≥ 3.10、Node.js ≥ 18、FFmpeg。
 
 > 装完随时可以跑 `opentalking-doctor` 看清环境差什么。
 
