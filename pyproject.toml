@@ -82,12 +82,13 @@ opentalking-download = "apps.cli.download_models:main"
 include-package-data = true
 
 [tool.setuptools.package-dir]
-"" = "src"
+"opentalking" = "packages/opentalking"
 "apps" = "apps"
 
 [tool.setuptools.packages.find]
-where = ["src", "."]
+where = ["packages", "."]
 include = ["opentalking*", "apps*"]
+exclude = ["apps.web*", "tests*", "examples*"]
 
 [tool.ruff]
 line-length = 100
