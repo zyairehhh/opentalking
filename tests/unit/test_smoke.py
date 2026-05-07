@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from opentalking.avatars.manifest import parse_manifest
-from opentalking.avatars.validator import validate_avatar_dir
+from opentalking.avatar.manifest import parse_manifest
+from opentalking.avatar.validator import validate_avatar_dir
 from opentalking.providers.synthesis import list_available_synthesis
 
 

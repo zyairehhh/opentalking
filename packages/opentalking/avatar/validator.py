@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from opentalking.avatars.manifest import parse_manifest
+from opentalking.avatar.manifest import parse_manifest
 
 
 def validate_avatar_dir(avatar_dir: Path) -> list[str]:

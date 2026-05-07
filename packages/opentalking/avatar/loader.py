@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from opentalking.avatars.manifest import parse_manifest
-from opentalking.avatars.validator import assert_valid_avatar_dir
+from opentalking.avatar.manifest import parse_manifest
+from opentalking.avatar.validator import assert_valid_avatar_dir
 from opentalking.core.interfaces.avatar_asset import AvatarManifest
 
 

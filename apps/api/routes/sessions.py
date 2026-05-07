@@ -18,7 +18,7 @@ import redis.asyncio as redis
 from fastapi import APIRouter, File, Form, HTTPException, Query, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, Response, StreamingResponse
 
-from opentalking.avatars.loader import load_avatar_bundle
+from opentalking.avatar.loader import load_avatar_bundle
 from apps.api.schemas.session import (
     CreateSessionRequest,
     CreateSessionResponse,

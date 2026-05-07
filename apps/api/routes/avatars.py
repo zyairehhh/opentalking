@@ -11,8 +11,8 @@ from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
 from PIL import Image
 
-from opentalking.avatars.loader import load_avatar_bundle
-from opentalking.avatars.validator import list_avatar_dirs
+from opentalking.avatar.loader import load_avatar_bundle
+from opentalking.avatar.validator import list_avatar_dirs
 from apps.api.schemas.avatar import AvatarSummary
 
 router = APIRouter(prefix="/avatars", tags=["avatars"])
