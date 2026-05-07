@@ -1,12 +1,12 @@
 """Synthesis providers (audio → video frames).
 
-All implementations are thin clients backed by the omnirt inference runtime.
-The same OmniRTSynthesisAdapter class is registered under three synthesis keys;
-each instance binds to a different omnirt model name at construction.
+Real backends are thin clients to the omnirt inference runtime. A `mock`
+provider is also registered for frontend-only dev and first-run experiences.
 """
 
 from opentalking.core.registry import register
 from opentalking.providers.synthesis.omnirt import OmniRTSynthesisAdapter
+from opentalking.providers.synthesis import mock as _mock  # noqa: F401  side-effect register
 
 # One class, three capability keys — model name is supplied at instantiation
 # from configs/inference/omnirt.yaml.
@@ -19,7 +19,7 @@ from opentalking.providers.synthesis.flashhead.ws_client import FlashHeadWSClien
 
 register("synthesis", "flashhead")(FlashHeadWSClient)
 
-SYNTHESIS_PROVIDERS = ("flashtalk", "musetalk", "wav2lip", "flashhead")
+SYNTHESIS_PROVIDERS = ("mock", "flashtalk", "musetalk", "wav2lip", "flashhead")
 
 
 def list_available_synthesis() -> list[str]:
