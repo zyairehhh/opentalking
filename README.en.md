@@ -53,7 +53,7 @@ OpenTalking focuses on the **pipeline orchestration layer** and supports both ex
 Join our QQ group to discuss real-time digital humans, FlashTalk, OmniRT, model deployment, and product use cases.
 
 <p align="center">
-  <img src="images/qq_group_qrcode.png" alt="AI Digital Human QQ group QR code" width="280">
+  <img src="docs/assets/images/qq_group_qrcode.png" alt="AI Digital Human QQ group QR code" width="280">
 </p>
 
 <p align="center">
@@ -105,7 +105,7 @@ These demo videos show how the OpenTalking pipeline behaves across different rea
 
 ## Architecture
 
-![OpenTalking Architecture](images/opentalking_architecture.png)
+![OpenTalking Architecture](docs/assets/images/opentalking_architecture.png)
 
 ## Project layout
 
