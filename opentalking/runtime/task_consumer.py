@@ -108,7 +108,7 @@ def _create_runner(
             from opentalking.providers.synthesis.mock_client import MockFlashTalkClient
 
             flashtalk_client = MockFlashTalkClient()
-            effective_model = "flashtalk"  # FlashTalkRunner has the mature pipeline; mock just swaps the client
+            effective_model = "mock"
         elif model == "flashhead":
             from opentalking.providers.synthesis.flashhead import FlashHeadWSClient
 
@@ -141,7 +141,11 @@ def _create_runner(
                 # Prebuild client so we can pass auth headers; FlashTalkRunner
                 # accepts a ready-made client and will use it instead of a URL.
                 flashtalk_client = FlashTalkWSClient(flashtalk_ws_url, extra_headers=headers)
-            effective_model = "flashtalk"
+            # Preserve the user's chosen model name (flashtalk / musetalk / wav2lip).
+            # FlashTalkRunner only branches on model_type for FlashTalk-specific
+            # features (idle clip generation); musetalk / wav2lip just skip
+            # those features without breaking the speak pipeline.
+            effective_model = model
 
         return FlashTalkRunner(
             session_id=sid,
