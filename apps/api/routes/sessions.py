@@ -85,11 +85,8 @@ def _normalize_voice_for_speak(
             tm = str(tts_model).strip() if tts_model and str(tts_model).strip() else None
             return vn, eff, tm
         vn = normalize_optional_edge_voice(voice)
-        if tts_model and str(tts_model).strip():
-            raise HTTPException(
-                status_code=400,
-                detail="tts_model is only valid when using 百炼语音线路（tts_provider=dashscope、cosyvoice、sambert 等）",
-            )
+        # tts_model has no meaning for Edge TTS — silently drop it instead of
+        # 400ing, so users can flip provider without manually clearing the field.
         return vn, eff, None
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
