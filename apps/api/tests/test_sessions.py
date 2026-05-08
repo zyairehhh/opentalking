@@ -121,20 +121,18 @@ def unified_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
         yield client
 
 
-def test_create_session_accepts_any_avatar_model_pair() -> None:
-    """Avatar and model are fully decoupled: any pair is accepted at the API.
+def test_create_session_avatar_model_decoupled_within_supported() -> None:
+    """Avatar and model are decoupled — any (avatar, supported_model) is accepted.
 
-    Each avatar bundle ships a reference image and every supported model can
-    consume it. If a chosen model genuinely lacks the assets it needs, the
-    error surfaces downstream — never as a 400 here.
+    SUPPORTED_MODELS lives in opentalking/providers/synthesis/__init__.py.
     """
     pairs = [
         ("demo-avatar", "flashtalk"),       # wav2lip avatar + portrait-only model
-        ("demo-avatar", "musetalk"),         # same group
-        ("flashhead-demo", "flashtalk"),     # cross "input form" — used to be 400
-        ("flashtalk-demo", "wav2lip"),       # the inverse
+        ("flashhead-demo", "flashtalk"),
+        ("demo-musetalk", "flashtalk"),
         ("flashhead-demo", "mock"),
         ("demo-musetalk", "mock"),
+        ("flashtalk-demo", "mock"),
     ]
     with TestClient(unified_main.create_app()) as client:
         for avatar_id, model in pairs:
@@ -147,6 +145,20 @@ def test_create_session_accepts_any_avatar_model_pair() -> None:
             )
 
 
+def test_create_session_rejects_unsupported_model() -> None:
+    """Picking a model not in SUPPORTED_MODELS yields 400 with a clear hint."""
+    with TestClient(unified_main.create_app()) as client:
+        for unsupported in ("musetalk", "wav2lip"):
+            response = client.post(
+                "/sessions",
+                json={"avatar_id": "flashtalk-demo", "model": unsupported},
+            )
+            assert response.status_code == 400, response.json()
+            detail = response.json()["detail"]
+            assert unsupported in detail
+            assert "not yet supported" in detail
+
+
 @pytest.mark.parametrize("tts_provider", ["dashscope", "cosyvoice", "sambert"])
 def test_create_session_accepts_bailian_tts_providers(
     unified_client: TestClient,
@@ -156,7 +168,7 @@ def test_create_session_accepts_bailian_tts_providers(
         "/sessions",
         json={
             "avatar_id": "demo-avatar",
-            "model": "wav2lip",
+            "model": "flashtalk",
             "tts_provider": tts_provider,
         },
     )
@@ -280,7 +292,7 @@ def test_customize_prompt_rejects_avatar_path_traversal(tmp_path: Path) -> None:
 def test_delete_session_closes_runner_and_marks_closed(unified_client: TestClient) -> None:
     create_response = unified_client.post(
         "/sessions",
-        json={"avatar_id": "demo-avatar", "model": "wav2lip"},
+        json={"avatar_id": "demo-avatar", "model": "flashtalk"},
     )
     session_id = create_response.json()["session_id"]
 
@@ -300,7 +312,7 @@ def test_download_flashtalk_recording_returns_file(
     monkeypatch.setenv("OPENTALKING_FLASHTALK_RECORDINGS_DIR", str(tmp_path))
     create_response = unified_client.post(
         "/sessions",
-        json={"avatar_id": "demo-avatar", "model": "wav2lip"},
+        json={"avatar_id": "demo-avatar", "model": "flashtalk"},
     )
     session_id = create_response.json()["session_id"]
     append_flashtalk_frames(
@@ -425,7 +437,7 @@ def test_worker_flashtalk_recording_endpoint_exports_mp4(
 def test_interrupt_cancels_active_speech_and_restores_ready(unified_client: TestClient) -> None:
     create_response = unified_client.post(
         "/sessions",
-        json={"avatar_id": "demo-avatar", "model": "wav2lip"},
+        json={"avatar_id": "demo-avatar", "model": "flashtalk"},
     )
     session_id = create_response.json()["session_id"]
     runner = unified_client.created_runners[session_id]  # type: ignore[attr-defined]
@@ -445,7 +457,7 @@ def test_interrupt_cancels_active_speech_and_restores_ready(unified_client: Test
 def test_close_cancels_running_and_queued_speech_tasks(unified_client: TestClient) -> None:
     create_response = unified_client.post(
         "/sessions",
-        json={"avatar_id": "demo-avatar", "model": "wav2lip"},
+        json={"avatar_id": "demo-avatar", "model": "flashtalk"},
     )
     session_id = create_response.json()["session_id"]
     runner = unified_client.created_runners[session_id]  # type: ignore[attr-defined]

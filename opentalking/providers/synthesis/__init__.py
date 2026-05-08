@@ -25,7 +25,16 @@ from opentalking.providers.synthesis.flashhead.ws_client import FlashHeadWSClien
 
 register("synthesis", "flashhead")(FlashHeadWSClient)
 
+# Every model the registry recognises.
 SYNTHESIS_PROVIDERS = ("mock", "flashtalk", "musetalk", "wav2lip", "flashhead")
+
+# What the upstream backend can actually serve TODAY.
+# `mock` is in-process and always works; `flashtalk` covers the SoulX FlashTalk
+# WS service (OmniRT path-based dispatch is not live yet, so musetalk/wav2lip
+# would silently render in FlashTalk style if not gated here).
+# Once OmniRT routes by `/v1/avatar/{model}` and rejects unknown paths itself,
+# this constant can be widened or removed.
+SUPPORTED_MODELS = frozenset({"mock", "flashtalk"})
 
 
 def list_available_synthesis() -> list[str]:
@@ -34,6 +43,7 @@ def list_available_synthesis() -> list[str]:
 
 __all__ = [
     "SYNTHESIS_PROVIDERS",
+    "SUPPORTED_MODELS",
     "derive_audio2video_ws_url",
     "list_available_synthesis",
     "omnirt_auth_headers",

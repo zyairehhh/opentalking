@@ -255,6 +255,18 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
     # hard gate. If a chosen model genuinely needs assets that the avatar lacks
     # (e.g. wav2lip prepared frames), the failure surfaces downstream with a
     # clearer error than a generic 400 here.
+
+    # Deployment guard: only allow models the upstream backend actually serves.
+    # See opentalking/providers/synthesis/__init__.py:SUPPORTED_MODELS.
+    from opentalking.providers.synthesis import SUPPORTED_MODELS
+    if body.model not in SUPPORTED_MODELS:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"model '{body.model}' is not yet supported on this deployment. "
+                f"Currently available: {', '.join(sorted(SUPPORTED_MODELS))}."
+            ),
+        )
     try:
         tts_provider = normalize_tts_provider(body.tts_provider, default=None)
     except ValueError as e:
