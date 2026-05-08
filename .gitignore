@@ -26,6 +26,7 @@ node_modules/
 
 # Models / weights (large binary files) — only repo-root ./models/, not Python pkg src/opentalking/models/
 /models/
+omnirt/
 *.pth
 *.pt
 !examples/avatars/demo-musetalk/prepared/latents.pt

@@ -19,6 +19,7 @@ import shutil
 import socket
 import sys
 from dataclasses import asdict, dataclass
+from pathlib import Path
 from typing import Callable
 from urllib import request as urlrequest
 from urllib.error import URLError
@@ -26,6 +27,37 @@ from urllib.error import URLError
 OK = "✅"
 WARN = "⚠️ "
 FAIL = "❌"
+
+
+def _load_dotenv(path: Path = Path(".env")) -> int:
+    """Minimal .env loader (no extra deps).
+
+    Lines look like KEY=value or KEY="value with spaces". Comments start with
+    '#'. Existing os.environ values win, so callers can still override via
+    `KEY=foo opentalking-doctor`. Returns the number of vars loaded.
+    """
+    if not path.is_file():
+        return 0
+    loaded = 0
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip()
+        # Strip optional surrounding quotes
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+            value = value[1:-1]
+        # Strip inline trailing comment after unquoted value
+        elif " #" in value:
+            value = value.split(" #", 1)[0].rstrip()
+        if key and key not in os.environ:
+            os.environ[key] = value
+            loaded += 1
+    return loaded
 
 
 @dataclass
@@ -99,21 +131,20 @@ def _check_llm_key() -> CheckResult:
 
 
 def _check_omnirt() -> CheckResult:
-    endpoint = os.environ.get("OMNIRT_ENDPOINT", "")
-    mock = os.environ.get("OPENTALKING_INFERENCE_MOCK", "0").lower() in {"1", "true", "yes"}
-    if mock:
+    endpoint = os.environ.get("OMNIRT_ENDPOINT", "").strip()
+    legacy_ws = os.environ.get("OPENTALKING_FLASHTALK_WS_URL", "").strip()
+    if not endpoint and not legacy_ws:
         return CheckResult(
-            "omnirt",
+            "synthesis backend",
             "ok",
-            "OPENTALKING_INFERENCE_MOCK=1 (using mock synthesis, no real backend needed)",
+            "no OMNIRT_ENDPOINT / FlashTalk WS configured "
+            "(only model=mock will work; pick a real backend for flashtalk/musetalk/wav2lip)",
         )
-    if not endpoint:
+    if legacy_ws and not endpoint:
         return CheckResult(
-            "omnirt",
-            "warn",
-            "OMNIRT_ENDPOINT not set",
-            "Either set OPENTALKING_INFERENCE_MOCK=1 for the mock path, or "
-            "point OMNIRT_ENDPOINT at a running omnirt (see scripts/run_omnirt.sh).",
+            "synthesis backend",
+            "ok",
+            f"FlashTalk WS direct: {legacy_ws}",
         )
     try:
         with urlrequest.urlopen(f"{endpoint.rstrip('/')}/health", timeout=3) as resp:
@@ -206,7 +237,15 @@ CHECKS: list[Callable[[], CheckResult]] = [
 def main() -> int:
     parser = argparse.ArgumentParser(description="OpenTalking environment doctor")
     parser.add_argument("--json", action="store_true", help="output JSON instead of text")
+    parser.add_argument(
+        "--env-file",
+        default=".env",
+        help="Path to a .env file to read (default: ./.env). Pass empty string to skip.",
+    )
     args = parser.parse_args()
+
+    if args.env_file:
+        _load_dotenv(Path(args.env_file))
 
     results = [check() for check in CHECKS]
 

@@ -89,10 +89,9 @@ def _create_runner(
     avatar_id = str(task["avatar_id"])
     settings = get_settings()
 
-    # Mock mode: route any session through FlashTalkRunner with an in-process
-    # mock client that echoes the reference image. Lets path 1 (quick experience)
-    # work without any inference service.
-    mock_mode = getattr(settings, "inference_mock", False) or model == "mock"
+    # Mock mode: pick the in-process mock client (echoes reference image).
+    # Selected explicitly when the user picks model=mock in the UI.
+    mock_mode = model == "mock"
 
     # Audio2video models served by OmniRT (or a FlashTalk-compatible WS server)
     # all speak the same binary protocol. flashhead has its own protocol and

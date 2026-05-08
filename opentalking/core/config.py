@@ -265,11 +265,6 @@ class Settings(BaseSettings):
     torch_device: str = "cpu"
     default_model: str = "wav2lip"
     default_fps: int = 25
-    # When true, every session uses an in-process mock synthesis backend that
-    # echoes the avatar reference image as static frames. Lets users run path 1
-    # (5-minute experience) without a GPU or inference service.
-    # Toggle via OPENTALKING_INFERENCE_MOCK=1.
-    inference_mock: bool = False
 
     # ---- OmniRT inference runtime ----
     # When OMNIRT_ENDPOINT is set, OpenTalking derives per-model WS URLs from

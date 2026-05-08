@@ -5,8 +5,8 @@ Used for:
   - smoke testing the API/Worker/RTC pipeline without a real inference backend
   - first-run UX in `docker compose up` (default profile has no omnirt)
 
-Activate by setting `OPENTALKING_INFERENCE_MOCK=1` or by selecting a synthesis
-provider key of `mock` in an avatar manifest.
+Activate by selecting `model=mock` in the frontend (or in the session
+creation request). No environment toggle is needed.
 """
 from __future__ import annotations
 

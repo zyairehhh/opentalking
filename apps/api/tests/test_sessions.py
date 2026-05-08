@@ -121,15 +121,40 @@ def unified_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
         yield client
 
 
-def test_create_session_rejects_avatar_model_mismatch() -> None:
+def test_create_session_rejects_cross_group_model() -> None:
+    """demo-avatar (wav2lip → frames+audio) cannot run on flashtalk (portrait-only)."""
+    with TestClient(unified_main.create_app()) as client:
+        response = client.post(
+            "/sessions",
+            json={"avatar_id": "demo-avatar", "model": "flashtalk"},
+        )
+
+    assert response.status_code == 400
+    assert "not compatible" in response.json()["detail"]
+
+
+def test_create_session_accepts_same_group_swap() -> None:
+    """demo-avatar (wav2lip) can be served by musetalk — same input form group."""
     with TestClient(unified_main.create_app()) as client:
         response = client.post(
             "/sessions",
             json={"avatar_id": "demo-avatar", "model": "musetalk"},
         )
 
-    assert response.status_code == 400
-    assert "requires model" in response.json()["detail"]
+    # Validation should pass; downstream may still 503 if assets are missing
+    # (reference frames etc.). Either 200 or 5xx is acceptable, but never 400.
+    assert response.status_code != 400
+
+
+def test_create_session_accepts_mock_for_any_avatar() -> None:
+    """model=mock works against any avatar regardless of its declared model_type."""
+    with TestClient(unified_main.create_app()) as client:
+        response = client.post(
+            "/sessions",
+            json={"avatar_id": "flashhead-demo", "model": "mock"},
+        )
+
+    assert response.status_code != 400
 
 
 @pytest.mark.parametrize("tts_provider", ["dashscope", "cosyvoice", "sambert"])

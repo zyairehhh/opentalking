@@ -5,7 +5,7 @@ existing FlashTalkRunner orchestration runs unchanged. Visually it just echoes
 the avatar reference image as static frames at 25 fps.
 
 Used by:
-- Path 1 quick experience (`OPENTALKING_INFERENCE_MOCK=1`)
+- Path 1 quick experience (frontend selects `model=mock`)
 - Frontend dev / smoke tests (no GPU, no omnirt)
 """
 from __future__ import annotations
