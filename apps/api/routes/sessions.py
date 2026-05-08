@@ -221,45 +221,6 @@ def _resolve_avatar_dir(settings: object, avatar_id: str) -> tuple[Path, Path]:
     return avatars_root, avatar_dir
 
 
-# Avatar/model compatibility groups. The avatar's manifest model_type now
-# describes its INPUT FORM (what assets it carries), not a hard model lock.
-# Models inside the same group accept the same kind of asset and can be
-# substituted at session creation time.
-_INPUT_FORM_GROUPS: dict[str, frozenset[str]] = {
-    # Portrait + audio: a single reference image is enough.
-    "portrait+audio": frozenset({"flashtalk", "flashhead"}),
-    # Frames + audio: needs prepared frames / face landmarks.
-    "frames+audio": frozenset({"wav2lip", "musetalk"}),
-}
-# Mock accepts any avatar — the in-process MockFlashTalkClient just echoes the
-# reference image, so any input form works.
-_MOCK_ACCEPTS_ANY = "mock"
-
-
-def _input_form_for(model_type: str) -> str | None:
-    for form, members in _INPUT_FORM_GROUPS.items():
-        if model_type in members:
-            return form
-    return None
-
-
-def _compatible_models(avatar_model_type: str) -> set[str]:
-    form = _input_form_for(avatar_model_type)
-    base: set[str] = set()
-    if form is not None:
-        base.update(_INPUT_FORM_GROUPS[form])
-    else:
-        base.add(avatar_model_type)
-    base.add(_MOCK_ACCEPTS_ANY)
-    return base
-
-
-def _avatar_compatible_with_model(avatar_model_type: str, requested_model: str) -> bool:
-    if requested_model == _MOCK_ACCEPTS_ANY:
-        return True
-    return requested_model in _compatible_models(avatar_model_type)
-
-
 async def _wait_for_session_worker_ready(
     r: redis.Redis,
     session_id: str,
@@ -290,20 +251,13 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
         bundle = load_avatar_bundle(avatar_dir, strict=False)
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=400, detail=f"invalid avatar: {exc}") from exc
-    # Avatars are grouped by INPUT FORM (what assets they carry), not by a
-    # specific model. Within a group any registered model can be picked, so
-    # "FlashHead Demo" + flashtalk works (both want a single reference image),
-    # while wav2lip/musetalk-class avatars (frames + audio) cannot run on a
-    # portrait-only model.
-    if not _avatar_compatible_with_model(bundle.manifest.model_type, body.model):
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                f"avatar '{body.avatar_id}' (input form: {bundle.manifest.model_type}) "
-                f"is not compatible with model '{body.model}'. Compatible models: "
-                f"{', '.join(sorted(_compatible_models(bundle.manifest.model_type)))}."
-            ),
-        )
+    # Avatar / model decoupling: every avatar bundle has a reference image, and
+    # every supported model (mock / flashtalk / flashhead / musetalk / wav2lip)
+    # can consume that reference image as its starting frame. The avatar's
+    # manifest.model_type is now treated as a *suggestion* for the UI, not a
+    # hard gate. If a chosen model genuinely needs assets that the avatar lacks
+    # (e.g. wav2lip prepared frames), the failure surfaces downstream with a
+    # clearer error than a generic 400 here.
     try:
         tts_provider = normalize_tts_provider(body.tts_provider, default=None)
     except ValueError as e:

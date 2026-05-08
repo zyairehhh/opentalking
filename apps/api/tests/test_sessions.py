@@ -121,40 +121,30 @@ def unified_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
         yield client
 
 
-def test_create_session_rejects_cross_group_model() -> None:
-    """demo-avatar (wav2lip → frames+audio) cannot run on flashtalk (portrait-only)."""
+def test_create_session_accepts_any_avatar_model_pair() -> None:
+    """Avatar and model are fully decoupled: any pair is accepted at the API.
+
+    Each avatar bundle ships a reference image and every supported model can
+    consume it. If a chosen model genuinely lacks the assets it needs, the
+    error surfaces downstream — never as a 400 here.
+    """
+    pairs = [
+        ("demo-avatar", "flashtalk"),       # wav2lip avatar + portrait-only model
+        ("demo-avatar", "musetalk"),         # same group
+        ("flashhead-demo", "flashtalk"),     # cross "input form" — used to be 400
+        ("flashtalk-demo", "wav2lip"),       # the inverse
+        ("flashhead-demo", "mock"),
+        ("demo-musetalk", "mock"),
+    ]
     with TestClient(unified_main.create_app()) as client:
-        response = client.post(
-            "/sessions",
-            json={"avatar_id": "demo-avatar", "model": "flashtalk"},
-        )
-
-    assert response.status_code == 400
-    assert "not compatible" in response.json()["detail"]
-
-
-def test_create_session_accepts_same_group_swap() -> None:
-    """demo-avatar (wav2lip) can be served by musetalk — same input form group."""
-    with TestClient(unified_main.create_app()) as client:
-        response = client.post(
-            "/sessions",
-            json={"avatar_id": "demo-avatar", "model": "musetalk"},
-        )
-
-    # Validation should pass; downstream may still 503 if assets are missing
-    # (reference frames etc.). Either 200 or 5xx is acceptable, but never 400.
-    assert response.status_code != 400
-
-
-def test_create_session_accepts_mock_for_any_avatar() -> None:
-    """model=mock works against any avatar regardless of its declared model_type."""
-    with TestClient(unified_main.create_app()) as client:
-        response = client.post(
-            "/sessions",
-            json={"avatar_id": "flashhead-demo", "model": "mock"},
-        )
-
-    assert response.status_code != 400
+        for avatar_id, model in pairs:
+            response = client.post(
+                "/sessions",
+                json={"avatar_id": avatar_id, "model": model},
+            )
+            assert response.status_code != 400, (
+                f"avatar={avatar_id} + model={model} returned 400: {response.json()}"
+            )
 
 
 @pytest.mark.parametrize("tts_provider", ["dashscope", "cosyvoice", "sambert"])
