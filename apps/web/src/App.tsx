@@ -8,6 +8,7 @@ import { TopBar } from "./components/TopBar";
 import { ToastStack, type ToastMessage, type ToastTone } from "./components/ToastStack";
 import { VideoBackground } from "./components/VideoBackground";
 import {
+  ApiError,
   apiDelete,
   apiGet,
   apiPost,
@@ -776,7 +777,11 @@ export default function App() {
       resetLiveState();
       console.warn("Failed to start session", error);
       setConnection("error");
-      notify("启动会话失败，请稍后重试或查看后端日志。", "error");
+      const detail = error instanceof ApiError ? error.detail : null;
+      const msg = detail
+        ? `启动会话失败：${detail}`
+        : "启动会话失败，请稍后重试或查看后端日志。";
+      notify(msg, "error");
     }
   }, [
     avatarId,
