@@ -22,6 +22,15 @@ def _avatars_root(request: Request) -> Path:
     return Path(request.app.state.settings.avatars_dir).resolve()
 
 
+def _is_custom_avatar(manifest_path: Path) -> bool:
+    """Return True only for avatars created via /avatars/custom (deletable)."""
+    try:
+        raw = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    return bool((raw.get("metadata") or {}).get("custom_avatar"))
+
+
 def _summary_from_dir(path: Path) -> AvatarSummary:
     b = load_avatar_bundle(path, strict=False)
     m = b.manifest
@@ -31,6 +40,7 @@ def _summary_from_dir(path: Path) -> AvatarSummary:
         model_type=m.model_type,
         width=m.width,
         height=m.height,
+        is_custom=_is_custom_avatar(path / "manifest.json"),
     )
 
 
@@ -150,3 +160,39 @@ async def get_preview(avatar_id: str, request: Request) -> FileResponse:
     if not path.is_file():
         raise HTTPException(status_code=404, detail="preview not found")
     return FileResponse(path, media_type="image/png")
+
+
+@router.delete("/{avatar_id}")
+async def delete_avatar(avatar_id: str, request: Request) -> dict[str, str]:
+    """Delete a user-created custom avatar.
+
+    Built-in demo avatars (demo-avatar / demo-musetalk / flashtalk-demo /
+    flashhead-demo) cannot be deleted — they're tracked in git and would
+    just come back on next deploy. Only avatars with
+    `metadata.custom_avatar == true` (created via POST /avatars/custom)
+    are removable.
+    """
+    root = _avatars_root(request)
+    target = (root / avatar_id).resolve()
+    try:
+        target.relative_to(root)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="invalid avatar_id") from exc
+    if not target.is_dir():
+        raise HTTPException(status_code=404, detail="avatar not found")
+
+    manifest = target / "manifest.json"
+    if not _is_custom_avatar(manifest):
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                f"avatar '{avatar_id}' is built-in and cannot be deleted. "
+                f"Only avatars created via the 'New' button are removable."
+            ),
+        )
+
+    try:
+        shutil.rmtree(target)
+    except OSError as exc:
+        raise HTTPException(status_code=500, detail=f"failed to delete avatar: {exc}") from exc
+    return {"avatar_id": avatar_id, "status": "deleted"}

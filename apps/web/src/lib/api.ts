@@ -105,6 +105,7 @@ export type AvatarSummary = {
   model_type: string;
   width: number;
   height: number;
+  is_custom: boolean;
 };
 
 export type CreateSessionResponse = { session_id: string; status: string };

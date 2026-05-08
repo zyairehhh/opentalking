@@ -15,6 +15,7 @@ type AvatarSelectionStageProps = {
   onAvatarChange: (id: string) => void;
   onStart: () => void;
   onCustomAvatarCreate: (file: File, name: string) => void;
+  onAvatarDelete?: (avatar: AvatarSummary) => void;
   referenceSaving?: boolean;
 };
 
@@ -42,6 +43,7 @@ export function AvatarSelectionStage({
   onAvatarChange,
   onStart,
   onCustomAvatarCreate,
+  onAvatarDelete,
   referenceSaving = false,
 }: AvatarSelectionStageProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -134,39 +136,64 @@ export function AvatarSelectionStage({
 
               {avatars.map((avatar) => {
                 const selected = avatar.id === selectedAvatar?.id;
+                const canDelete = avatar.is_custom && Boolean(onAvatarDelete);
                 return (
-                  <button
+                  <div
                     key={avatar.id}
-                    type="button"
-                    onClick={() => onAvatarChange(avatar.id)}
-                    className={`group overflow-hidden rounded-lg border bg-white text-left transition ${
+                    className={`group relative overflow-hidden rounded-lg border bg-white text-left transition ${
                       selected
                         ? "border-cyan-400 shadow-md shadow-cyan-100"
                         : "border-slate-200 shadow-sm shadow-slate-200/50 hover:border-slate-300"
                     }`}
                   >
-                    <div className="flex h-12 items-center justify-between gap-2 border-b border-slate-100 px-3">
-                      <span className="min-w-0 truncate text-base font-semibold text-slate-950">
-                        {avatar.name ?? avatar.id}
-                      </span>
-                      {selected ? (
-                        <span className="shrink-0 rounded-full bg-cyan-600 px-2 py-0.5 text-xs font-medium text-white">
-                          已选
+                    {canDelete ? (
+                      <button
+                        type="button"
+                        title="删除自定义形象"
+                        aria-label={`删除 ${avatar.name ?? avatar.id}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          if (
+                            window.confirm(
+                              `确认删除自定义形象「${avatar.name ?? avatar.id}」？此操作不可撤销。`,
+                            )
+                          ) {
+                            onAvatarDelete?.(avatar);
+                          }
+                        }}
+                        className="absolute right-2 top-2 z-10 hidden h-7 w-7 items-center justify-center rounded-full bg-white/90 text-slate-500 shadow-sm transition hover:bg-rose-50 hover:text-rose-600 group-hover:flex"
+                      >
+                        ×
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => onAvatarChange(avatar.id)}
+                      className="block w-full text-left"
+                    >
+                      <div className="flex h-12 items-center justify-between gap-2 border-b border-slate-100 px-3">
+                        <span className="min-w-0 truncate text-base font-semibold text-slate-950">
+                          {avatar.name ?? avatar.id}
                         </span>
-                      ) : null}
-                    </div>
-                    <div className="aspect-[4/3] bg-slate-100">
-                      <AvatarPreviewImage
-                        avatar={avatar}
-                        className="h-full w-full object-cover transition duration-200 group-hover:scale-[1.02]"
-                      />
-                    </div>
-                    <div className="px-3 py-2">
-                      <span className="truncate text-xs font-medium text-slate-500">
-                        数字人形象
-                      </span>
-                    </div>
-                  </button>
+                        {selected ? (
+                          <span className="shrink-0 rounded-full bg-cyan-600 px-2 py-0.5 text-xs font-medium text-white">
+                            已选
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="aspect-[4/3] bg-slate-100">
+                        <AvatarPreviewImage
+                          avatar={avatar}
+                          className="h-full w-full object-cover transition duration-200 group-hover:scale-[1.02]"
+                        />
+                      </div>
+                      <div className="px-3 py-2">
+                        <span className="truncate text-xs font-medium text-slate-500">
+                          {avatar.is_custom ? "自定义形象" : "数字人形象"}
+                        </span>
+                      </div>
+                    </button>
+                  </div>
                 );
               })}
             </div>

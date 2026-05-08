@@ -892,6 +892,27 @@ export default function App() {
     }
   }, [avatarId, notify, releaseSession, resetLiveState]);
 
+  const handleDeleteAvatar = useCallback(
+    async (target: AvatarSummary) => {
+      try {
+        await apiDelete(`/avatars/${encodeURIComponent(target.id)}`);
+        setAvatars((prev) => prev.filter((a) => a.id !== target.id));
+        // If the deleted avatar was selected, fall back to the first remaining one.
+        setAvatarId((current) => {
+          if (current !== target.id) return current;
+          const remaining = avatars.filter((a) => a.id !== target.id);
+          return remaining[0]?.id ?? "";
+        });
+        notify(`已删除自定义形象「${target.name ?? target.id}」。`, "success");
+      } catch (error) {
+        console.warn("delete avatar failed", error);
+        const detail = error instanceof ApiError ? error.detail : null;
+        notify(detail ? `删除失败：${detail}` : "删除失败，请查看后端日志。", "error");
+      }
+    },
+    [avatars, notify],
+  );
+
   const handleReturnToAvatarSelection = useCallback(() => {
     if (!window.confirm("更换数字人会结束当前会话，是否继续？")) return;
     void (async () => {
@@ -1432,6 +1453,7 @@ export default function App() {
                     onAvatarChange={handleAvatarChange}
                     onStart={() => void handleStart()}
                     onCustomAvatarCreate={(file, name) => void handleCreateCustomAvatar(file, name)}
+                    onAvatarDelete={(target) => void handleDeleteAvatar(target)}
                     referenceSaving={referenceSaving}
                   />
                 </div>
