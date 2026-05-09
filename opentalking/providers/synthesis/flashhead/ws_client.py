@@ -41,7 +41,7 @@ _JPEG_DECODE_EXECUTOR: concurrent.futures.ThreadPoolExecutor | None = None
 def _default_ws_url() -> str:
     return os.environ.get(
         "OPENTALKING_FLASHHEAD_WS_URL",
-        "ws://8.92.7.195:8766/v1/avatar/realtime",
+        "ws://localhost:8766/v1/avatar/realtime",
     )
 
 

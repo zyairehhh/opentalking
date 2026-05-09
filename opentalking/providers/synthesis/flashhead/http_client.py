@@ -47,7 +47,7 @@ def _env_float(name: str, default: float) -> float:
 
 
 def _default_base_url() -> str:
-    return _env_str("OPENTALKING_FLASHHEAD_BASE_URL", "http://8.92.7.195:8766")
+    return _env_str("OPENTALKING_FLASHHEAD_BASE_URL", "http://localhost:8766")
 
 
 def _safe_relative_remote_path(remote_path: str) -> Path | None:

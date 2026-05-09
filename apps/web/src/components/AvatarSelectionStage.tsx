@@ -11,6 +11,7 @@ type AvatarSelectionStageProps = {
   selectedVoiceLabel: string;
   loading: boolean;
   queued: boolean;
+  modelConnected: boolean;
   queueInfo?: { position: number; message: string } | null;
   onAvatarChange: (id: string) => void;
   onStart: () => void;
@@ -39,6 +40,7 @@ export function AvatarSelectionStage({
   selectedVoiceLabel,
   loading,
   queued,
+  modelConnected,
   queueInfo,
   onAvatarChange,
   onStart,
@@ -58,7 +60,7 @@ export function AvatarSelectionStage({
   const [customFile, setCustomFile] = useState<File | null>(null);
   const [customPreviewUrl, setCustomPreviewUrl] = useState<string | null>(null);
   const startLabel = queued ? "排队中" : loading ? "启动中..." : "开始对话";
-  const disabled = loading || queued || !selectedAvatar;
+  const disabled = loading || queued || !selectedAvatar || !modelConnected;
 
   useEffect(() => {
     return () => {
@@ -224,7 +226,16 @@ export function AvatarSelectionStage({
               <div className="border-t border-slate-200 bg-white p-4">
                 <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                    <p className="text-xs font-medium text-slate-500">已选驱动模型</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs font-medium text-slate-500">已选驱动模型</p>
+                      <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+                        modelConnected
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : "border-slate-200 bg-white text-slate-500"
+                      }`}>
+                        {modelConnected ? "已连接" : "未连接"}
+                      </span>
+                    </div>
                     <p className="mt-1 truncate text-sm font-semibold text-slate-950">{selectedModelLabel}</p>
                   </div>
                   <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
@@ -235,6 +246,11 @@ export function AvatarSelectionStage({
                 {queued ? (
                   <p className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800">
                     前面还有 {queueInfo?.position ?? 1} 人，请稍候...
+                  </p>
+                ) : null}
+                {!modelConnected ? (
+                  <p className="mb-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600">
+                    当前驱动模型未连接，请先启动对应模型服务。
                   </p>
                 ) : null}
                 <button

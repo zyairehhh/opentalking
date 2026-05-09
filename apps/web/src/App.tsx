@@ -50,6 +50,12 @@ import {
 } from "./constants/ttsQwen";
 import type { ConnectionStatus, Message, QueueInfo } from "./types";
 
+type ModelStatus = {
+  id: string;
+  connected: boolean;
+  reason?: string;
+};
+
 function bailianModelOptions(provider: TtsProviderExtended): { id: string; label: string }[] {
   switch (provider) {
     case "dashscope":
@@ -206,8 +212,9 @@ export default function App() {
   // Data
   const [avatars, setAvatars] = useState<AvatarSummary[]>([]);
   const [models, setModels] = useState<string[]>([]);
+  const [modelStatuses, setModelStatuses] = useState<ModelStatus[]>([]);
   const [avatarId, setAvatarId] = useState("demo-avatar");
-  const [model, setModel] = useState("wav2lip");
+  const [model, setModel] = useState("flashtalk");
 
   // Connection
   const [connection, setConnection] = useState<ConnectionStatus>("idle");
@@ -530,15 +537,16 @@ export default function App() {
       try {
         const [av, mo] = await Promise.all([
           apiGet<AvatarSummary[]>("/avatars"),
-          apiGet<{ models: string[] }>("/models"),
+          apiGet<{ models: string[]; statuses?: ModelStatus[] }>("/models"),
           loadVoices(),
         ]);
         setAvatars(av);
         setModels(mo.models);
+        setModelStatuses(mo.statuses ?? mo.models.map((id) => ({ id, connected: true })));
         const initialAvatar = pickInitialAvatar(av, mo.models);
         if (initialAvatar) {
           setAvatarId(initialAvatar.id);
-          setModel((prev) => (mo.models.includes(prev) ? prev : initialAvatar.model_type));
+          setModel((prev) => (mo.models.includes(prev) ? prev : mo.models[0] ?? initialAvatar.model_type));
         }
       } catch {
         setConnection("error");
@@ -1291,6 +1299,8 @@ export default function App() {
   const showStart = connection === "idle" || connection === "error" || connection === "connecting" || connection === "queued";
   const chatMaxVisible = readChatMaxVisible();
   const selectedModelLabel = MODEL_LABELS_FOR_STAGE[model] ?? model;
+  const selectedModelStatus = modelStatuses.find((item) => item.id === model);
+  const selectedModelConnected = selectedModelStatus?.connected ?? models.includes(model);
   const selectedVoiceLabel = isEdgeTts(ttsProvider)
     ? EDGE_ZH_VOICES.find((voice) => voice.id === edgeVoice)?.label ?? edgeVoice
     : bailianVoices.find((voice) => voice.id === qwenVoice)?.label ?? (qwenVoice || "暂无音色");
@@ -1361,9 +1371,11 @@ export default function App() {
             expanded={settingsExpanded}
             onExpandedChange={setSettingsExpanded}
             avatars={avatars}
-            models={models.length ? models : ["flashtalk", "musetalk", "wav2lip"]}
+            models={models}
+            modelStatuses={modelStatuses}
             avatarId={avatarId}
             model={model}
+            modelConnected={selectedModelConnected}
             onAvatarChange={handleAvatarChange}
             onModelChange={handleModelChange}
             edgeVoice={edgeVoice}
@@ -1449,6 +1461,7 @@ export default function App() {
                     selectedVoiceLabel={selectedVoiceLabel}
                     loading={connection === "connecting"}
                     queued={connection === "queued"}
+                    modelConnected={selectedModelConnected}
                     queueInfo={queueInfo}
                     onAvatarChange={handleAvatarChange}
                     onStart={() => void handleStart()}

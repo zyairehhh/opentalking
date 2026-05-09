@@ -75,7 +75,7 @@ async def preload_wav2lip_assets(
     endpoint = omnirt_endpoint.strip().rstrip("/")
     if not endpoint:
         return
-    url = f"{endpoint}/v1/avatar/wav2lip/preload"
+    url = f"{endpoint}/v1/audio2video/wav2lip/preload"
     for payload in collect_wav2lip_preload_payloads(avatars_root, enhanced=enhanced):
         avatar_id = payload.get("avatar_id")
         result: dict[str, Any] | None = None
@@ -94,7 +94,7 @@ async def preload_wav2lip_assets(
                     )
                     break
                 log.info(
-                    "Wav2Lip avatar preload retry: avatar=%s attempt=%d/%d delay=%ss",
+                    "Wav2Lip avatar preload retry: avatar=%s attempt=%d/%d delay=%ss error=%s",
                     avatar_id,
                     attempt,
                     max_attempts,

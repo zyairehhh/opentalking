@@ -95,7 +95,7 @@ async def unified_lifespan(app: FastAPI):
     )
     preload_task: asyncio.Task[None] | None = None
     omnirt_endpoint = (settings.omnirt_endpoint or "").strip()
-    if omnirt_endpoint:
+    if omnirt_endpoint and settings.wav2lip_preload:
         preload_task = asyncio.create_task(
             preload_wav2lip_assets(
                 avatars_root,

@@ -124,7 +124,7 @@ def unified_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
 def test_create_session_avatar_model_decoupled_within_supported(unified_client: TestClient) -> None:
     """Avatar and model are decoupled — any (avatar, supported_model) is accepted.
 
-    SUPPORTED_MODELS lives in opentalking/providers/synthesis/__init__.py.
+    Runtime model availability lives in /models and the synthesis availability helper.
     """
     pairs = [
         ("demo-avatar", "flashtalk"),       # wav2lip avatar + portrait-only model
@@ -133,7 +133,6 @@ def test_create_session_avatar_model_decoupled_within_supported(unified_client: 
         ("flashhead-demo", "mock"),
         ("demo-musetalk", "mock"),
         ("flashtalk-demo", "mock"),
-        ("flashtalk-demo", "wav2lip"),
     ]
     for avatar_id, model in pairs:
         response = unified_client.post(
@@ -145,10 +144,10 @@ def test_create_session_avatar_model_decoupled_within_supported(unified_client: 
         )
 
 
-def test_create_session_rejects_unsupported_model() -> None:
-    """Picking a model not in SUPPORTED_MODELS yields 400 with a clear hint."""
+def test_create_session_rejects_unconnected_model() -> None:
+    """Picking a model not connected on this deployment yields 400 with a clear hint."""
     with TestClient(unified_main.create_app()) as client:
-        for unsupported in ("musetalk",):
+        for unsupported in ("musetalk", "wav2lip"):
             response = client.post(
                 "/sessions",
                 json={"avatar_id": "flashtalk-demo", "model": unsupported},
@@ -217,6 +216,9 @@ def test_split_flashtalk_create_returns_queued_until_worker_ready(
     app.state.redis = InMemoryRedis()
     app.state.settings = SimpleNamespace(
         avatars_dir=str(tmp_path),
+        flashtalk_ws_url="ws://127.0.0.1:8765",
+        omnirt_endpoint="",
+        flashhead_ws_url="",
     )
     app.include_router(sessions_routes.router)
 
@@ -255,6 +257,9 @@ def test_split_flashtalk_create_returns_created_when_worker_ready(
     app.state.redis = redis
     app.state.settings = SimpleNamespace(
         avatars_dir=str(tmp_path),
+        flashtalk_ws_url="ws://127.0.0.1:8765",
+        omnirt_endpoint="",
+        flashhead_ws_url="",
     )
     app.include_router(sessions_routes.router)
 

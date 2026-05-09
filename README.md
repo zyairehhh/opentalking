@@ -210,7 +210,7 @@ OMNIRT_ENDPOINT=http://localhost:9000   # 或 http://<gpu-host>:9000
 OPENTALKING_DEFAULT_MODEL=flashtalk      # 或 musetalk / wav2lip
 ```
 
-OpenTalking 会按 path 路由到具体模型：`OMNIRT_ENDPOINT=http://omnirt:9000` + `model=musetalk` 自动得到 `ws://omnirt:9000/v1/audio2video/musetalk`。三个 audio2video 模型 (flashtalk / musetalk / wav2lip) 都走这个统一规则，不用单独配每个模型的 WS URL。
+OpenTalking 会按 audio2video path 路由到具体模型：`OMNIRT_ENDPOINT=http://omnirt:9000` + `model=musetalk` 自动得到 `ws://omnirt:9000/v1/audio2video/musetalk`。三个 audio2video 模型 (flashtalk / musetalk / wav2lip) 都走这个统一规则，不用单独配每个模型的 WS URL。
 
 启动方式跟路径 1 完全一样（`opentalking-unified` + 前端）。Avatar 配置见 [docs/avatar-format.md](docs/avatar-format.md)。
 

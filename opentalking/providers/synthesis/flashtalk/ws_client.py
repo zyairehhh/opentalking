@@ -39,6 +39,8 @@ def _flashtalk_env(name: str, default: str | None = None) -> str | None:
 
 
 JPEG_DECODE_WORKERS = max(1, int(_flashtalk_env("FLASHTALK_JPEG_DECODE_WORKERS", "1") or "1"))
+WS_PING_INTERVAL = float(_flashtalk_env("FLASHTALK_WS_PING_INTERVAL", "20") or "20")
+WS_PING_TIMEOUT = float(_flashtalk_env("FLASHTALK_WS_PING_TIMEOUT", "180") or "180")
 
 _JPEG_DECODE_EXECUTOR: concurrent.futures.ThreadPoolExecutor | None = None
 
@@ -87,6 +89,8 @@ class FlashTalkWSClient:
             max_size=50 * 1024 * 1024,  # 50 MB
             open_timeout=30,
             close_timeout=10,
+            ping_interval=WS_PING_INTERVAL,
+            ping_timeout=WS_PING_TIMEOUT,
         )
         if self._extra_headers:
             # websockets >= 13: prefer additional_headers; fall back to extra_headers.

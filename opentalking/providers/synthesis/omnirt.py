@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from urllib.parse import urlsplit, urlunsplit
 
-DEFAULT_PATH_TEMPLATE = "/v1/avatar/{model}"
+DEFAULT_PATH_TEMPLATE = "/v1/audio2video/{model}"
 
 
 def derive_audio2video_ws_url(

@@ -210,7 +210,7 @@ OMNIRT_ENDPOINT=http://localhost:9000   # or http://<gpu-host>:9000
 OPENTALKING_DEFAULT_MODEL=flashtalk      # or musetalk / wav2lip
 ```
 
-OpenTalking routes per model by path: `OMNIRT_ENDPOINT=http://omnirt:9000` + `model=musetalk` becomes `ws://omnirt:9000/v1/audio2video/musetalk`. All three audio2video models (flashtalk / musetalk / wav2lip) share this rule — no per-model URL configs needed.
+OpenTalking routes per model by the audio2video path: `OMNIRT_ENDPOINT=http://omnirt:9000` + `model=musetalk` becomes `ws://omnirt:9000/v1/audio2video/musetalk`. All three audio2video models (flashtalk / musetalk / wav2lip) share this rule — no per-model URL configs needed.
 
 Start exactly the same way as Path 1 (`opentalking-unified` + frontend). Avatar asset format: see [docs/avatar-format.md](docs/avatar-format.md).
 

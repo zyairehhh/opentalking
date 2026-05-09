@@ -148,6 +148,11 @@ def _load_legacy_env_source() -> dict[str, Any]:
         "FLASHHEAD_HEIGHT": "flashhead_height",
         "FLASHHEAD_FRAME_NUM": "flashhead_frame_num",
         "FLASHHEAD_CHUNK_SAMPLES": "flashhead_chunk_samples",
+        "OMNIRT_ENDPOINT": "omnirt_endpoint",
+        "OMNIRT_API_KEY": "omnirt_api_key",
+        "OMNIRT_AUDIO2VIDEO_MODELS_PATH": "omnirt_audio2video_models_path",
+        "OMNIRT_AUDIO2VIDEO_PATH_TEMPLATE": "omnirt_audio2video_path_template",
+        "WAV2LIP_PRELOAD": "wav2lip_preload",
         "DASHSCOPE_API_KEY": "llm_api_key",
         "DASHSCOPE_MODEL": "llm_model",
         "LLM_SYSTEM_PROMPT": "llm_system_prompt",
@@ -222,8 +227,8 @@ class Settings(BaseSettings):
     flashtalk_tts_opener_pad_to_chunk: bool = True
     flashtalk_tts_opener_max_history: int = 2
 
-    flashhead_ws_url: str = "ws://8.92.7.195:8766/v1/avatar/realtime"
-    flashhead_base_url: str = "http://8.92.7.195:8766"
+    flashhead_ws_url: str = ""
+    flashhead_base_url: str = ""
     flashhead_model: str = "soulx-flashhead-1.3b"
     flashhead_shared_local_dir: str = "/tmp/opentalking_flashhead_io"
     flashhead_shared_remote_dir: str = "/tmp/opentalking_flashhead_io"
@@ -268,14 +273,20 @@ class Settings(BaseSettings):
     # ---- OmniRT inference runtime ----
     # When OMNIRT_ENDPOINT is set, OpenTalking derives per-model WS URLs from
     # it instead of needing OPENTALKING_FLASHTALK_WS_URL etc. The legacy
-    # *_ws_url fields above still take precedence if set, for backward compat.
+    # *_ws_url fields above remain as a fallback when OMNIRT_ENDPOINT is unset.
     # Example: OMNIRT_ENDPOINT=http://gpu-host:9000
     omnirt_endpoint: str = ""
     omnirt_api_key: str = ""
-    # Path template for the audio2video task. {model} is substituted at
-    # connect time. Override only if your OmniRT instance uses a different
-    # routing convention.
+    omnirt_audio2video_models_path: str = "/v1/audio2video/models"
+    # Legacy alias kept so older deployments can still point at /v1/avatar/models.
+    omnirt_avatar_models_path: str = ""
+    # Path template for OmniRT's FlashTalk-compatible audio2video WebSocket routes.
+    # {model} is substituted at connect time. Override only if your OmniRT
+    # instance uses a different routing convention.
     omnirt_audio2video_path_template: str = "/v1/audio2video/{model}"
+    # Preload preprocessed Wav2Lip frame assets into OmniRT at unified startup.
+    # This keeps the first user request from paying reference-frame prepare time.
+    wav2lip_preload: bool = True
 
     # FlashTalk slot queue: max sessions waiting behind the active one (0 = unlimited)
     flashtalk_max_queue_size: int = 3

@@ -3,6 +3,7 @@ import type { AvatarSummary } from "../lib/api";
 import type { TtsProviderExtended } from "../constants/ttsBailian";
 
 type VoiceOpt = { id: string; label: string; targetModel?: string | null };
+type ModelStatus = { id: string; connected: boolean; reason?: string };
 
 export const SETTINGS_DOCK_EXPANDED_KEY = "opentalking-settings-dock-expanded";
 
@@ -34,8 +35,10 @@ interface SettingsPanelProps {
   onExpandedChange: (expanded: boolean) => void;
   avatars: AvatarSummary[];
   models: string[];
+  modelStatuses: ModelStatus[];
   avatarId: string;
   model: string;
+  modelConnected: boolean;
   onAvatarChange: (id: string) => void;
   onModelChange: (m: string) => void;
   edgeVoice: string;
@@ -110,6 +113,7 @@ type ColumnOption = {
   label: string;
   subtitle?: string;
   hasChildren?: boolean;
+  connected?: boolean;
 };
 
 function LevelOneButton({
@@ -138,6 +142,15 @@ function LevelOneButton({
         <span className={`${compact ? "max-w-[3rem] text-xs" : "min-w-0 flex-1 text-sm"} truncate font-semibold leading-tight`}>
           {option.label}
         </span>
+        {typeof option.connected === "boolean" && !compact ? (
+          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+            option.connected
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : "border-slate-200 bg-slate-50 text-slate-500"
+          }`}>
+            {option.connected ? "已连接" : "未连接"}
+          </span>
+        ) : null}
         {option.hasChildren && !compact ? (
           <span className={`shrink-0 text-lg leading-none ${selected ? "text-cyan-600" : "text-slate-400"}`}>›</span>
         ) : null}
@@ -224,8 +237,10 @@ export function SettingsPanel({
   onExpandedChange,
   avatars,
   models,
+  modelStatuses,
   avatarId,
   model,
+  modelConnected,
   onModelChange,
   edgeVoice,
   onEdgeVoiceChange,
@@ -281,10 +296,12 @@ export function SettingsPanel({
     setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
   };
   const currentAvatar = avatars.find((a) => a.id === avatarId) ?? null;
+  const modelStatusById = new Map(modelStatuses.map((item) => [item.id, item]));
   const modelOptions = models.map((m) => ({
     id: m,
     label: MODEL_LABELS[m] ?? m,
     subtitle: m,
+    connected: modelStatusById.get(m)?.connected ?? false,
   }));
   const providerOptions: ColumnOption[] = (["edge", "dashscope", "cosyvoice", "sambert"] as TtsProviderExtended[]).map((p) => ({
     id: p,
@@ -368,6 +385,15 @@ export function SettingsPanel({
           title="驱动模型"
           open={openSections.model}
           onToggle={toggleSection}
+          action={
+            <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs font-semibold ${
+              modelConnected
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                : "border-slate-200 bg-slate-50 text-slate-500"
+            }`}>
+              {modelConnected ? "已连接" : "未连接"}
+            </span>
+          }
         >
           <div className="space-y-2">
             {modelOptions.map((option) => (
@@ -378,6 +404,11 @@ export function SettingsPanel({
                 onClick={() => onModelChange(option.id)}
               />
             ))}
+            {!modelConnected ? (
+              <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-500">
+                当前模型未连接，启动对应模型服务后即可使用。
+              </p>
+            ) : null}
           </div>
         </SettingsSection>
 

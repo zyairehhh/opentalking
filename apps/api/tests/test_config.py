@@ -29,3 +29,9 @@ def test_create_app_accepts_supported_cors_formats(
 
     assert api_app.user_middleware[0].kwargs["allow_origins"] == expected
     assert unified_app.user_middleware[0].kwargs["allow_origins"] == expected
+
+
+def test_wav2lip_preload_defaults_on() -> None:
+    settings = Settings()
+
+    assert settings.wav2lip_preload is True

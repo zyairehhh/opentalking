@@ -98,7 +98,7 @@ async def test_preload_wav2lip_assets_posts_payloads(tmp_path: Path) -> None:
         post_json=fake_post,
     )
 
-    assert posts[0][0] == "http://127.0.0.1:18765/v1/avatar/wav2lip/preload"
+    assert posts[0][0] == "http://127.0.0.1:18765/v1/audio2video/wav2lip/preload"
     assert posts[0][1]["avatar_id"] == "avatar"
     assert posts[0][1]["enable_enhanced_postprocessing"] is False
 

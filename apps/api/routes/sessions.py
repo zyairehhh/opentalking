@@ -258,14 +258,15 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
     # clearer error than a generic 400 here.
 
     # Deployment guard: only allow models the upstream backend actually serves.
-    # See opentalking/providers/synthesis/__init__.py:SUPPORTED_MODELS.
-    from opentalking.providers.synthesis import SUPPORTED_MODELS
-    if body.model not in SUPPORTED_MODELS:
+    from opentalking.providers.synthesis.availability import connected_model_ids
+
+    available_models = await connected_model_ids(settings)
+    if body.model not in available_models:
         raise HTTPException(
             status_code=400,
             detail=(
                 f"model '{body.model}' is not yet supported on this deployment. "
-                f"Currently available: {', '.join(sorted(SUPPORTED_MODELS))}."
+                f"Currently available: {', '.join(available_models)}."
             ),
         )
     try:
