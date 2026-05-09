@@ -18,6 +18,7 @@ import redis.asyncio as redis
 from fastapi import APIRouter, File, Form, HTTPException, Query, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, Response, StreamingResponse
 
+from opentalking.avatar import mouth_metadata
 from opentalking.avatar.loader import load_avatar_bundle
 from apps.api.schemas.session import (
     CreateSessionRequest,
@@ -245,7 +246,7 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
     if not avatar_dir.is_dir():
         raise HTTPException(status_code=404, detail="avatar not found")
     try:
-        bundle = load_avatar_bundle(avatar_dir, strict=False)
+        load_avatar_bundle(avatar_dir, strict=False)
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=400, detail=f"invalid avatar: {exc}") from exc
     # Avatar / model decoupling: every avatar bundle has a reference image, and
@@ -373,6 +374,7 @@ async def customize_session(
             suffix = ".png"
         target = avatar_dir / f"reference_custom{suffix}"
         target.write_bytes(raw)
+        mouth_metadata.update_manifest_mouth_metadata(avatar_dir / "manifest.json", target, force=True)
         entry["custom_ref_image_path"] = str(target)
         updated_image = True
 
@@ -430,6 +432,7 @@ async def customize_reference(
         suffix = ".png"
     target = avatar_dir / f"reference_custom{suffix}"
     target.write_bytes(raw)
+    mouth_metadata.update_manifest_mouth_metadata(avatar_dir / "manifest.json", target, force=True)
 
     custom = _session_customizations(request)
     entry = dict(custom.get(avatar_id, {}))
