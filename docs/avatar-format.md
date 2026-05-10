@@ -39,6 +39,6 @@ Wav2Lip 资产的 `metadata` 推荐包含：
 }
 ```
 
-坐标均为相对图片宽高归一化后的比例值。OpenTalking 在 `/avatars/custom` 上传 Wav2Lip 自定义形象时会本地运行可选 MediaPipe 检测；如果检测失败，上传仍会成功，但不会写入 `animation`。OmniRT 的 Wav2Lip 服务可读取这段 metadata，并通过服务侧启动配置 `enable_enhanced_postprocessing` 决定是否启用增强嘴部融合；默认关闭时保持原生 Wav2Lip 输出。
+坐标均为相对图片宽高归一化后的比例值。OpenTalking 在 `/avatars/custom` 上传 Wav2Lip 自定义形象时会本地运行可选 MediaPipe 检测；如果检测失败，上传仍会成功，但不会写入 `animation`。OmniRT 的 Wav2Lip 服务可读取这段 metadata，并通过服务侧启动配置 `wav2lip_postprocess_mode` 决定是否启用指定 Wav2Lip 后处理模式；默认关闭时保持原生 Wav2Lip 输出。
 
 校验逻辑见 `opentalking.avatar.validator`。

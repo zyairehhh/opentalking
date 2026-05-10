@@ -51,6 +51,145 @@ def test_wav2lip_mouth_metadata_is_ignored_when_hash_mismatches_reference(tmp_pa
     assert runner._wav2lip_mouth_metadata() is None
 
 
+def test_wav2lip_postprocess_mode_prefers_avatar_manifest(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    avatar_dir = tmp_path / "avatar"
+    avatar_dir.mkdir()
+    (avatar_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "id": "avatar",
+                "model_type": "wav2lip",
+                "metadata": {
+                    "preferred_wav2lip_postprocess_mode": "opentalking-improved",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("OPENTALKING_WAV2LIP_POSTPROCESS_MODE", "easy_improved")
+
+    runner = FlashTalkRunner.__new__(FlashTalkRunner)
+    runner.model_type = "wav2lip"
+    runner.avatar_id = "avatar"
+    runner.avatars_root = tmp_path
+
+    assert runner._wav2lip_postprocess_mode() == "opentalking_improved"
+
+
+def test_wav2lip_postprocess_mode_manual_override_wins_over_avatar_manifest(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    avatar_dir = tmp_path / "avatar"
+    avatar_dir.mkdir()
+    (avatar_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "id": "avatar",
+                "model_type": "wav2lip",
+                "metadata": {
+                    "preferred_wav2lip_postprocess_mode": "opentalking_improved",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("OPENTALKING_WAV2LIP_POSTPROCESS_MODE", "easy_improved")
+
+    runner = FlashTalkRunner.__new__(FlashTalkRunner)
+    runner.model_type = "wav2lip"
+    runner.avatar_id = "avatar"
+    runner.avatars_root = tmp_path
+    runner._wav2lip_postprocess_mode_override = "basic"
+
+    assert runner._wav2lip_postprocess_mode() == "basic"
+
+
+def test_wav2lip_postprocess_mode_auto_override_keeps_avatar_manifest(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    avatar_dir = tmp_path / "avatar"
+    avatar_dir.mkdir()
+    (avatar_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "id": "avatar",
+                "model_type": "wav2lip",
+                "metadata": {
+                    "preferred_wav2lip_postprocess_mode": "opentalking_improved",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("OPENTALKING_WAV2LIP_POSTPROCESS_MODE", "easy_improved")
+
+    runner = FlashTalkRunner.__new__(FlashTalkRunner)
+    runner.model_type = "wav2lip"
+    runner.avatar_id = "avatar"
+    runner.avatars_root = tmp_path
+    runner._wav2lip_postprocess_mode_override = None
+
+    assert runner._wav2lip_postprocess_mode() == "opentalking_improved"
+
+
+def test_wav2lip_postprocess_mode_uses_selected_driver_not_avatar_manifest_type(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    avatar_dir = tmp_path / "avatar"
+    avatar_dir.mkdir()
+    (avatar_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "id": "avatar",
+                "model_type": "flashhead",
+                "metadata": {
+                    "preferred_wav2lip_postprocess_mode": "opentalking_improved",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("OPENTALKING_WAV2LIP_POSTPROCESS_MODE", "easy_improved")
+
+    runner = FlashTalkRunner.__new__(FlashTalkRunner)
+    runner.model_type = "wav2lip"
+    runner.avatar_id = "avatar"
+    runner.avatars_root = tmp_path
+
+    assert runner._wav2lip_postprocess_mode() == "opentalking_improved"
+
+
+def test_wav2lip_postprocess_mode_falls_back_to_global_when_manifest_value_is_invalid(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    avatar_dir = tmp_path / "avatar"
+    avatar_dir.mkdir()
+    (avatar_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "id": "avatar",
+                "model_type": "wav2lip",
+                "metadata": {
+                    "preferred_wav2lip_postprocess_mode": "not-a-mode",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("OPENTALKING_WAV2LIP_POSTPROCESS_MODE", "basic")
+
+    runner = FlashTalkRunner.__new__(FlashTalkRunner)
+    runner.model_type = "wav2lip"
+    runner.avatar_id = "avatar"
+    runner.avatars_root = tmp_path
+
+    assert runner._wav2lip_postprocess_mode() == "basic"
+
+
 def test_wav2lip_frame_reference_dir_comes_from_manifest_metadata(tmp_path: Path) -> None:
     avatar_dir = tmp_path / "avatar"
     frames_dir = avatar_dir / "frames"

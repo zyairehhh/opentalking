@@ -34,9 +34,16 @@ def validate_avatar_dir(avatar_dir: Path) -> list[str]:
         if not (avatar_dir / "reference.png").is_file() and not (avatar_dir / "reference.jpg").is_file():
             errors.append(f"{m.model_type} avatar should have reference.png or reference.jpg")
     elif m.model_type == "wav2lip":
-        frames = avatar_dir / "frames"
-        if not frames.is_dir():
-            errors.append("wav2lip avatar should have frames/ directory")
+        metadata = m.metadata or {}
+        reference_mode = str(metadata.get("reference_mode") or "").strip().lower()
+        if reference_mode == "frames":
+            frames = avatar_dir / str(metadata.get("frame_dir") or "frames")
+            if not frames.is_dir():
+                errors.append("wav2lip frame avatar should have frames/ directory")
+            elif not any(frames.iterdir()):
+                errors.append("wav2lip frames/ is empty")
+        elif not (avatar_dir / "reference.png").is_file() and not (avatar_dir / "reference.jpg").is_file():
+            errors.append("wav2lip image avatar should have reference.png or reference.jpg")
 
     return errors
 

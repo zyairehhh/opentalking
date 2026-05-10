@@ -245,14 +245,14 @@ def test_create_custom_avatar_resizes_large_upload_to_realtime_max(tmp_path, mon
 
 
 def test_customize_reference_updates_mouth_metadata_for_uploaded_image(tmp_path, monkeypatch):
-    base = tmp_path / "demo-avatar"
+    base = tmp_path / "base-wav2lip-avatar"
     base.mkdir()
     (base / "preview.png").write_bytes(_png_bytes())
     (base / "reference.png").write_bytes(_png_bytes())
     (base / "manifest.json").write_text(
         json.dumps(
             {
-                "id": "demo-avatar",
+                "id": "base-wav2lip-avatar",
                 "name": "Demo",
                 "model_type": "musetalk",
                 "fps": 25,
@@ -288,7 +288,7 @@ def test_customize_reference_updates_mouth_metadata_for_uploaded_image(tmp_path,
 
     response = client.post(
         "/sessions/customize/reference",
-        data={"avatar_id": "demo-avatar"},
+        data={"avatar_id": "base-wav2lip-avatar"},
         files={"reference_image": ("avatar.png", _png_bytes(), "image/png")},
     )
 
@@ -302,14 +302,14 @@ def test_customize_reference_updates_mouth_metadata_for_uploaded_image(tmp_path,
 
 
 def test_customize_reference_clears_stale_mouth_metadata_when_detection_fails(tmp_path, monkeypatch):
-    base = tmp_path / "demo-avatar"
+    base = tmp_path / "base-wav2lip-avatar"
     base.mkdir()
     (base / "preview.png").write_bytes(_png_bytes())
     (base / "reference.png").write_bytes(_png_bytes())
     (base / "manifest.json").write_text(
         json.dumps(
             {
-                "id": "demo-avatar",
+                "id": "base-wav2lip-avatar",
                 "name": "Demo",
                 "model_type": "wav2lip",
                 "fps": 25,
@@ -337,7 +337,7 @@ def test_customize_reference_clears_stale_mouth_metadata_when_detection_fails(tm
 
     response = client.post(
         "/sessions/customize/reference",
-        data={"avatar_id": "demo-avatar"},
+        data={"avatar_id": "base-wav2lip-avatar"},
         files={"reference_image": ("avatar.png", _png_bytes(), "image/png")},
     )
 
@@ -392,14 +392,14 @@ def test_delete_custom_avatar_removes_directory(tmp_path):
 
 def test_delete_builtin_avatar_forbidden(tmp_path):
     """Built-in demos lack metadata.custom_avatar, so DELETE → 403."""
-    base = tmp_path / "demo-avatar"
+    base = tmp_path / "base-wav2lip-avatar"
     base.mkdir()
     (base / "preview.png").write_bytes(_png_bytes())
     (base / "reference.png").write_bytes(_png_bytes())
     (base / "manifest.json").write_text(
         json.dumps(
             {
-                "id": "demo-avatar",
+                "id": "base-wav2lip-avatar",
                 "name": "Demo",
                 "model_type": "flashtalk",
                 "fps": 25,
@@ -417,10 +417,10 @@ def test_delete_builtin_avatar_forbidden(tmp_path):
     app.include_router(avatars.router)
     client = TestClient(app)
 
-    response = client.delete("/avatars/demo-avatar")
+    response = client.delete("/avatars/base-wav2lip-avatar")
     assert response.status_code == 403
     assert "built-in" in response.json()["detail"]
-    assert (tmp_path / "demo-avatar").exists()
+    assert (tmp_path / "base-wav2lip-avatar").exists()
 
 
 def test_delete_unknown_avatar_404(tmp_path):

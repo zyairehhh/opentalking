@@ -258,14 +258,15 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
     # clearer error than a generic 400 here.
 
     # Deployment guard: only allow models the upstream backend actually serves.
-    # See opentalking/providers/synthesis/__init__.py:SUPPORTED_MODELS.
-    from opentalking.providers.synthesis import SUPPORTED_MODELS
-    if body.model not in SUPPORTED_MODELS:
+    from opentalking.providers.synthesis.availability import connected_model_ids
+
+    available_models = await connected_model_ids(settings)
+    if body.model not in available_models:
         raise HTTPException(
             status_code=400,
             detail=(
                 f"model '{body.model}' is not yet supported on this deployment. "
-                f"Currently available: {', '.join(sorted(SUPPORTED_MODELS))}."
+                f"Currently available: {', '.join(available_models)}."
             ),
         )
     try:
@@ -288,6 +289,7 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
         tts_voice=tts_voice,
         llm_system_prompt=llm_system_prompt,
         custom_ref_image_path=custom_ref_image_path,
+        wav2lip_postprocess_mode=body.wav2lip_postprocess_mode,
     )
     # Single-process mode: WebRTC offer runs immediately after; wait until init task
     # has created the SessionRunner (avoids 404 "session not loaded").

@@ -161,6 +161,7 @@ def _create_runner(
             system_prompt=str(task.get("llm_system_prompt", "") or settings.llm_system_prompt)
             or "你是一个友好的数字人助手，请用简洁的语言回答问题。不要使用表情符号或emoji。",
             model_type=effective_model,
+            wav2lip_postprocess_mode=str(task.get("wav2lip_postprocess_mode", "") or ""),
         )
 
     return SessionRunner(

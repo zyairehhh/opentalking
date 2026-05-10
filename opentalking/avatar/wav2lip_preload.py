@@ -7,14 +7,20 @@ from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
+from opentalking.avatar.wav2lip_config import (
+    manifest_preferred_wav2lip_postprocess_mode,
+    normalize_wav2lip_postprocess_mode,
+)
+
 log = logging.getLogger(__name__)
 
 PostJson = Callable[[str, dict[str, Any]], Awaitable[dict[str, Any]]]
 Sleep = Callable[[float], Awaitable[None]]
 
 
-def collect_wav2lip_preload_payloads(avatars_root: Path, *, enhanced: bool) -> list[dict[str, Any]]:
+def collect_wav2lip_preload_payloads(avatars_root: Path, *, postprocess_mode: str) -> list[dict[str, Any]]:
     payloads: list[dict[str, Any]] = []
+    default_postprocess_mode = normalize_wav2lip_postprocess_mode(postprocess_mode)
     for manifest_path in sorted(Path(avatars_root).glob("*/manifest.json")):
         try:
             raw = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -46,7 +52,10 @@ def collect_wav2lip_preload_payloads(avatars_root: Path, *, enhanced: bool) -> l
                 "height": int(raw.get("height") or 704),
                 "fps": int(raw.get("fps") or 25),
                 "preprocessed": True,
-                "enable_enhanced_postprocessing": bool(enhanced),
+                "wav2lip_postprocess_mode": manifest_preferred_wav2lip_postprocess_mode(
+                    raw,
+                    default=default_postprocess_mode,
+                ),
             }
         )
     return payloads
@@ -66,7 +75,7 @@ async def preload_wav2lip_assets(
     avatars_root: Path,
     *,
     omnirt_endpoint: str,
-    enhanced: bool,
+    postprocess_mode: str,
     post_json: PostJson = _httpx_post_json,
     attempts: int = 6,
     retry_delay_seconds: float = 2.0,
@@ -75,8 +84,8 @@ async def preload_wav2lip_assets(
     endpoint = omnirt_endpoint.strip().rstrip("/")
     if not endpoint:
         return
-    url = f"{endpoint}/v1/avatar/wav2lip/preload"
-    for payload in collect_wav2lip_preload_payloads(avatars_root, enhanced=enhanced):
+    url = f"{endpoint}/v1/audio2video/wav2lip/preload"
+    for payload in collect_wav2lip_preload_payloads(avatars_root, postprocess_mode=postprocess_mode):
         avatar_id = payload.get("avatar_id")
         result: dict[str, Any] | None = None
         max_attempts = max(1, int(attempts))
@@ -94,7 +103,7 @@ async def preload_wav2lip_assets(
                     )
                     break
                 log.info(
-                    "Wav2Lip avatar preload retry: avatar=%s attempt=%d/%d delay=%ss",
+                    "Wav2Lip avatar preload retry: avatar=%s attempt=%d/%d delay=%ss error=%s",
                     avatar_id,
                     attempt,
                     max_attempts,
