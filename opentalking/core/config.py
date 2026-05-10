@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from dotenv import dotenv_values
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -97,8 +98,8 @@ def _load_yaml_source() -> dict[str, Any]:
     return _flatten_config(yaml.safe_load(path.read_text(encoding="utf-8")) or {})
 
 
-def _load_legacy_env_source() -> dict[str, Any]:
-    mapping = {
+def _legacy_env_mapping() -> dict[str, str]:
+    return {
         "FLASHTALK_WS_URL": "flashtalk_ws_url",
         "FLASHTALK_FRAME_NUM": "flashtalk_frame_num",
         "FLASHTALK_MOTION_FRAMES_NUM": "flashtalk_motion_frames_num",
@@ -162,6 +163,20 @@ def _load_legacy_env_source() -> dict[str, Any]:
         "ELEVENLABS_VOICE_ID": "tts_elevenlabs_voice_id",
         "ELEVENLABS_OUTPUT_FORMAT": "tts_elevenlabs_output_format",
     }
+
+
+def _load_legacy_dotenv_source() -> dict[str, Any]:
+    values = dotenv_values(".env")
+    mapping = _legacy_env_mapping()
+    return {
+        target: value
+        for name, target in mapping.items()
+        if (value := values.get(name)) not in (None, "")
+    }
+
+
+def _load_legacy_env_source() -> dict[str, Any]:
+    mapping = _legacy_env_mapping()
     return {target: os.environ[name] for name, target in mapping.items() if name in os.environ}
 
 
@@ -185,7 +200,7 @@ class Settings(BaseSettings):
     models_dir: str = "./models"
     worker_url: str = "http://127.0.0.1:9001"
 
-    flashtalk_ws_url: str = f"ws://{os.environ.get('SERVER_HOST', 'localhost')}:8765"
+    flashtalk_ws_url: str = ""
     flashtalk_ckpt_dir: str = "./models/SoulX-FlashTalk-14B"
     flashtalk_wav2vec_dir: str = "./models/chinese-wav2vec2-base"
     flashtalk_port: int = 8765
@@ -309,8 +324,9 @@ class Settings(BaseSettings):
             init_settings,
             env_settings,
             dotenv_settings,
-            _load_yaml_source,
             _load_legacy_env_source,
+            _load_legacy_dotenv_source,
+            _load_yaml_source,
             file_secret_settings,
         )
 

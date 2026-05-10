@@ -14,6 +14,7 @@ import logging
 from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -55,10 +56,25 @@ class MockFlashTalkClient:
         ref_image: bytes | str | Path,
         prompt: str = "",
         seed: int = 9999,
+        *,
+        wav2lip_postprocess_mode: str | None = None,
+        mouth_metadata: dict[str, Any] | None = None,
+        video_config: dict[str, Any] | None = None,
+        reference_mode: str | None = None,
+        ref_frame_dir: str | Path | None = None,
+        ref_frame_metadata_path: str | Path | None = None,
+        preprocessed: bool | None = None,
     ) -> dict:
+        del prompt, seed, wav2lip_postprocess_mode, mouth_metadata
+        del reference_mode, ref_frame_dir, ref_frame_metadata_path, preprocessed
         if isinstance(ref_image, (str, Path)):
             ref_image = Path(ref_image).read_bytes()
         bgr = _decode_to_bgr(ref_image)
+        if video_config:
+            self.frame_num = int(video_config.get("frame_num") or self.frame_num)
+            self.motion_frames_num = int(video_config.get("motion_frames_num") or self.motion_frames_num)
+            self.slice_len = int(video_config.get("slice_len") or self.slice_len)
+            self.fps = int(video_config.get("fps") or self.fps)
         # Round to even dims (some encoders/streamers prefer this).
         h, w = bgr.shape[:2]
         h -= h % 2

@@ -1,15 +1,16 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { AvatarSummary } from "../lib/api";
+import { modelConnectionBadge, type ModelStatus } from "../lib/modelStatus";
 import type { TtsProviderExtended } from "../constants/ttsBailian";
 
 type VoiceOpt = { id: string; label: string; targetModel?: string | null };
-type ModelStatus = { id: string; connected: boolean; reason?: string };
 
 export const SETTINGS_DOCK_EXPANDED_KEY = "opentalking-settings-dock-expanded";
 
 const MODEL_LABELS: Record<string, string> = {
   flashhead: "FlashHead",
   flashtalk: "FlashTalk",
+  mock: "无驱动模式",
   musetalk: "MuseTalk",
   qingyu_v3: "Qingyu V3",
   wav2lip: "Wav2Lip",
@@ -114,6 +115,8 @@ type ColumnOption = {
   subtitle?: string;
   hasChildren?: boolean;
   connected?: boolean;
+  statusLabel?: string;
+  statusTone?: "connected" | "disconnected" | "selfTest";
 };
 
 function LevelOneButton({
@@ -142,13 +145,15 @@ function LevelOneButton({
         <span className={`${compact ? "max-w-[3rem] text-xs" : "min-w-0 flex-1 text-sm"} truncate font-semibold leading-tight`}>
           {option.label}
         </span>
-        {typeof option.connected === "boolean" && !compact ? (
+        {option.statusLabel && !compact ? (
           <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
-            option.connected
+            option.statusTone === "connected"
               ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : option.statusTone === "selfTest"
+                ? "border-cyan-200 bg-cyan-50 text-cyan-700"
               : "border-slate-200 bg-slate-50 text-slate-500"
           }`}>
-            {option.connected ? "已连接" : "未连接"}
+            {option.statusLabel}
           </span>
         ) : null}
         {option.hasChildren && !compact ? (
@@ -297,12 +302,18 @@ export function SettingsPanel({
   };
   const currentAvatar = avatars.find((a) => a.id === avatarId) ?? null;
   const modelStatusById = new Map(modelStatuses.map((item) => [item.id, item]));
-  const modelOptions = models.map((m) => ({
-    id: m,
-    label: MODEL_LABELS[m] ?? m,
-    subtitle: m,
-    connected: modelStatusById.get(m)?.connected ?? false,
-  }));
+  const modelOptions = models.map((m) => {
+    const badge = modelConnectionBadge(modelStatusById.get(m));
+    return {
+      id: m,
+      label: MODEL_LABELS[m] ?? m,
+      subtitle: m === "mock" ? "本地自测" : m,
+      connected: badge.connected,
+      statusLabel: badge.label,
+      statusTone: badge.tone,
+    };
+  });
+  const selectedModelBadge = modelConnectionBadge(modelStatusById.get(model), modelConnected);
   const providerOptions: ColumnOption[] = (["edge", "dashscope", "cosyvoice", "sambert"] as TtsProviderExtended[]).map((p) => ({
     id: p,
     label: TTS_PROVIDER_LABELS[p],
@@ -387,11 +398,13 @@ export function SettingsPanel({
           onToggle={toggleSection}
           action={
             <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs font-semibold ${
-              modelConnected
+              selectedModelBadge.tone === "connected"
                 ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                : selectedModelBadge.tone === "selfTest"
+                  ? "border-cyan-200 bg-cyan-50 text-cyan-700"
                 : "border-slate-200 bg-slate-50 text-slate-500"
             }`}>
-              {modelConnected ? "已连接" : "未连接"}
+              {selectedModelBadge.label}
             </span>
           }
         >
@@ -404,7 +417,7 @@ export function SettingsPanel({
                 onClick={() => onModelChange(option.id)}
               />
             ))}
-            {!modelConnected ? (
+            {!selectedModelBadge.connected ? (
               <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-500">
                 当前模型未连接，启动对应模型服务后即可使用。
               </p>

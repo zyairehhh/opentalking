@@ -18,6 +18,7 @@ import {
   type CreateSessionResponse,
   type VoiceCatalogItem,
 } from "./lib/api";
+import { modelConnectionBadge, type ModelStatus } from "./lib/modelStatus";
 import { connectSse } from "./lib/sse";
 import {
   DEFAULT_TTS_PREVIEW_TEXT,
@@ -49,12 +50,6 @@ import {
   TTS_PROVIDER_STORAGE_KEY,
 } from "./constants/ttsQwen";
 import type { ConnectionStatus, Message, QueueInfo } from "./types";
-
-type ModelStatus = {
-  id: string;
-  connected: boolean;
-  reason?: string;
-};
 
 function bailianModelOptions(provider: TtsProviderExtended): { id: string; label: string }[] {
   switch (provider) {
@@ -183,6 +178,7 @@ function usesCompactSquareStage(model: string): boolean {
 const MODEL_LABELS_FOR_STAGE: Record<string, string> = {
   flashhead: "FlashHead",
   flashtalk: "FlashTalk",
+  mock: "无驱动模式",
   musetalk: "MuseTalk",
   qingyu_v3: "Qingyu V3",
   wav2lip: "Wav2Lip",
@@ -1300,7 +1296,8 @@ export default function App() {
   const chatMaxVisible = readChatMaxVisible();
   const selectedModelLabel = MODEL_LABELS_FOR_STAGE[model] ?? model;
   const selectedModelStatus = modelStatuses.find((item) => item.id === model);
-  const selectedModelConnected = selectedModelStatus?.connected ?? models.includes(model);
+  const selectedModelBadge = modelConnectionBadge(selectedModelStatus, models.includes(model));
+  const selectedModelConnected = selectedModelBadge.connected;
   const selectedVoiceLabel = isEdgeTts(ttsProvider)
     ? EDGE_ZH_VOICES.find((voice) => voice.id === edgeVoice)?.label ?? edgeVoice
     : bailianVoices.find((voice) => voice.id === qwenVoice)?.label ?? (qwenVoice || "暂无音色");
@@ -1462,6 +1459,7 @@ export default function App() {
                     loading={connection === "connecting"}
                     queued={connection === "queued"}
                     modelConnected={selectedModelConnected}
+                    modelBadge={selectedModelBadge}
                     queueInfo={queueInfo}
                     onAvatarChange={handleAvatarChange}
                     onStart={() => void handleStart()}

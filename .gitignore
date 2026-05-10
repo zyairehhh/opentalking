@@ -9,6 +9,8 @@ build/
 venv/
 .env
 .deploy.env
+quick_start_draft.md
+scripts/quickstart/env
 *.so
 .pytest_cache/
 .playwright-cli/

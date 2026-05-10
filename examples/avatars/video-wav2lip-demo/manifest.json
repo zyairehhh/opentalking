@@ -1,6 +1,6 @@
 {
   "id": "video-wav2lip-demo",
-  "name": "Video Wav2Lip Demo",
+  "name": "歌手",
   "model_type": "wav2lip",
   "fps": 30,
   "sample_rate": 16000,

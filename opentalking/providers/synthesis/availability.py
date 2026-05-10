@@ -93,7 +93,7 @@ async def resolve_model_statuses(settings) -> list[ModelStatus]:
         reason = "not_configured"
         if model == "mock":
             connected = True
-            reason = "in_process"
+            reason = "local_self_test"
         elif model == "flashtalk":
             if has_omnirt:
                 connected = model in omnirt_models

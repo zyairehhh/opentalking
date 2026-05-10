@@ -116,9 +116,14 @@ def unified_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
         return runner
 
     monkeypatch.setattr(task_consumer, "_create_runner", fake_create_runner)
-    with TestClient(unified_main.create_app()) as client:
-        client.created_runners = created_runners  # type: ignore[attr-defined]
-        yield client
+    monkeypatch.setenv("OPENTALKING_FLASHTALK_WS_URL", "ws://127.0.0.1:8765")
+    unified_main.get_settings.cache_clear()
+    try:
+        with TestClient(unified_main.create_app()) as client:
+            client.created_runners = created_runners  # type: ignore[attr-defined]
+            yield client
+    finally:
+        unified_main.get_settings.cache_clear()
 
 
 def test_create_session_avatar_model_decoupled_within_supported(unified_client: TestClient) -> None:

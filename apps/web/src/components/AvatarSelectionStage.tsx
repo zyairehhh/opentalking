@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import type { AvatarSummary } from "../lib/api";
 import { buildApiUrl } from "../lib/api";
+import type { ModelConnectionBadge } from "../lib/modelStatus";
 
 const CUSTOM_REFERENCE_NAME_KEY = "opentalking-custom-reference-name";
 
@@ -12,6 +13,7 @@ type AvatarSelectionStageProps = {
   loading: boolean;
   queued: boolean;
   modelConnected: boolean;
+  modelBadge: ModelConnectionBadge;
   queueInfo?: { position: number; message: string } | null;
   onAvatarChange: (id: string) => void;
   onStart: () => void;
@@ -41,6 +43,7 @@ export function AvatarSelectionStage({
   loading,
   queued,
   modelConnected,
+  modelBadge,
   queueInfo,
   onAvatarChange,
   onStart,
@@ -229,11 +232,13 @@ export function AvatarSelectionStage({
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-xs font-medium text-slate-500">已选驱动模型</p>
                       <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
-                        modelConnected
+                        modelBadge.tone === "connected"
                           ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : modelBadge.tone === "selfTest"
+                            ? "border-cyan-200 bg-cyan-50 text-cyan-700"
                           : "border-slate-200 bg-white text-slate-500"
                       }`}>
-                        {modelConnected ? "已连接" : "未连接"}
+                        {modelBadge.label}
                       </span>
                     </div>
                     <p className="mt-1 truncate text-sm font-semibold text-slate-950">{selectedModelLabel}</p>

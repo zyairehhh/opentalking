@@ -33,6 +33,14 @@ def _is_custom_avatar(manifest_path: Path) -> bool:
     return bool((raw.get("metadata") or {}).get("custom_avatar"))
 
 
+def _is_hidden_avatar(manifest_path: Path) -> bool:
+    try:
+        raw = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    return bool((raw.get("metadata") or {}).get("hidden"))
+
+
 def _summary_from_dir(path: Path) -> AvatarSummary:
     b = load_avatar_bundle(path, strict=False)
     m = b.manifest
@@ -120,6 +128,8 @@ async def list_avatars(request: Request) -> list[AvatarSummary]:
     root = _avatars_root(request)
     out: list[AvatarSummary] = []
     for d in list_avatar_dirs(root):
+        if _is_hidden_avatar(d / "manifest.json"):
+            continue
         try:
             out.append(_summary_from_dir(d))
         except Exception:  # noqa: BLE001
@@ -207,8 +217,7 @@ async def get_preview(avatar_id: str, request: Request) -> FileResponse:
 async def delete_avatar(avatar_id: str, request: Request) -> dict[str, str]:
     """Delete a user-created custom avatar.
 
-    Built-in demo avatars (demo-avatar / demo-musetalk / flashtalk-demo /
-    flashhead-demo) cannot be deleted — they're tracked in git and would
+    Built-in demo avatars cannot be deleted — they're tracked in git and would
     just come back on next deploy. Only avatars with
     `metadata.custom_avatar == true` (created via POST /avatars/custom)
     are removable.
