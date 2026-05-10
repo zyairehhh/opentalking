@@ -100,7 +100,7 @@ async def unified_lifespan(app: FastAPI):
             preload_wav2lip_assets(
                 avatars_root,
                 omnirt_endpoint=omnirt_endpoint,
-                enhanced=_env_bool("OPENTALKING_WAV2LIP_ENABLE_ENHANCED_POSTPROCESSING"),
+                postprocess_mode=os.environ.get("OPENTALKING_WAV2LIP_POSTPROCESS_MODE", "easy_improved").strip().lower().replace("-", "_") or "easy_improved",
             )
         )
     log.info(

@@ -116,7 +116,7 @@ class FlashTalkWSClient:
         prompt: str = "A person is talking. Only the foreground characters are moving, the background remains static.",
         seed: int = 9999,
         *,
-        enable_enhanced_postprocessing: bool | None = None,
+        wav2lip_postprocess_mode: str | None = None,
         mouth_metadata: dict[str, Any] | None = None,
         video_config: dict[str, Any] | None = None,
         reference_mode: str | None = None,
@@ -143,8 +143,8 @@ class FlashTalkWSClient:
             "prompt": prompt,
             "seed": seed,
         }
-        if enable_enhanced_postprocessing is not None:
-            payload["enable_enhanced_postprocessing"] = enable_enhanced_postprocessing
+        if wav2lip_postprocess_mode:
+            payload["wav2lip_postprocess_mode"] = wav2lip_postprocess_mode
         if mouth_metadata:
             payload["mouth_metadata"] = mouth_metadata
         if reference_mode:

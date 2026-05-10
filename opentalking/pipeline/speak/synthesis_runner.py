@@ -312,13 +312,14 @@ class FlashTalkRunner:
                 return path
         return None
 
-    def _wav2lip_enhanced_postprocessing_enabled(self) -> bool | None:
+    def _wav2lip_postprocess_mode(self) -> str | None:
         if self.model_type != "wav2lip":
             return None
-        raw = os.environ.get("OPENTALKING_WAV2LIP_ENABLE_ENHANCED_POSTPROCESSING")
-        if raw is None:
-            return None
-        return raw.strip().lower() in {"1", "true", "yes", "on"}
+        raw = os.environ.get("OPENTALKING_WAV2LIP_POSTPROCESS_MODE", "easy_improved")
+        mode = raw.strip().lower().replace("-", "_")
+        if mode in {"basic", "opentalking_improved", "easy_improved", "easy_enhanced"}:
+            return mode
+        return "easy_improved"
 
     def _wav2lip_video_config(self) -> dict[str, int] | None:
         if self.model_type != "wav2lip":
@@ -841,7 +842,7 @@ class FlashTalkRunner:
     async def _init_flashtalk_session(self, ref_image_path: Path) -> None:
         await self.flashtalk.init_session(
             ref_image=ref_image_path,
-            enable_enhanced_postprocessing=self._wav2lip_enhanced_postprocessing_enabled(),
+            wav2lip_postprocess_mode=self._wav2lip_postprocess_mode(),
             mouth_metadata=self._wav2lip_mouth_metadata(),
             video_config=self._wav2lip_video_config(),
             reference_mode=self._wav2lip_reference_mode(),
@@ -868,7 +869,7 @@ class FlashTalkRunner:
                 ref_image_path = self.avatar_path() / "reference.jpg"
             await temp_client.init_session(
                 ref_image=ref_image_path,
-                enable_enhanced_postprocessing=self._wav2lip_enhanced_postprocessing_enabled(),
+                wav2lip_postprocess_mode=self._wav2lip_postprocess_mode(),
                 mouth_metadata=self._wav2lip_mouth_metadata(),
                 video_config=self._wav2lip_video_config(),
             )

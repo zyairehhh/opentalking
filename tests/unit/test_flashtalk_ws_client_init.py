@@ -31,7 +31,7 @@ class FakeWebSocket:
 
 
 @pytest.mark.asyncio
-async def test_init_session_sends_wav2lip_enhanced_postprocessing_metadata(tmp_path: Path) -> None:
+async def test_init_session_sends_wav2lip_postprocess_mode_metadata(tmp_path: Path) -> None:
     ref = tmp_path / "reference.png"
     ref.write_bytes(b"image-bytes")
     client = FlashTalkWSClient("ws://example.test/v1/avatar/wav2lip")
@@ -44,7 +44,7 @@ async def test_init_session_sends_wav2lip_enhanced_postprocessing_metadata(tmp_p
 
     await client.init_session(
         ref_image=ref,
-        enable_enhanced_postprocessing=True,
+        wav2lip_postprocess_mode="opentalking_improved",
         mouth_metadata=metadata,
         video_config={"width": 608, "height": 594, "fps": 25},
     )
@@ -52,7 +52,7 @@ async def test_init_session_sends_wav2lip_enhanced_postprocessing_metadata(tmp_p
     sent = json.loads(ws.sent[0])
     assert sent["type"] == "init"
     assert sent["ref_image"] == base64.b64encode(b"image-bytes").decode()
-    assert sent["enable_enhanced_postprocessing"] is True
+    assert sent["wav2lip_postprocess_mode"] == "opentalking_improved"
     assert sent["mouth_metadata"] == metadata
     assert sent["width"] == 608
     assert sent["height"] == 594
