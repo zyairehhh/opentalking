@@ -289,6 +289,7 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
         tts_voice=tts_voice,
         llm_system_prompt=llm_system_prompt,
         custom_ref_image_path=custom_ref_image_path,
+        wav2lip_postprocess_mode=body.wav2lip_postprocess_mode,
     )
     # Single-process mode: WebRTC offer runs immediately after; wait until init task
     # has created the SessionRunner (avoids 404 "session not loaded").

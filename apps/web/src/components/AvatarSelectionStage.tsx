@@ -110,10 +110,7 @@ export function AvatarSelectionStage({
                 disabled={referenceSaving}
                 className="group overflow-hidden rounded-lg border border-dashed border-cyan-300 bg-cyan-50 text-left transition hover:border-cyan-400 hover:bg-cyan-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                <div className="flex h-12 items-center justify-between gap-2 border-b border-cyan-100 px-3">
-                  <span className="min-w-0 truncate text-base font-semibold text-slate-950">
-                    {customName.trim() || "上传形象"}
-                  </span>
+                <div className="flex h-12 items-center justify-end border-b border-cyan-100 px-3">
                   <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-xs font-medium text-cyan-700">
                     自定义
                   </span>

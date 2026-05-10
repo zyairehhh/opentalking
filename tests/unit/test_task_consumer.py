@@ -188,7 +188,7 @@ async def test_handle_worker_task_tracks_runner_lifecycle(monkeypatch: pytest.Mo
     runners: dict[str, StubRunner] = {}
 
     await handle_worker_task(
-        {"cmd": "init", "session_id": sid, "avatar_id": "demo-avatar", "model": "wav2lip"},
+        {"cmd": "init", "session_id": sid, "avatar_id": "singer", "model": "wav2lip"},
         redis,
         Path("."),
         "cpu",
@@ -232,7 +232,7 @@ async def test_handle_worker_task_flashtalk_init_marks_worker_ready(
     runners: dict[str, StubRunner] = {}
 
     await handle_worker_task(
-        {"cmd": "init", "session_id": sid, "avatar_id": "demo-avatar", "model": "flashtalk"},
+        {"cmd": "init", "session_id": sid, "avatar_id": "singer", "model": "flashtalk"},
         redis,
         Path("."),
         "cpu",

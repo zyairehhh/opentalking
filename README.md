@@ -172,7 +172,7 @@ OmniRT 真实模型服务:
 
 | 模型 | 推荐用途 | 显存 / 内存建议 | 已测试硬件 | 实测吞吐 | 说明 |
 | --- | --- | ---: | --- | --- | --- |
-| `wav2lip` | 最快跑通真实口型同步 | 预留 `>= 8 GB` GPU/NPU memory | CUDA GPU、Ascend 910B 路径已 smoke test | `video-wav2lip-demo` 在 CUDA quickstart 配置下约 `28` 帧 / `0.83-0.85s`，约 `33 FPS`，可覆盖 30 fps 播放 | 推荐第一次真实模型验证使用，权重小、启动和排错快 |
+| `wav2lip` | 最快跑通真实口型同步 | 预留 `>= 8 GB` GPU/NPU memory | CUDA GPU、Ascend 910B 路径已 smoke test | `singer` 在 CUDA quickstart 配置下约 `28` 帧 / `0.83-0.85s`，约 `33 FPS`，可覆盖 30 fps 播放 | 推荐第一次真实模型验证使用，权重小、启动和排错快 |
 | `flashtalk` | 更高质量数字人生成 | 推荐多卡 Ascend 910B 或显存优化 CUDA 配置 | Ascend 910B2 x8 resident worker benchmark 已跑通；CUDA FlashTalk 属高级路径 | Ascend 910B2 x8：hot full-audio `937` 帧 / `37.377s`，约 `25 FPS`；稳态 29-frame chunk 约 `30 FPS` 等效 | 权重大、部署重；适合工业级或私有化质量优先场景 |
 
 如果只是想最快看到结果，先跑 `mock`，再选一个真实驱动模型。推荐先下载并启动 `wav2lip`；需要更高质量时再部署 `flashtalk`。

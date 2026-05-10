@@ -132,12 +132,18 @@ def test_create_session_avatar_model_decoupled_within_supported(unified_client: 
     Runtime model availability lives in /models and the synthesis availability helper.
     """
     pairs = [
-        ("demo-avatar", "flashtalk"),       # wav2lip avatar + portrait-only model
-        ("flashhead-demo", "flashtalk"),
-        ("demo-musetalk", "flashtalk"),
-        ("flashhead-demo", "mock"),
-        ("demo-musetalk", "mock"),
-        ("flashtalk-demo", "mock"),
+        ("singer", "flashtalk"),  # wav2lip avatar + portrait-only model
+        ("anime-handsome-guy", "flashtalk"),
+        ("ancient-beauty", "flashtalk"),
+        ("laozi", "flashtalk"),
+        ("office-woman", "flashtalk"),
+        ("anchor", "flashtalk"),
+        ("anchor", "mock"),
+        ("singer", "mock"),
+        ("anime-handsome-guy", "mock"),
+        ("ancient-beauty", "mock"),
+        ("laozi", "mock"),
+        ("office-woman", "mock"),
     ]
     for avatar_id, model in pairs:
         response = unified_client.post(
@@ -155,7 +161,7 @@ def test_create_session_rejects_unconnected_model() -> None:
         for unsupported in ("musetalk", "wav2lip"):
             response = client.post(
                 "/sessions",
-                json={"avatar_id": "flashtalk-demo", "model": unsupported},
+                json={"avatar_id": "anchor", "model": unsupported},
             )
             assert response.status_code == 400, response.json()
             detail = response.json()["detail"]
@@ -171,7 +177,7 @@ def test_create_session_accepts_bailian_tts_providers(
     response = unified_client.post(
         "/sessions",
         json={
-            "avatar_id": "demo-avatar",
+            "avatar_id": "singer",
             "model": "flashtalk",
             "tts_provider": tts_provider,
         },
@@ -204,7 +210,7 @@ def test_split_flashtalk_create_returns_queued_until_worker_ready(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    avatar_id = "flashtalk-demo"
+    avatar_id = "anchor"
     (tmp_path / avatar_id).mkdir()
 
     async def never_ready(*_args: object, **_kwargs: object) -> bool:
@@ -241,7 +247,7 @@ def test_split_flashtalk_create_returns_created_when_worker_ready(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    avatar_id = "flashtalk-demo"
+    avatar_id = "anchor"
     sid = "sess_worker_ready"
     (tmp_path / avatar_id).mkdir()
 
@@ -302,7 +308,7 @@ def test_customize_prompt_rejects_avatar_path_traversal(tmp_path: Path) -> None:
 def test_delete_session_closes_runner_and_marks_closed(unified_client: TestClient) -> None:
     create_response = unified_client.post(
         "/sessions",
-        json={"avatar_id": "demo-avatar", "model": "flashtalk"},
+        json={"avatar_id": "singer", "model": "flashtalk"},
     )
     session_id = create_response.json()["session_id"]
 
@@ -322,7 +328,7 @@ def test_download_flashtalk_recording_returns_file(
     monkeypatch.setenv("OPENTALKING_FLASHTALK_RECORDINGS_DIR", str(tmp_path))
     create_response = unified_client.post(
         "/sessions",
-        json={"avatar_id": "demo-avatar", "model": "flashtalk"},
+        json={"avatar_id": "singer", "model": "flashtalk"},
     )
     session_id = create_response.json()["session_id"]
     append_flashtalk_frames(
@@ -447,7 +453,7 @@ def test_worker_flashtalk_recording_endpoint_exports_mp4(
 def test_interrupt_cancels_active_speech_and_restores_ready(unified_client: TestClient) -> None:
     create_response = unified_client.post(
         "/sessions",
-        json={"avatar_id": "demo-avatar", "model": "flashtalk"},
+        json={"avatar_id": "singer", "model": "flashtalk"},
     )
     session_id = create_response.json()["session_id"]
     runner = unified_client.created_runners[session_id]  # type: ignore[attr-defined]
@@ -467,7 +473,7 @@ def test_interrupt_cancels_active_speech_and_restores_ready(unified_client: Test
 def test_close_cancels_running_and_queued_speech_tasks(unified_client: TestClient) -> None:
     create_response = unified_client.post(
         "/sessions",
-        json={"avatar_id": "demo-avatar", "model": "flashtalk"},
+        json={"avatar_id": "singer", "model": "flashtalk"},
     )
     session_id = create_response.json()["session_id"]
     runner = unified_client.created_runners[session_id]  # type: ignore[attr-defined]

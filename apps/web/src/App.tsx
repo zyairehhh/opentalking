@@ -3,7 +3,11 @@ import { AvatarSelectionStage } from "./components/AvatarSelectionStage";
 import { BailianVoiceClone } from "./components/BailianVoiceClone";
 import { ChatInput } from "./components/ChatInput";
 import { ChatMessages } from "./components/ChatMessages";
-import { SETTINGS_DOCK_EXPANDED_KEY, SettingsPanel } from "./components/SettingsPanel";
+import {
+  SETTINGS_DOCK_EXPANDED_KEY,
+  SettingsPanel,
+  type Wav2LipPostprocessMode,
+} from "./components/SettingsPanel";
 import { TopBar } from "./components/TopBar";
 import { ToastStack, type ToastMessage, type ToastTone } from "./components/ToastStack";
 import { VideoBackground } from "./components/VideoBackground";
@@ -209,8 +213,9 @@ export default function App() {
   const [avatars, setAvatars] = useState<AvatarSummary[]>([]);
   const [models, setModels] = useState<string[]>([]);
   const [modelStatuses, setModelStatuses] = useState<ModelStatus[]>([]);
-  const [avatarId, setAvatarId] = useState("demo-avatar");
+  const [avatarId, setAvatarId] = useState("singer");
   const [model, setModel] = useState("flashtalk");
+  const [wav2lipPostprocessMode, setWav2lipPostprocessMode] = useState<Wav2LipPostprocessMode>("auto");
 
   // Connection
   const [connection, setConnection] = useState<ConnectionStatus>("idle");
@@ -735,6 +740,8 @@ export default function App() {
         llm_system_prompt: llmSystemPrompt.trim() || undefined,
         tts_provider: ttsProvider,
         tts_voice: isEdgeTts(ttsProvider) ? edgeVoice : ttsProvider === "sambert" ? undefined : qwenVoice,
+        wav2lip_postprocess_mode:
+          model === "wav2lip" && wav2lipPostprocessMode !== "auto" ? wav2lipPostprocessMode : undefined,
       });
       createdSessionId = created.session_id;
       setSessionId(created.session_id);
@@ -799,6 +806,7 @@ export default function App() {
     resetLiveState,
     ttsProvider,
     waitForSessionReady,
+    wav2lipPostprocessMode,
   ]);
 
   const handleSavePrompt = useCallback(async () => {
@@ -1298,6 +1306,7 @@ export default function App() {
   const selectedModelStatus = modelStatuses.find((item) => item.id === model);
   const selectedModelBadge = modelConnectionBadge(selectedModelStatus, models.includes(model));
   const selectedModelConnected = selectedModelBadge.connected;
+  const wav2lipPostprocessModeLocked = sessionId !== null && connection !== "idle" && connection !== "error";
   const selectedVoiceLabel = isEdgeTts(ttsProvider)
     ? EDGE_ZH_VOICES.find((voice) => voice.id === edgeVoice)?.label ?? edgeVoice
     : bailianVoices.find((voice) => voice.id === qwenVoice)?.label ?? (qwenVoice || "暂无音色");
@@ -1373,8 +1382,11 @@ export default function App() {
             avatarId={avatarId}
             model={model}
             modelConnected={selectedModelConnected}
+            wav2lipPostprocessMode={wav2lipPostprocessMode}
+            wav2lipPostprocessModeLocked={wav2lipPostprocessModeLocked}
             onAvatarChange={handleAvatarChange}
             onModelChange={handleModelChange}
+            onWav2LipPostprocessModeChange={setWav2lipPostprocessMode}
             edgeVoice={edgeVoice}
             onEdgeVoiceChange={setEdgeVoice}
             edgeVoiceOptions={EDGE_ZH_VOICES}

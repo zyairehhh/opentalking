@@ -16,6 +16,11 @@ from typing import Any
 
 import numpy as np
 
+from opentalking.avatar.wav2lip_config import (
+    normalize_wav2lip_postprocess_mode,
+    optional_wav2lip_postprocess_mode,
+    read_manifest_preferred_wav2lip_postprocess_mode,
+)
 from opentalking.core.config import get_settings
 from opentalking.providers.synthesis.flashtalk.idle_generator import IdleVideoGenerator
 from opentalking.core.session_store import set_session_state
@@ -200,10 +205,12 @@ class FlashTalkRunner:
         llm_model: str = "qwen-turbo",
         system_prompt: str = "你是一个友好的数字人助手，请用简洁的语言回答问题。",
         model_type: str = "flashtalk",
+        wav2lip_postprocess_mode: str | None = None,
     ) -> None:
         self.session_id = session_id
         self.avatar_id = avatar_id
         self.model_type = model_type
+        self._wav2lip_postprocess_mode_override = optional_wav2lip_postprocess_mode(wav2lip_postprocess_mode)
         self.avatars_root = avatars_root
         self.redis = redis
         self._flashtalk_ws_url = flashtalk_ws_url or _default_flashtalk_ws_url()
@@ -315,11 +322,15 @@ class FlashTalkRunner:
     def _wav2lip_postprocess_mode(self) -> str | None:
         if self.model_type != "wav2lip":
             return None
+        override = getattr(self, "_wav2lip_postprocess_mode_override", None)
+        if override:
+            return override
         raw = os.environ.get("OPENTALKING_WAV2LIP_POSTPROCESS_MODE", "easy_improved")
-        mode = raw.strip().lower().replace("-", "_")
-        if mode in {"basic", "opentalking_improved", "easy_improved", "easy_enhanced"}:
-            return mode
-        return "easy_improved"
+        default = normalize_wav2lip_postprocess_mode(raw)
+        return read_manifest_preferred_wav2lip_postprocess_mode(
+            self.avatar_path() / "manifest.json",
+            default=default,
+        )
 
     def _wav2lip_video_config(self) -> dict[str, int] | None:
         if self.model_type != "wav2lip":

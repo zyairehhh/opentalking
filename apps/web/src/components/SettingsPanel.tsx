@@ -4,6 +4,7 @@ import { modelConnectionBadge, type ModelStatus } from "../lib/modelStatus";
 import type { TtsProviderExtended } from "../constants/ttsBailian";
 
 type VoiceOpt = { id: string; label: string; targetModel?: string | null };
+export type Wav2LipPostprocessMode = "auto" | "basic" | "opentalking_improved" | "easy_improved" | "easy_enhanced";
 
 export const SETTINGS_DOCK_EXPANDED_KEY = "opentalking-settings-dock-expanded";
 
@@ -30,6 +31,13 @@ const TTS_PROVIDER_SUBTITLES: Record<TtsProviderExtended, string> = {
   sambert: "Bailian",
 };
 
+const WAV2LIP_POSTPROCESS_OPTIONS: { id: Wav2LipPostprocessMode; label: string }[] = [
+  { id: "auto", label: "自动推荐" },
+  { id: "basic", label: "基础" },
+  { id: "opentalking_improved", label: "OpenTalking 优化" },
+  { id: "easy_improved", label: "Easy-Wav2Lip 优化" },
+];
+
 interface SettingsPanelProps {
   /** 展开时显示表单；收起时仅保留右侧竖条入口 */
   expanded: boolean;
@@ -40,8 +48,11 @@ interface SettingsPanelProps {
   avatarId: string;
   model: string;
   modelConnected: boolean;
+  wav2lipPostprocessMode: Wav2LipPostprocessMode;
+  wav2lipPostprocessModeLocked: boolean;
   onAvatarChange: (id: string) => void;
   onModelChange: (m: string) => void;
+  onWav2LipPostprocessModeChange: (mode: Wav2LipPostprocessMode) => void;
   edgeVoice: string;
   onEdgeVoiceChange: (voiceId: string) => void;
   edgeVoiceOptions: { id: string; label: string }[];
@@ -246,7 +257,10 @@ export function SettingsPanel({
   avatarId,
   model,
   modelConnected,
+  wav2lipPostprocessMode,
+  wav2lipPostprocessModeLocked,
   onModelChange,
+  onWav2LipPostprocessModeChange,
   edgeVoice,
   onEdgeVoiceChange,
   edgeVoiceOptions,
@@ -421,6 +435,35 @@ export function SettingsPanel({
               <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-500">
                 当前模型未连接，启动对应模型服务后即可使用。
               </p>
+            ) : null}
+            {model === "wav2lip" ? (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-2">
+                <p className="mb-2 px-1 text-xs font-semibold text-slate-500">口型融合模式</p>
+                <div className="grid grid-cols-1 gap-1">
+                  {WAV2LIP_POSTPROCESS_OPTIONS.map((option) => {
+                    const selected = option.id === wav2lipPostprocessMode;
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        disabled={wav2lipPostprocessModeLocked}
+                        onClick={() => onWav2LipPostprocessModeChange(option.id)}
+                        className={`rounded-md border px-2.5 py-2 text-left text-xs font-semibold transition ${
+                          selected
+                            ? "border-cyan-300 bg-white text-cyan-800 shadow-sm"
+                            : "border-transparent bg-transparent text-slate-700 hover:border-slate-200 hover:bg-white"
+                        } ${
+                          wav2lipPostprocessModeLocked
+                            ? "cursor-not-allowed opacity-60 hover:border-transparent hover:bg-transparent"
+                            : ""
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             ) : null}
           </div>
         </SettingsSection>

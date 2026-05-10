@@ -7,6 +7,11 @@ from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
+from opentalking.avatar.wav2lip_config import (
+    manifest_preferred_wav2lip_postprocess_mode,
+    normalize_wav2lip_postprocess_mode,
+)
+
 log = logging.getLogger(__name__)
 
 PostJson = Callable[[str, dict[str, Any]], Awaitable[dict[str, Any]]]
@@ -15,6 +20,7 @@ Sleep = Callable[[float], Awaitable[None]]
 
 def collect_wav2lip_preload_payloads(avatars_root: Path, *, postprocess_mode: str) -> list[dict[str, Any]]:
     payloads: list[dict[str, Any]] = []
+    default_postprocess_mode = normalize_wav2lip_postprocess_mode(postprocess_mode)
     for manifest_path in sorted(Path(avatars_root).glob("*/manifest.json")):
         try:
             raw = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -46,7 +52,10 @@ def collect_wav2lip_preload_payloads(avatars_root: Path, *, postprocess_mode: st
                 "height": int(raw.get("height") or 704),
                 "fps": int(raw.get("fps") or 25),
                 "preprocessed": True,
-                "wav2lip_postprocess_mode": postprocess_mode,
+                "wav2lip_postprocess_mode": manifest_preferred_wav2lip_postprocess_mode(
+                    raw,
+                    default=default_postprocess_mode,
+                ),
             }
         )
     return payloads

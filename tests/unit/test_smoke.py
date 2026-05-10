@@ -15,22 +15,50 @@ def test_list_models() -> None:
     assert "flashhead" in keys
 
 
-def test_demo_avatar_valid() -> None:
+def test_video_wav2lip_demo_avatar_valid() -> None:
     root = Path(__file__).resolve().parents[2]
-    demo = root / "examples" / "avatars" / "demo-avatar"
+    demo = root / "examples" / "avatars" / "singer"
     errs = validate_avatar_dir(demo)
     assert errs == []
 
 
 def test_flashhead_demo_avatar_valid() -> None:
     root = Path(__file__).resolve().parents[2]
-    demo = root / "examples" / "avatars" / "flashhead-demo"
+    demo = root / "examples" / "avatars" / "anchor"
     errs = validate_avatar_dir(demo)
     assert errs == []
 
 
-def test_parse_demo_manifest() -> None:
+def test_parse_video_wav2lip_demo_manifest() -> None:
     root = Path(__file__).resolve().parents[2]
-    m = parse_manifest(root / "examples" / "avatars" / "demo-avatar" / "manifest.json")
-    assert m.id == "demo-avatar"
+    m = parse_manifest(root / "examples" / "avatars" / "singer" / "manifest.json")
+    assert m.id == "singer"
     assert m.model_type == "wav2lip"
+
+
+def test_anime_handsome_guy_avatar_valid() -> None:
+    root = Path(__file__).resolve().parents[2]
+    demo = root / "examples" / "avatars" / "anime-handsome-guy"
+    errs = validate_avatar_dir(demo)
+    assert errs == []
+
+
+def test_ancient_beauty_avatar_valid() -> None:
+    root = Path(__file__).resolve().parents[2]
+    demo = root / "examples" / "avatars" / "ancient-beauty"
+    errs = validate_avatar_dir(demo)
+    assert errs == []
+
+
+def test_laozi_avatar_valid() -> None:
+    root = Path(__file__).resolve().parents[2]
+    demo = root / "examples" / "avatars" / "laozi"
+    errs = validate_avatar_dir(demo)
+    assert errs == []
+
+
+def test_office_woman_avatar_valid() -> None:
+    root = Path(__file__).resolve().parents[2]
+    demo = root / "examples" / "avatars" / "office-woman"
+    errs = validate_avatar_dir(demo)
+    assert errs == []

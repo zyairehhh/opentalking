@@ -61,6 +61,36 @@ def test_collect_wav2lip_preload_payloads_selects_only_preprocessed_frame_assets
     ]
 
 
+def test_collect_wav2lip_preload_payloads_prefers_asset_postprocess_mode(tmp_path: Path) -> None:
+    avatar = tmp_path / "avatar"
+    frames = avatar / "frames"
+    frames.mkdir(parents=True)
+    metadata = frames / "mouth_metadata.json"
+    metadata.write_text('{"frames": {}}', encoding="utf-8")
+    (avatar / "manifest.json").write_text(
+        json.dumps(
+            {
+                "id": "avatar",
+                "model_type": "wav2lip",
+                "width": 24,
+                "height": 32,
+                "metadata": {
+                    "reference_mode": "frames",
+                    "frame_dir": "frames",
+                    "frame_metadata": "frames/mouth_metadata.json",
+                    "preprocessed": True,
+                    "preferred_wav2lip_postprocess_mode": "opentalking-improved",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    payloads = collect_wav2lip_preload_payloads(tmp_path, postprocess_mode="easy_improved")
+
+    assert payloads[0]["wav2lip_postprocess_mode"] == "opentalking_improved"
+
+
 @pytest.mark.asyncio
 async def test_preload_wav2lip_assets_posts_payloads(tmp_path: Path) -> None:
     avatar = tmp_path / "avatar"
