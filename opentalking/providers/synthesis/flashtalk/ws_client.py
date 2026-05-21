@@ -281,6 +281,8 @@ class FlashTalkWSClient:
             raise RuntimeError("Not connected. Call connect() first.")
 
         pcm = np.asarray(audio_pcm, dtype=np.int16)
+        if pcm.size == 0:
+            return []
         payload = MAGIC_AUDIO + pcm.tobytes()
         t0 = time.monotonic()
         await self._ws.send(payload)

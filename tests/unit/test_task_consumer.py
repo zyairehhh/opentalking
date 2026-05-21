@@ -125,6 +125,39 @@ def test_create_runner_passes_wav2lip_postprocess_mode_to_local_session_runner(
     assert captured["wav2lip_postprocess_mode"] == "basic"
 
 
+def test_create_runner_uses_model_specific_device_for_local_quicktalk(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, object] = {}
+
+    class FakeSessionRunner:
+        def __init__(self, **kwargs: object) -> None:
+            captured.update(kwargs)
+
+    monkeypatch.setenv("OPENTALKING_QUICKTALK_DEVICE", "cuda:3")
+    monkeypatch.setenv("OPENTALKING_TORCH_DEVICE", "cpu")
+    monkeypatch.setattr(task_consumer, "SessionRunner", FakeSessionRunner)
+    monkeypatch.setattr(
+        task_consumer,
+        "resolve_model_backend",
+        lambda *_args, **_kwargs: type("Backend", (), {"backend": "local"})(),
+    )
+
+    runner = task_consumer._create_runner(
+        {
+            "session_id": "sess_quicktalk",
+            "avatar_id": "singer",
+            "model": "quicktalk",
+        },
+        InMemoryRedis(),
+        Path("examples/avatars"),
+        "cpu",
+    )
+
+    assert isinstance(runner, FakeSessionRunner)
+    assert captured["device"] == "cuda:3"
+
+
 def test_session_runner_configures_wav2lip_adapter_postprocess_mode(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -68,6 +68,40 @@ bash scripts/start_unified.sh --backend local --model quicktalk --api-port 8210 
 
 Open `http://localhost:5280`, select the `QuickTalk Local` avatar, and select the `quicktalk` model. If you omit `--web-port`, the default frontend URL is `http://localhost:5173`.
 
+## Prepare Avatar Cache
+
+QuickTalk generates per-avatar runtime cache files:
+
+- `examples/avatars/<avatar>/quicktalk/template_<width>x<height>.mp4`
+- `examples/avatars/<avatar>/quicktalk/face_cache_v3_<width>x<height>.npz`
+
+These files depend on the local model runtime and avatar contents. Treat them as deployment artifacts and do not commit them to the source repository. To prepare them ahead of time:
+
+```bash title="Terminal"
+cd "$DIGITAL_HUMAN_HOME/opentalking"
+
+opentalking-prepare-cache \
+  --model quicktalk \
+  --avatars-root examples/avatars \
+  --quicktalk-model-root models/quicktalk \
+  --device cuda:0 \
+  --model-backend pth \
+  --verify
+```
+
+To prepare one avatar:
+
+```bash title="Terminal"
+opentalking-prepare-cache \
+  --model quicktalk \
+  --avatars-root examples/avatars \
+  --avatar singer \
+  --quicktalk-model-root models/quicktalk \
+  --device cuda:0 \
+  --model-backend pth \
+  --verify
+```
+
 ## `/models` Verification
 
 ```bash title="Terminal"

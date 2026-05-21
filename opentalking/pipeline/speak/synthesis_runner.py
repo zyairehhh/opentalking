@@ -587,9 +587,25 @@ class FlashTalkRunner:
         quicktalk = metadata.get("quicktalk")
         return quicktalk if isinstance(quicktalk, dict) else {}
 
+    def _prepared_quicktalk_path(self, prefix: str, suffix: str) -> Path | None:
+        quicktalk_dir = self.avatar_path() / "quicktalk"
+        cache_size = self._quicktalk_cache_video_size()
+        if not quicktalk_dir.is_dir() or cache_size is None:
+            return None
+        width, height = cache_size
+        path = (quicktalk_dir / f"{prefix}_{width}x{height}.{suffix}").resolve()
+        try:
+            path.relative_to(self.avatar_path())
+        except ValueError:
+            return None
+        return path if path.is_file() else None
+
     def _quicktalk_face_cache(self) -> Path | None:
         if self.model_type != "quicktalk":
             return None
+        prepared = self._prepared_quicktalk_path("face_cache_v3", "npz")
+        if prepared is not None:
+            return prepared
         quicktalk = self._quicktalk_manifest_section()
         path = self._resolve_avatar_relative_path(str(quicktalk.get("face_cache") or ""))
         if path is not None and path.is_file():
@@ -626,6 +642,9 @@ class FlashTalkRunner:
     def _quicktalk_template_video(self) -> Path | None:
         metadata = self._quicktalk_manifest_metadata()
         quicktalk = self._quicktalk_manifest_section()
+        prepared = self._prepared_quicktalk_path("template", "mp4")
+        if prepared is not None:
+            return prepared
         for source in (quicktalk, metadata):
             for key in ("template_video", "source_video"):
                 path = self._resolve_avatar_relative_path(str(source.get(key) or ""))
@@ -2147,6 +2166,10 @@ class FlashTalkRunner:
                     if item is None:
                         break
                     pcm_chunk, sub_tag = item
+                    pcm_chunk = np.asarray(pcm_chunk, dtype=np.int16)
+                    if pcm_chunk.size == 0:
+                        log.debug("Skipping empty audio chunk before model generate: session=%s", self.session_id)
+                        continue
                     if self._interrupt.is_set():
                         break
                     await self._wait_media_backpressure()
@@ -2486,6 +2509,10 @@ class FlashTalkRunner:
                     if item is None:
                         break
                     pcm_chunk, sub_tag = item
+                    pcm_chunk = np.asarray(pcm_chunk, dtype=np.int16)
+                    if pcm_chunk.size == 0:
+                        log.debug("Skipping empty audio chunk before model generate: session=%s", self.session_id)
+                        continue
                     if self._interrupt.is_set():
                         break
                     g0 = time.perf_counter()
@@ -2670,6 +2697,10 @@ class FlashTalkRunner:
         import time as _t
         t0 = _t.monotonic()
         if source == "idle" and (self._speaking or self._closed):
+            return []
+        pcm_chunk = np.asarray(pcm_chunk, dtype=np.int16)
+        if pcm_chunk.size == 0:
+            log.debug("Skipping empty %s generate: session=%s", source, self.session_id)
             return []
         async with self._generate_lock:
             if source == "idle" and (self._speaking or self._closed):

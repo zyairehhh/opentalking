@@ -181,7 +181,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175,
+        0.641667,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00001.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -363,7 +370,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175,
+        0.641667,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00002.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -545,7 +559,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.174219,
+        0.641667,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00003.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -727,7 +748,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.174219,
+        0.641667,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00004.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -909,7 +937,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.174219,
+        0.641667,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00005.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -1091,7 +1126,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.175,
+        0.641667,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00006.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -1273,7 +1315,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175,
+        0.641667,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00007.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -1455,7 +1504,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175,
+        0.641667,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00008.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -1637,7 +1693,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175781,
+        0.641667,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00009.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -1819,7 +1882,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175781,
+        0.641667,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00010.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -2001,7 +2071,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.176563,
+        0.641667,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00011.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -2183,7 +2260,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175,
+        0.643056,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00012.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -2365,7 +2449,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175,
+        0.643056,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00013.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -2547,7 +2638,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.174219,
+        0.644444,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00014.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -2729,7 +2827,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.174219,
+        0.644444,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00015.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -2911,7 +3016,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.175781,
+        0.643056,
+        0.402344
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00016.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -3093,7 +3205,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.175,
+        0.643056,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00017.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -3275,7 +3394,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175,
+        0.643056,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00018.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -3457,7 +3583,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.174219,
+        0.644444,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00019.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -3639,7 +3772,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.175,
+        0.644444,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00020.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -3821,7 +3961,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.175,
+        0.644444,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00021.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -4003,7 +4150,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.175,
+        0.644444,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00022.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -4185,7 +4339,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.174219,
+        0.644444,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00023.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -4367,7 +4528,14 @@
             0.34687
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.174219,
+        0.644444,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00024.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -4549,7 +4717,14 @@
             0.34687
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.175,
+        0.643056,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00025.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -4731,7 +4906,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.174219,
+        0.643056,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00026.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -4913,7 +5095,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.175781,
+        0.643056,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00027.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -5095,7 +5284,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175781,
+        0.643056,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00028.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -5277,7 +5473,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175,
+        0.641667,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00029.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -5459,7 +5662,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.352778,
+        0.176563,
+        0.640278,
+        0.402344
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00030.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -5641,7 +5851,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.175781,
+        0.641667,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00031.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -5823,7 +6040,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.174219,
+        0.641667,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00032.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -6005,7 +6229,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.175,
+        0.640278,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00033.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -6187,7 +6418,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175,
+        0.640278,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00034.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -6369,7 +6607,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.175,
+        0.640278,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00035.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -6551,7 +6796,14 @@
             0.34609
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.175,
+        0.640278,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00036.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -6733,7 +6985,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.175781,
+        0.640278,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00037.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -6915,7 +7174,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.175781,
+        0.638889,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00038.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -7097,7 +7363,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.175,
+        0.638889,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00039.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -7279,7 +7552,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.174219,
+        0.638889,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00040.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -7461,7 +7741,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.174219,
+        0.640278,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00041.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -7643,7 +7930,14 @@
             0.34531
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.174219,
+        0.638889,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00042.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -7825,7 +8119,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.175,
+        0.640278,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00043.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -8007,7 +8308,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.175,
+        0.640278,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00044.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -8189,7 +8497,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.175,
+        0.640278,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00045.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -8371,7 +8686,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175,
+        0.640278,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00046.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -8553,7 +8875,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.173437,
+        0.640278,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00047.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -8735,7 +9064,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.173437,
+        0.640278,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00048.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -8917,7 +9253,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.174219,
+        0.640278,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00049.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -9099,7 +9442,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.174219,
+        0.640278,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00050.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -9281,7 +9631,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.174219,
+        0.640278,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00051.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -9463,7 +9820,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.174219,
+        0.640278,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00052.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -9645,7 +10009,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.175,
+        0.640278,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00053.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -9827,7 +10198,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.174219,
+        0.640278,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00054.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -10009,7 +10387,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.173437,
+        0.640278,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00055.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -10191,7 +10576,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.352778,
+        0.173437,
+        0.640278,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00056.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -10373,7 +10765,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.352778,
+        0.173437,
+        0.640278,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00057.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -10555,7 +10954,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.352778,
+        0.173437,
+        0.640278,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00058.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -10737,7 +11143,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.352778,
+        0.174219,
+        0.638889,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00059.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -10919,7 +11332,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.352778,
+        0.174219,
+        0.638889,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00060.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -11101,7 +11521,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.35,
+        0.175781,
+        0.640278,
+        0.400781
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00061.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -11283,7 +11710,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.352778,
+        0.174219,
+        0.638889,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00062.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -11465,7 +11899,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.352778,
+        0.174219,
+        0.638889,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00063.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -11647,7 +12088,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.352778,
+        0.174219,
+        0.638889,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00064.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -11829,7 +12277,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.352778,
+        0.174219,
+        0.638889,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00065.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -12011,7 +12466,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.352778,
+        0.175,
+        0.638889,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00066.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -12193,7 +12655,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.352778,
+        0.174219,
+        0.638889,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00067.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -12375,7 +12844,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.352778,
+        0.174219,
+        0.638889,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00068.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -12557,7 +13033,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.352778,
+        0.174219,
+        0.638889,
+        0.398438
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00069.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -12739,7 +13222,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.174219,
+        0.640278,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00070.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -12921,7 +13411,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.175,
+        0.640278,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00071.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -13103,7 +13600,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.174219,
+        0.640278,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00072.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -13285,7 +13789,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.354167,
+        0.174219,
+        0.641667,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00073.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -13467,7 +13978,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.174219,
+        0.641667,
+        0.4
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00074.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -13649,7 +14167,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.174219,
+        0.641667,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00075.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -13831,7 +14356,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.174219,
+        0.641667,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00076.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -14013,7 +14545,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.174219,
+        0.641667,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00077.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -14195,7 +14734,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.174219,
+        0.641667,
+        0.398438
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00078.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -14377,7 +14923,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175,
+        0.641667,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00079.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -14559,7 +15112,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175,
+        0.641667,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00080.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -14741,7 +15301,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175,
+        0.641667,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00081.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -14923,7 +15490,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.355556,
+        0.175,
+        0.641667,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00082.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -15105,7 +15679,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.174219,
+        0.643056,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00083.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -15287,7 +15868,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.174219,
+        0.641667,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00084.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -15469,7 +16057,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.174219,
+        0.641667,
+        0.398438
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00085.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -15651,7 +16246,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.356944,
+        0.174219,
+        0.641667,
+        0.398438
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00086.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -15833,7 +16435,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.358333,
+        0.174219,
+        0.643056,
+        0.398438
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00087.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -16015,7 +16624,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.358333,
+        0.174219,
+        0.641667,
+        0.398438
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00088.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -16197,7 +16813,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.358333,
+        0.174219,
+        0.643056,
+        0.398438
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00089.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -16379,7 +17002,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.174219,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00090.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -16561,7 +17191,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.173437,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00091.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -16743,7 +17380,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.173437,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00092.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -16925,7 +17569,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.173437,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00093.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -17107,7 +17758,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.173437,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00094.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -17289,7 +17947,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.172656,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00095.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -17471,7 +18136,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.172656,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00096.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -17653,7 +18325,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.172656,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00097.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -17835,7 +18514,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.172656,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00098.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -18017,7 +18703,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.173437,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00099.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -18199,7 +18892,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.173437,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00100.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -18381,7 +19081,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.172656,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00101.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -18563,7 +19270,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.172656,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00102.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -18745,7 +19459,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.172656,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00103.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -18927,7 +19648,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.171875,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00104.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -19109,7 +19837,14 @@
             0.34297
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.171875,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00105.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -19291,7 +20026,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.171875,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00106.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -19473,7 +20215,14 @@
             0.34297
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.172656,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00107.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -19655,7 +20404,14 @@
             0.34297
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.172656,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00108.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -19837,7 +20593,14 @@
             0.34297
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.359722,
+        0.172656,
+        0.643056,
+        0.396875
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00109.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -20019,7 +20782,14 @@
             0.34297
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.172656,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00110.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -20201,7 +20971,14 @@
             0.34297
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.358333,
+        0.172656,
+        0.643056,
+        0.398438
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00111.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -20383,7 +21160,14 @@
             0.34297
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.171875,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00112.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -20565,7 +21349,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.172656,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00113.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -20747,7 +21538,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.172656,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00114.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -20929,7 +21727,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.172656,
+        0.643056,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00115.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -21111,7 +21916,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.172656,
+        0.644444,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00116.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -21293,7 +22105,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.172656,
+        0.644444,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00117.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -21475,7 +22294,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.172656,
+        0.644444,
+        0.397656
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00118.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -21657,7 +22483,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.172656,
+        0.644444,
+        0.398438
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00119.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -21839,7 +22672,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.172656,
+        0.644444,
+        0.398438
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00120.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -22021,7 +22861,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.173437,
+        0.644444,
+        0.398438
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00121.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -22203,7 +23050,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.172656,
+        0.644444,
+        0.398438
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00122.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -22385,7 +23239,14 @@
             0.34375
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.173437,
+        0.644444,
+        0.398438
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00123.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -22567,7 +23428,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.173437,
+        0.644444,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     },
     "frame_00124.jpg": {
       "mouth_polygon_source": "mediapipe",
@@ -22749,7 +23617,14 @@
             0.34453
           ]
         ]
-      }
+      },
+      "model_crop": [
+        0.361111,
+        0.174219,
+        0.643056,
+        0.399219
+      ],
+      "model_crop_source": "wav2lip_detector"
     }
   },
   "missing_frames": []

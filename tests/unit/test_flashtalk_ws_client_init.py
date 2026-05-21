@@ -4,6 +4,7 @@ import base64
 import json
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from opentalking.providers.synthesis.flashtalk.ws_client import FlashTalkWSClient
@@ -288,3 +289,15 @@ async def test_init_session_sends_quicktalk_face_cache(tmp_path: Path) -> None:
 
     sent = json.loads(ws.sent[0])
     assert sent["quicktalk_face_cache"] == str(cache)
+
+
+@pytest.mark.asyncio
+async def test_generate_skips_empty_pcm_chunk() -> None:
+    client = FlashTalkWSClient("ws://example.test/v1/audio2video/quicktalk")
+    ws = FakeWebSocket()
+    client._ws = ws
+
+    frames = await client.generate(np.zeros(0, dtype=np.int16))
+
+    assert frames == []
+    assert ws.sent == []

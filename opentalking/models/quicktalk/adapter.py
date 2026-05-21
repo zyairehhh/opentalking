@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import threading
+from collections import OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterator
@@ -43,7 +44,7 @@ class QuickTalkState:
 # is purely a function of the avatar bundle + adapter parameters, so the same
 # worker can be safely reused across many sessions provided each session keeps
 # its own ``RealtimeV3SessionState`` (LSTM hidden + template cycle).
-_WORKER_CACHE: dict[tuple[Any, ...], "RealtimeV3Worker"] = {}
+_WORKER_CACHE: OrderedDict[tuple[Any, ...], "RealtimeV3Worker"] = OrderedDict()
 _WORKER_CACHE_LOCK = threading.Lock()
 
 
@@ -52,6 +53,7 @@ def _worker_cache_key(
     asset_root: Path,
     template_video: Path,
     face_cache_dir: Path,
+    face_cache_file: Path | None,
     device: str,
     output_transform: str,
     scale_h: float,
@@ -67,6 +69,7 @@ def _worker_cache_key(
         str(asset_root),
         str(template_video),
         str(face_cache_dir),
+        str(face_cache_file) if face_cache_file else "",
         str(device),
         str(output_transform),
         float(scale_h),
@@ -82,6 +85,38 @@ def _worker_cache_key(
 
 def _env_value(name: str, default: str = "") -> str:
     return os.environ.get(name, "").strip() or default
+
+
+def _positive_int_env(name: str, default: int) -> int:
+    try:
+        value = int(_env_value(name, str(default)))
+    except ValueError:
+        return default
+    return max(1, value)
+
+
+def _close_worker(worker: Any) -> None:
+    close = getattr(worker, "close", None)
+    if callable(close):
+        close()
+        return
+    try:
+        import gc
+        import torch
+
+        del worker
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except Exception:
+        return
+
+
+def _enforce_worker_cache_limit() -> None:
+    max_workers = _positive_int_env("OPENTALKING_QUICKTALK_WORKER_CACHE_MAX", 1)
+    while len(_WORKER_CACHE) > max_workers:
+        _, old_worker = _WORKER_CACHE.popitem(last=False)
+        _close_worker(old_worker)
 
 
 def _metadata_section(metadata: dict[str, Any], key: str) -> dict[str, Any]:
@@ -129,6 +164,74 @@ def _optional_env_path(name: str) -> Path | None:
     if not raw:
         return None
     return Path(raw).expanduser().resolve()
+
+
+def _even(value: int) -> int:
+    value = max(2, int(value))
+    return value - (value % 2)
+
+
+def _quicktalk_max_long_edge() -> int:
+    raw = (
+        _env_value("OPENTALKING_QUICKTALK_MAX_LONG_EDGE")
+        or _env_value("OMNIRT_QUICKTALK_MAX_LONG_EDGE")
+        or "900"
+    )
+    try:
+        return max(0, int(raw))
+    except ValueError:
+        return 900
+
+
+def _target_video_size(manifest: AvatarManifest) -> tuple[int, int]:
+    width = int(manifest.width)
+    height = int(manifest.height)
+    max_long_edge = _quicktalk_max_long_edge()
+    if max_long_edge > 0 and max(width, height) > max_long_edge:
+        scale = max_long_edge / float(max(width, height))
+        width = int(round(width * scale))
+        height = int(round(height * scale))
+    return _even(width), _even(height)
+
+
+def _resolve_avatar_child(avatar_path: Path, raw: object, *, must_be_file: bool = False) -> Path | None:
+    value = str(raw or "").strip()
+    if not value:
+        return None
+    path = (avatar_path / value).resolve()
+    try:
+        path.relative_to(avatar_path.resolve())
+    except ValueError:
+        return None
+    if must_be_file:
+        return path if path.is_file() else None
+    return path if path.exists() else None
+
+
+def _prepared_quicktalk_template_and_cache(
+    avatar_path: Path,
+    manifest: AvatarManifest,
+    metadata: dict[str, Any],
+) -> tuple[Path | None, Path | None]:
+    quicktalk = _metadata_section(metadata, "quicktalk")
+    template = _resolve_avatar_child(
+        avatar_path,
+        quicktalk.get("template_video") or quicktalk.get("source_video"),
+        must_be_file=True,
+    )
+    face_cache = _resolve_avatar_child(avatar_path, quicktalk.get("face_cache"), must_be_file=True)
+    if template is not None:
+        return template, face_cache
+
+    quicktalk_dir = avatar_path / "quicktalk"
+    if not quicktalk_dir.is_dir():
+        return None, None
+    width, height = _target_video_size(manifest)
+    template = quicktalk_dir / f"template_{width}x{height}.mp4"
+    face_cache = quicktalk_dir / f"face_cache_v3_{width}x{height}.npz"
+    if template.is_file():
+        return template.resolve(), face_cache.resolve() if face_cache.is_file() else None
+    return None, None
 
 
 def _normalize_asset_root(asset_root: Path) -> Path:
@@ -254,8 +357,6 @@ class QuickTalkAdapter:
         self._device = device
 
     def load_avatar(self, avatar_path: str) -> QuickTalkState:
-        from opentalking.models.quicktalk.runtime import RealtimeV3Worker
-
         bundle = load_avatar_bundle(Path(avatar_path), strict=False)
         metadata = bundle.manifest.metadata or {}
         asset_root = self._asset_root if self._asset_root is not None else _path_from_env_or_metadata(
@@ -268,15 +369,33 @@ class QuickTalkAdapter:
         )
         asset_root = _normalize_asset_root(asset_root)
         _validate_asset_root(asset_root)
-        template_video = _path_from_env_or_metadata(
-            "OPENTALKING_QUICKTALK_TEMPLATE_VIDEO",
+        prepared_template, face_cache_file = _prepared_quicktalk_template_and_cache(
+            bundle.path,
+            bundle.manifest,
             metadata,
-            "template_video",
-            "source_video",
-            "video",
-            base_dir=bundle.path,
-            sections=("quicktalk",),
         )
+        if _env_value("OPENTALKING_QUICKTALK_TEMPLATE_VIDEO"):
+            template_video = _path_from_env_or_metadata(
+                "OPENTALKING_QUICKTALK_TEMPLATE_VIDEO",
+                metadata,
+                "template_video",
+                "source_video",
+                "video",
+                base_dir=bundle.path,
+                sections=("quicktalk",),
+            )
+        elif prepared_template is not None:
+            template_video = prepared_template
+        else:
+            template_video = _path_from_env_or_metadata(
+                "OPENTALKING_QUICKTALK_TEMPLATE_VIDEO",
+                metadata,
+                "template_video",
+                "source_video",
+                "video",
+                base_dir=bundle.path,
+                sections=("quicktalk",),
+            )
         face_cache_raw = _env_value("OPENTALKING_QUICKTALK_FACE_CACHE_DIR")
         face_cache_dir = Path(face_cache_raw).expanduser().resolve() if face_cache_raw else asset_root / ".face_cache_v3"
         max_template_seconds = (
@@ -285,10 +404,13 @@ class QuickTalkAdapter:
             else None
         )
 
+        from opentalking.models.quicktalk.runtime import RealtimeV3Worker
+
         cache_key = _worker_cache_key(
             asset_root=asset_root,
             template_video=template_video,
             face_cache_dir=face_cache_dir,
+            face_cache_file=face_cache_file,
             device=self._device,
             output_transform=self._output_transform,
             scale_h=self._scale_h,
@@ -307,6 +429,7 @@ class QuickTalkAdapter:
         if not cache_disabled:
             worker = _WORKER_CACHE.get(cache_key)
             if worker is not None:
+                _WORKER_CACHE.move_to_end(cache_key)
                 log.info(
                     "quicktalk worker cache HIT (avatar=%s)", bundle.manifest.id
                 )
@@ -315,6 +438,8 @@ class QuickTalkAdapter:
             with _WORKER_CACHE_LOCK:
                 if not cache_disabled:
                     worker = _WORKER_CACHE.get(cache_key)
+                    if worker is not None:
+                        _WORKER_CACHE.move_to_end(cache_key)
                 if worker is None:
                     log.info(
                         "quicktalk worker cache MISS — building (avatar=%s)",
@@ -324,6 +449,7 @@ class QuickTalkAdapter:
                         asset_root=asset_root,
                         template_video=template_video,
                         face_cache_dir=face_cache_dir,
+                        face_cache_file=face_cache_file,
                         device=self._device,
                         output_transform=self._output_transform,
                         scale_h=self._scale_h,
@@ -337,6 +463,7 @@ class QuickTalkAdapter:
                     )
                     if not cache_disabled:
                         _WORKER_CACHE[cache_key] = worker
+                        _enforce_worker_cache_limit()
 
         session_state = worker.make_state()
         return QuickTalkState(
@@ -347,8 +474,27 @@ class QuickTalkAdapter:
             session_state=session_state,
         )
 
-    def warmup(self) -> None:
-        return None
+    def warmup(self, avatar_state: QuickTalkState | None = None) -> None:
+        if avatar_state is None:
+            return
+        previous_frame_index = avatar_state.frame_index
+        previous_session_state = avatar_state.session_state
+        avatar_state.session_state = avatar_state.worker.make_state()
+        sample_rate = 16000
+        samples = max(3200, sample_rate // 4)
+        silence = np.zeros(samples, dtype=np.int16)
+        try:
+            self.render_audio_chunk(
+                avatar_state,
+                AudioChunk(
+                    data=silence,
+                    sample_rate=sample_rate,
+                    duration_ms=1000.0 * float(samples) / float(sample_rate),
+                ),
+            )
+        finally:
+            avatar_state.frame_index = previous_frame_index
+            avatar_state.session_state = previous_session_state
 
     def extract_features(self, audio_chunk: AudioChunk) -> QuickTalkFeatures:
         raise RuntimeError("QuickTalkAdapter.extract_features requires avatar state; use extract_features_for_stream")

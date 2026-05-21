@@ -15,6 +15,7 @@ type AvatarSelectionStageProps = {
   modelConnected: boolean;
   modelBadge: ModelConnectionBadge;
   queueInfo?: { position: number; message: string } | null;
+  prewarmState?: "idle" | "preparing" | "ready" | "failed";
   onAvatarChange: (id: string) => void;
   onStart: () => void;
   onCustomAvatarCreate: (file: File, name: string) => void;
@@ -58,6 +59,7 @@ export function AvatarSelectionStage({
   modelConnected,
   modelBadge,
   queueInfo,
+  prewarmState = "idle",
   onAvatarChange,
   onStart,
   onCustomAvatarCreate,
@@ -75,8 +77,8 @@ export function AvatarSelectionStage({
   });
   const [customFile, setCustomFile] = useState<File | null>(null);
   const [customPreviewUrl, setCustomPreviewUrl] = useState<string | null>(null);
-  const startLabel = queued ? "排队中" : loading ? "启动中..." : "开始对话";
-  const disabled = loading || queued || !selectedAvatar || !modelConnected;
+  const startLabel = queued ? "排队中" : loading ? "启动中..." : prewarmState === "preparing" ? "准备资产中..." : "开始对话";
+  const disabled = loading || queued || prewarmState === "preparing" || !selectedAvatar || !modelConnected;
 
   useEffect(() => {
     return () => {
@@ -266,6 +268,16 @@ export function AvatarSelectionStage({
                 {!modelConnected ? (
                   <p className="mb-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600">
                     当前驱动模型未连接，请先启动对应模型服务。
+                  </p>
+                ) : null}
+                {modelConnected && prewarmState === "preparing" ? (
+                  <p className="mb-3 rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm font-medium text-cyan-800">
+                    正在准备当前形象资产，完成后会自动复用缓存。
+                  </p>
+                ) : null}
+                {modelConnected && prewarmState === "failed" ? (
+                  <p className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800">
+                    资产准备失败，点击开始会重新尝试。
                   </p>
                 ) : null}
                 <button

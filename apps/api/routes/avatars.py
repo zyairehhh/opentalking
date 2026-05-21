@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import base64
 import json
 import os
 import re
@@ -8,7 +10,9 @@ from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
+import httpx
 import numpy as np
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
@@ -17,7 +21,18 @@ from PIL import Image
 from opentalking.avatar import mouth_metadata
 from opentalking.avatar.loader import load_avatar_bundle
 from opentalking.avatar.validator import list_avatar_dirs
+from opentalking.models.registry import get_adapter
+from opentalking.providers.synthesis.backends import resolve_model_backend
+from opentalking.providers.synthesis.omnirt import auth_headers
 from apps.api.schemas.avatar import AvatarSummary
+from apps.cli.prepare_cache import (
+    PreparedAssetResult,
+    _prepare_quicktalk_asset,
+    _resolve_quicktalk_template_source,
+    _target_video_size,
+    _validate_quicktalk_face_cache,
+)
+from opentalking.avatar.wav2lip_preload import collect_wav2lip_preload_payload_for_avatar
 
 router = APIRouter(prefix="/avatars", tags=["avatars"])
 
@@ -215,6 +230,450 @@ def _prepare_quicktalk_custom_assets(manifest_path: Path, image: Image.Image) ->
     _write_manifest(manifest_path, raw)
 
 
+def _endpoint_to_http_url(endpoint: str, path: str) -> str:
+    parts = urlsplit(endpoint)
+    scheme_map = {"http": "http", "https": "https", "ws": "http", "wss": "https"}
+    scheme = scheme_map.get(parts.scheme.lower())
+    if scheme is None:
+        raise ValueError(f"Unsupported OMNIRT_ENDPOINT scheme: {parts.scheme!r}")
+    base_path = parts.path.rstrip("/")
+    suffix = path if path.startswith("/") else f"/{path}"
+    return urlunsplit((scheme, parts.netloc, base_path + suffix, "", ""))
+
+
+async def _post_omnirt_json(settings: Any, path: str, payload: dict[str, Any]) -> dict[str, Any]:
+    endpoint = (getattr(settings, "omnirt_endpoint", "") or "").strip()
+    if not endpoint:
+        raise RuntimeError("OMNIRT_ENDPOINT is not configured.")
+    url = _endpoint_to_http_url(endpoint, path)
+    async with httpx.AsyncClient(timeout=300.0) as client:
+        response = await client.post(url, json=payload, headers=auth_headers(settings))
+        response.raise_for_status()
+    data = response.json()
+    return data if isinstance(data, dict) else {"type": "error", "message": "invalid OmniRT response"}
+
+
+def _settings_quicktalk_model_root(settings: Any) -> Path:
+    raw = (
+        getattr(settings, "quicktalk_model_root", "")
+        or os.environ.get("OPENTALKING_QUICKTALK_MODEL_ROOT", "")
+        or os.environ.get("OMNIRT_QUICKTALK_MODEL_ROOT", "")
+    )
+    if raw:
+        return Path(str(raw)).expanduser().resolve()
+    omnirt_model_root = os.environ.get("OMNIRT_MODEL_ROOT", "").strip()
+    if omnirt_model_root:
+        return (Path(omnirt_model_root).expanduser().resolve() / "quicktalk").resolve()
+    return (Path(getattr(settings, "models_dir", "./models")) / "quicktalk").expanduser().resolve()
+
+
+def _settings_int(settings: Any, name: str, env_name: str, default: int) -> int:
+    raw = getattr(settings, name, None)
+    if raw is None:
+        raw = os.environ.get(env_name)
+    try:
+        return int(str(raw)) if raw not in (None, "") else default
+    except (TypeError, ValueError):
+        return default
+
+
+def _settings_float(settings: Any, name: str, env_name: str, default: float) -> float:
+    raw = getattr(settings, name, None)
+    if raw is None:
+        raw = os.environ.get(env_name)
+    try:
+        return float(str(raw)) if raw not in (None, "") else default
+    except (TypeError, ValueError):
+        return default
+
+
+def _quicktalk_rebuild(settings: Any):
+    from opentalking.models.quicktalk.runtime_v2 import QuickTalkRebuild
+
+    return QuickTalkRebuild(
+        asset_root=_settings_quicktalk_model_root(settings),
+        device=str(
+            getattr(settings, "quicktalk_device", None)
+            or os.environ.get("OPENTALKING_QUICKTALK_DEVICE")
+            or os.environ.get("OMNIRT_QUICKTALK_DEVICE")
+            or "cuda:0"
+        ),
+        hubert_device=(
+            getattr(settings, "quicktalk_hubert_device", None)
+            or os.environ.get("OPENTALKING_QUICKTALK_HUBERT_DEVICE")
+            or os.environ.get("OMNIRT_QUICKTALK_HUBERT_DEVICE")
+            or None
+        ),
+        model_backend=str(
+            getattr(settings, "quicktalk_model_backend", None)
+            or os.environ.get("OPENTALKING_QUICKTALK_MODEL_BACKEND")
+            or "pth"
+        ),
+        video_padding_seconds=0.0,
+    )
+
+
+def _quicktalk_cache_hit_result(
+    avatar_dir: Path,
+    manifest: dict[str, Any],
+    *,
+    max_long_edge: int,
+    verify: bool,
+) -> PreparedAssetResult | None:
+    width, height = _target_video_size(manifest, max_long_edge=max_long_edge)
+    quicktalk_dir = avatar_dir / "quicktalk"
+    template_path = quicktalk_dir / f"template_{width}x{height}.mp4"
+    cache_path = quicktalk_dir / f"face_cache_v3_{width}x{height}.npz"
+    if not template_path.is_file() or not cache_path.is_file():
+        return None
+    source = _resolve_quicktalk_template_source(avatar_dir, manifest)
+    info = _validate_quicktalk_face_cache(cache_path) if verify else None
+    return PreparedAssetResult(
+        avatar_id=str(manifest.get("id") or avatar_dir.name),
+        status="hit",
+        source_mode=source.mode if source is not None else "prepared",
+        template_path=template_path,
+        cache_path=cache_path,
+        frames=info.frames if info else None,
+    )
+
+
+def _prepared_cache_response(model: str, cache: PreparedAssetResult) -> dict[str, Any]:
+    return {
+        "model": model,
+        "status": cache.status,
+        "source_mode": cache.source_mode,
+        "frames": cache.frames,
+        "detail": cache.detail,
+    }
+
+
+def _omnirt_audio2video_preload_path(settings: Any, model: str) -> str:
+    template = (
+        getattr(settings, "omnirt_audio2video_path_template", "")
+        or "/v1/audio2video/{model}"
+    )
+    path = template.format(model=model).rstrip("/")
+    return f"{path}/preload"
+
+
+def _call_adapter_warmup(adapter: Any, avatar_state: Any) -> bool:
+    warmup = getattr(adapter, "warmup", None)
+    if not callable(warmup):
+        return False
+    try:
+        import inspect
+
+        takes_avatar_state = bool(inspect.signature(warmup).parameters)
+    except (TypeError, ValueError):
+        takes_avatar_state = False
+    if takes_avatar_state:
+        warmup(avatar_state)
+    else:
+        warmup()
+    return True
+
+
+def _local_adapter_device(model: str, settings: Any) -> str:
+    model = model.strip().lower()
+    if model == "wav2lip":
+        return str(
+            getattr(settings, "wav2lip_device", "")
+            or os.environ.get("OPENTALKING_WAV2LIP_DEVICE")
+            or getattr(settings, "device", "")
+            or os.environ.get("OPENTALKING_DEVICE")
+            or os.environ.get("OPENTALKING_TORCH_DEVICE")
+            or os.environ.get("DEVICE")
+            or "cuda"
+        )
+    if model == "quicktalk":
+        return str(
+            getattr(settings, "quicktalk_device", "")
+            or os.environ.get("OPENTALKING_QUICKTALK_DEVICE")
+            or os.environ.get("OPENTALKING_TORCH_DEVICE")
+            or getattr(settings, "torch_device", "")
+            or getattr(settings, "device", "")
+            or os.environ.get("OPENTALKING_DEVICE")
+            or os.environ.get("DEVICE")
+            or "cuda:0"
+        )
+    return str(
+        getattr(settings, "device", "")
+        or os.environ.get("OPENTALKING_DEVICE")
+        or os.environ.get("OPENTALKING_TORCH_DEVICE")
+        or os.environ.get("DEVICE")
+        or "cuda"
+    )
+
+
+def _prewarm_local_adapter(
+    model: str,
+    avatar_dir: Path,
+    settings: Any,
+    prepared_cache: PreparedAssetResult | None = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    import time
+
+    started = time.monotonic()
+    adapter = get_adapter(model)
+    device = _local_adapter_device(model, settings)
+    adapter.load_model(device)
+    avatar_state = adapter.load_avatar(str(avatar_dir))
+    warmed = _call_adapter_warmup(adapter, avatar_state)
+    worker = getattr(avatar_state, "worker", None)
+    frames = None
+    restore_contexts = getattr(worker, "restore_contexts", None)
+    if restore_contexts is not None:
+        try:
+            frames = len(restore_contexts)
+        except TypeError:
+            frames = None
+    state_extra = getattr(avatar_state, "extra", None)
+    preload_result = state_extra.get("preload_result") if isinstance(state_extra, dict) else None
+    if isinstance(preload_result, dict) and frames is None:
+        frames = preload_result.get("frames")
+    runtime = {
+        "type": "local_prewarm_result",
+        "backend": "local",
+        "model": model,
+        "warmed": warmed,
+        "elapsed_ms": round((time.monotonic() - started) * 1000.0, 3),
+    }
+    if isinstance(preload_result, dict):
+        runtime["preload"] = preload_result
+    cache = {
+        "model": model,
+        "status": "warmed" if warmed else "loaded",
+        "source_mode": "local",
+        "frames": frames,
+        "detail": "local adapter loaded avatar and ran warmup" if warmed else "local adapter loaded avatar",
+    }
+    if model == "wav2lip":
+        cache_dir = avatar_dir / "wav2lip"
+        cache_files = sorted(cache_dir.glob("v*.npz")) if cache_dir.is_dir() else []
+        manifest_path = avatar_dir / "manifest.json"
+        source_mode = "local"
+        try:
+            raw = json.loads(manifest_path.read_text(encoding="utf-8"))
+            metadata = raw.get("metadata") if isinstance(raw, dict) else None
+            if isinstance(metadata, dict):
+                source_mode = str(metadata.get("reference_mode") or source_mode)
+        except Exception:
+            source_mode = "local"
+        if source_mode == "frames":
+            cache["source_mode"] = "frames"
+            cache_source = str(preload_result.get("cache_source") or "") if isinstance(preload_result, dict) else ""
+            if cache_source == "memory":
+                cache["status"] = "memory"
+            elif cache_source == "disk":
+                cache["status"] = "hit"
+            elif cache_source == "built":
+                cache["status"] = "built"
+            elif cache_files:
+                cache["status"] = "built"
+            if cache_files or cache_source:
+                if frames is None:
+                    cache["frames"] = len(cache_files)
+                cache["detail"] = "local adapter prepared Wav2Lip frame cache"
+            else:
+                cache["status"] = "loaded"
+                cache["detail"] = "local adapter loaded frames without persistent cache"
+    if prepared_cache is not None:
+        cache["prepared_status"] = prepared_cache.status
+        if frames is None:
+            cache["frames"] = prepared_cache.frames
+    return cache, runtime
+
+
+def _prewarm_local_backend(
+    model: str,
+    avatar_dir: Path,
+    manifest: dict[str, Any],
+    settings: Any,
+    *,
+    overwrite: bool,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    prepared_cache: PreparedAssetResult | None = None
+    if model == "quicktalk":
+        prepared_cache, _runtime_payload = _prepare_quicktalk_prewarm(
+            avatar_dir=avatar_dir,
+            manifest=manifest,
+            settings=settings,
+            overwrite=overwrite,
+        )
+    return _prewarm_local_adapter(
+        model,
+        avatar_dir,
+        settings,
+        prepared_cache=prepared_cache,
+    )
+
+
+def _quicktalk_runtime_payload(
+    avatar_dir: Path,
+    manifest: dict[str, Any],
+    cache: PreparedAssetResult | None = None,
+) -> dict[str, Any]:
+    from opentalking.pipeline.speak.synthesis_runner import FlashTalkRunner
+
+    runner = FlashTalkRunner(
+        session_id="prewarm",
+        avatar_id=avatar_dir.name,
+        avatars_root=avatar_dir.parent,
+        redis=None,
+        flashtalk_client=object(),
+        model_type="quicktalk",
+    )
+    video_config = runner._quicktalk_video_config() or {}
+    payload: dict[str, Any] = dict(video_config)
+    if cache is not None and cache.template_path is not None:
+        payload["template_mode"] = "video"
+        payload["template_video"] = str(cache.template_path)
+        if cache.cache_path is not None:
+            payload["quicktalk_face_cache"] = str(cache.cache_path)
+    else:
+        template_mode = runner._quicktalk_template_mode()
+        if template_mode:
+            payload["template_mode"] = template_mode
+        template_video = runner._quicktalk_template_video()
+        if template_video is not None:
+            payload["template_video"] = str(template_video)
+        template_frame_dir = runner._quicktalk_template_frame_dir()
+        if template_frame_dir is not None:
+            payload["template_frame_dir"] = str(template_frame_dir)
+        face_cache = runner._quicktalk_face_cache()
+        if face_cache is not None:
+            payload["quicktalk_face_cache"] = str(face_cache)
+    for key in ("width", "height", "fps"):
+        if payload.get(key) is None and manifest.get(key) is not None:
+            payload[key] = manifest.get(key)
+    return payload
+
+
+def _wav2lip_prewarm_payload(
+    avatars_root: Path,
+    avatar_id: str,
+    avatar_dir: Path,
+    manifest: dict[str, Any],
+    settings: Any,
+) -> dict[str, Any]:
+    postprocess_mode = (
+        getattr(settings, "wav2lip_postprocess_mode", "")
+        or os.environ.get("OPENTALKING_WAV2LIP_POSTPROCESS_MODE", "")
+        or "easy_improved"
+    )
+    payload = collect_wav2lip_preload_payload_for_avatar(
+        avatars_root,
+        avatar_id,
+        postprocess_mode=str(postprocess_mode),
+    )
+    if payload is not None:
+        payload.setdefault("reference_mode", "frames")
+        return payload
+
+    reference_path = None
+    for name in ("reference.png", "reference.jpg", "reference.jpeg", "reference.webp", "preview.png"):
+        candidate = avatar_dir / name
+        if candidate.is_file():
+            reference_path = candidate
+            break
+    if reference_path is None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"wav2lip prewarm requires reference image or preprocessed frames: {avatar_id}",
+        )
+    raw_metadata = manifest.get("metadata")
+    metadata: dict[str, Any] = raw_metadata if isinstance(raw_metadata, dict) else {}
+    mouth = {}
+    animation = metadata.get("animation")
+    if isinstance(animation, dict):
+        source_image_hash = metadata.get("source_image_hash")
+        mouth = {
+            "source_image_hash": source_image_hash,
+            "source_image_path": metadata.get("source_image_path"),
+            "face_box": metadata.get("face_box"),
+            "animation": animation,
+        }
+    return {
+        "avatar_id": avatar_id,
+        "ref_image": base64.b64encode(reference_path.read_bytes()).decode("ascii"),
+        "width": int(manifest.get("width") or 416),
+        "height": int(manifest.get("height") or 704),
+        "fps": int(manifest.get("fps") or 25),
+        "reference_mode": "image",
+        "preprocessed": bool(metadata.get("preprocessed")),
+        "wav2lip_postprocess_mode": (
+            str(metadata.get("preferred_wav2lip_postprocess_mode") or postprocess_mode)
+        ),
+        "mouth_metadata": mouth,
+    }
+
+
+def _wav2lip_cache_response(payload: dict[str, Any], runtime: dict[str, Any]) -> dict[str, Any]:
+    source_mode = str(payload.get("reference_mode") or "image")
+    if source_mode != "frames":
+        return {
+            "model": "wav2lip",
+            "status": "runtime",
+            "source_mode": source_mode,
+            "frames": runtime.get("frames"),
+            "detail": "image reference mode warms the runtime but does not create a frame npz cache",
+        }
+    cache_source = str(runtime.get("cache_source") or "")
+    if cache_source == "memory":
+        status = "memory"
+    elif cache_source == "disk":
+        status = "hit"
+    elif cache_source == "built":
+        status = "built"
+    else:
+        status = cache_source or "unknown"
+    return {
+        "model": "wav2lip",
+        "status": status,
+        "source_mode": "frames",
+        "frames": runtime.get("frames"),
+        "detail": "",
+    }
+
+
+def _prepare_quicktalk_prewarm(
+    *,
+    avatar_dir: Path,
+    manifest: dict[str, Any],
+    settings: Any,
+    overwrite: bool,
+) -> tuple[PreparedAssetResult, dict[str, Any]]:
+    max_long_edge = _settings_int(
+        settings,
+        "quicktalk_max_long_edge",
+        "OPENTALKING_QUICKTALK_MAX_LONG_EDGE",
+        900,
+    )
+    cache = None if overwrite else _quicktalk_cache_hit_result(
+        avatar_dir,
+        manifest,
+        max_long_edge=max_long_edge,
+        verify=True,
+    )
+    if cache is None:
+        cache = _prepare_quicktalk_asset(
+            avatar_dir=avatar_dir,
+            manifest=manifest,
+            rebuild=_quicktalk_rebuild(settings),
+            max_long_edge=max_long_edge,
+            max_template_seconds=_settings_float(
+                settings,
+                "quicktalk_max_template_seconds",
+                "OPENTALKING_QUICKTALK_MAX_TEMPLATE_SECONDS",
+                1.0,
+            ),
+            overwrite=overwrite,
+            verify=True,
+        )
+    return cache, _quicktalk_runtime_payload(avatar_dir, manifest, cache)
+
+
 @router.get("", response_model=list[AvatarSummary])
 async def list_avatars(request: Request) -> list[AvatarSummary]:
     root = _avatars_root(request)
@@ -320,6 +779,111 @@ async def get_preview_video(avatar_id: str, request: Request) -> FileResponse:
     if path is None:
         raise HTTPException(status_code=404, detail="preview video not found")
     return FileResponse(path, media_type=_video_media_type(path))
+
+
+@router.post("/{avatar_id}/prewarm")
+async def prewarm_avatar(avatar_id: str, request: Request) -> dict[str, Any]:
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    if body is None:
+        body = {}
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=422, detail="request body must be an object")
+    model = str(body.get("model") or "").strip().lower()
+    if not model:
+        raise HTTPException(status_code=422, detail="model is required")
+
+    root = _avatars_root(request)
+    avatar_dir = (root / avatar_id).resolve()
+    try:
+        avatar_dir.relative_to(root)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="invalid avatar_id") from exc
+    manifest_path = avatar_dir / "manifest.json"
+    if not avatar_dir.is_dir() or not manifest_path.is_file():
+        raise HTTPException(status_code=404, detail="avatar not found")
+
+    manifest = _read_manifest(manifest_path)
+    settings = request.app.state.settings
+    overwrite = bool(body.get("overwrite") or False)
+    cache_response: dict[str, Any] | None = None
+    backend = resolve_model_backend(model, settings)
+    if backend.backend == "local":
+        if model not in {"wav2lip", "quicktalk"}:
+            raise HTTPException(status_code=400, detail=f"local prewarm is not supported for model '{model}'")
+        try:
+            cache_response, runtime = await asyncio.to_thread(
+                _prewarm_local_backend,
+                model,
+                avatar_dir,
+                manifest,
+                settings,
+                overwrite=overwrite,
+            )
+        except Exception as exc:  # noqa: BLE001
+            raise HTTPException(status_code=500, detail=f"failed to prewarm local {model}: {exc}") from exc
+        return {
+            "avatar_id": avatar_id,
+            "model": model,
+            "status": "ready",
+            "cache": cache_response,
+            "runtime": runtime,
+        }
+
+    try:
+        if model == "quicktalk":
+            cache, runtime_payload = _prepare_quicktalk_prewarm(
+                avatar_dir=avatar_dir,
+                manifest=manifest,
+                settings=settings,
+                overwrite=overwrite,
+            )
+            cache_response = _prepared_cache_response(model, cache)
+        elif model == "wav2lip":
+            runtime_payload = _wav2lip_prewarm_payload(root, avatar_id, avatar_dir, manifest, settings)
+        else:
+            raise HTTPException(status_code=400, detail=f"prewarm is not supported for model '{model}'")
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=f"failed to prepare {model} cache: {exc}") from exc
+
+    if model == "wav2lip" and str(runtime_payload.get("reference_mode") or "image") != "frames":
+        runtime = {
+            "type": "preload_skipped",
+            "reason": "image_reference_mode",
+            "message": "image reference mode does not create a frame npz cache",
+        }
+        return {
+            "avatar_id": avatar_id,
+            "model": model,
+            "status": "ready",
+            "cache": _wav2lip_cache_response(runtime_payload, runtime),
+            "runtime": runtime,
+        }
+
+    try:
+        runtime = await _post_omnirt_json(
+            settings,
+            _omnirt_audio2video_preload_path(settings, model),
+            runtime_payload,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=502, detail=f"failed to preload {model} runtime: {exc}") from exc
+
+    runtime_type = str(runtime.get("type") or "")
+    status = "ready" if runtime_type not in {"error", ""} else "failed"
+    if model == "wav2lip":
+        cache_response = _wav2lip_cache_response(runtime_payload, runtime)
+    return {
+        "avatar_id": avatar_id,
+        "model": model,
+        "status": status,
+        "cache": cache_response,
+        "runtime": runtime,
+    }
 
 
 @router.delete("/{avatar_id}")

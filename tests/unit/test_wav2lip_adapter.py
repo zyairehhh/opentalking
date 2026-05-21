@@ -55,7 +55,12 @@ def _install_fake_wav2lip_runtime(monkeypatch) -> type:
             config = dict(config or {})
             width = int(config.get("width", 416))
             height = int(config.get("height", 704))
-            max_long_edge = int(__import__("os").environ.get("OPENTALKING_WAV2LIP_MAX_LONG_EDGE", "0") or "0")
+            raw_max_long_edge = (
+                __import__("os").environ.get("OPENTALKING_WAV2LIP_MAX_LONG_EDGE")
+                or __import__("os").environ.get("OMNIRT_WAV2LIP_MAX_LONG_EDGE")
+                or "832"
+            )
+            max_long_edge = int(raw_max_long_edge or "0")
             if model == "wav2lip" and max_long_edge > 0 and max(width, height) > max_long_edge:
                 scale = max_long_edge / float(max(width, height))
                 width = max(2, int(round(width * scale)))
@@ -216,11 +221,12 @@ def test_wav2lip_adapter_uses_local_runtime_and_preprocessed_metadata(monkeypatc
     assert frame.data.shape[:2] == (session.video.height, session.video.width)
 
 
-def test_wav2lip_adapter_keeps_manifest_resolution_by_default(monkeypatch) -> None:
+def test_wav2lip_adapter_uses_omnirt_resolution_limit_by_default(monkeypatch) -> None:
     fake_runtime = _install_fake_wav2lip_runtime(monkeypatch)
     models_dir = Path(__file__).resolve().parents[2] / "models" / "wav2lip"
     monkeypatch.setenv("OPENTALKING_WAV2LIP_MODEL_ROOT", str(models_dir))
     monkeypatch.delenv("OPENTALKING_WAV2LIP_MAX_LONG_EDGE", raising=False)
+    monkeypatch.delenv("OMNIRT_WAV2LIP_MAX_LONG_EDGE", raising=False)
     root = Path(__file__).resolve().parents[2]
     adapter = Wav2LipAdapter()
     adapter.load_model("cpu")
@@ -228,8 +234,8 @@ def test_wav2lip_adapter_keeps_manifest_resolution_by_default(monkeypatch) -> No
     adapter.load_avatar(str(root / "examples" / "avatars" / "singer"))
 
     session = fake_runtime.instances[-1].sessions[-1]
-    assert session.video.width == 830
-    assert session.video.height == 1108
+    assert session.video.width == 622
+    assert session.video.height == 832
 
 
 def test_wav2lip_adapter_postprocess_override_wins_over_manifest_and_env(monkeypatch) -> None:

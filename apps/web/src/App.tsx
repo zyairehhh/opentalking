@@ -192,6 +192,14 @@ const OVERDRIVEN_FASTLIVEPORTRAIT_DEFAULT_CONFIG: FasterLivePortraitConfig = {
 
 type SpeakAudioResponse = { session_id: string; status: string; text: string };
 type SessionRecord = { session_id: string; state?: string };
+type PrewarmState = "idle" | "preparing" | "ready" | "failed";
+type AvatarPrewarmResponse = {
+  avatar_id: string;
+  model: string;
+  status: "ready" | "failed" | string;
+  cache?: { status?: string; frames?: number | null };
+  runtime?: { type?: string; cache_hit?: boolean; elapsed_ms?: number };
+};
 
 function sanitizeFasterLivePortraitConfig(raw: unknown): FasterLivePortraitConfig {
   const source = raw && typeof raw === "object" ? raw as Partial<Record<keyof FasterLivePortraitConfig, unknown>> : {};
@@ -328,6 +336,8 @@ const MODEL_LABELS_FOR_STAGE: Record<string, string> = {
   wav2lip: "Wav2Lip",
 };
 
+const PREWARMABLE_MODELS = new Set(["quicktalk", "wav2lip"]);
+
 function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -355,6 +365,9 @@ export default function App() {
   const [modelStatuses, setModelStatuses] = useState<ModelStatus[]>([]);
   const [avatarId, setAvatarId] = useState("singer");
   const [model, setModel] = useState("flashtalk");
+  const [prewarmByKey, setPrewarmByKey] = useState<Record<string, PrewarmState>>({});
+  const prewarmInFlightRef = useRef<Map<string, Promise<boolean>>>(new Map());
+  const prewarmSeqRef = useRef(0);
   const [wav2lipPostprocessMode, setWav2lipPostprocessMode] = useState<Wav2LipPostprocessMode>("auto");
   const [fasterliveportraitConfig, setFasterliveportraitConfig] = useState<FasterLivePortraitConfig>(
     readStoredFasterLivePortraitConfig,
@@ -429,6 +442,9 @@ export default function App() {
   const [voiceApplyNotice, setVoiceApplyNotice] = useState<string | null>(null);
   const [ttsPreviewText, setTtsPreviewText] = useState(DEFAULT_TTS_PREVIEW_TEXT);
   const [ttsPreviewing, setTtsPreviewing] = useState(false);
+  const selectedModelStatus = modelStatuses.find((item) => item.id === model);
+  const selectedModelBadge = modelConnectionBadge(selectedModelStatus, models.includes(model));
+  const selectedModelConnected = selectedModelBadge.connected;
   const [edgeVoice, setEdgeVoice] = useState<string>(() => {
     try {
       const s = window.localStorage.getItem(EDGE_VOICE_STORAGE_KEY);
@@ -699,6 +715,66 @@ export default function App() {
     [clearSubtitleFallbackTimer, closePeerConnection],
   );
 
+  const prewarmKey = useCallback((targetAvatarId: string, targetModel: string) => {
+    return `${targetModel}:${targetAvatarId}`;
+  }, []);
+
+  const requestAvatarPrewarm = useCallback(async (
+    targetAvatarId: string,
+    targetModel: string,
+    options?: { force?: boolean; modelConnected?: boolean },
+  ): Promise<boolean> => {
+    if (!targetAvatarId || !PREWARMABLE_MODELS.has(targetModel)) return true;
+    if (!options?.modelConnected) return false;
+    const key = prewarmKey(targetAvatarId, targetModel);
+    const current = prewarmByKey[key];
+    const inFlight = prewarmInFlightRef.current.get(key);
+    if (inFlight) return inFlight;
+    if (current === "ready") return true;
+    if (current === "failed" && !options?.force) return false;
+    const task = (async () => {
+      const seq = ++prewarmSeqRef.current;
+      setPrewarmByKey((prev) => ({ ...prev, [key]: "preparing" }));
+      try {
+        const response = await apiPost<AvatarPrewarmResponse>(
+          `/avatars/${encodeURIComponent(targetAvatarId)}/prewarm`,
+          { model: targetModel },
+        );
+        const ready = response.status === "ready";
+        setPrewarmByKey((prev) => ({
+          ...prev,
+          [key]: ready ? "ready" : "failed",
+        }));
+        if (ready && seq === prewarmSeqRef.current) {
+          const cacheStatus = response.cache?.status;
+          const label = MODEL_LABELS_FOR_STAGE[targetModel] ?? targetModel;
+          notify(cacheStatus ? `${label} 已准备：${cacheStatus}` : `${label} 已准备`, "success");
+        }
+        return ready;
+      } catch (error) {
+        console.warn("Avatar prewarm failed", error);
+        setPrewarmByKey((prev) => ({ ...prev, [key]: "failed" }));
+        if (seq === prewarmSeqRef.current) {
+          const detail = error instanceof ApiError ? error.detail : null;
+          const label = MODEL_LABELS_FOR_STAGE[targetModel] ?? targetModel;
+          notify(detail ? `${label} 准备失败：${detail}` : `${label} 准备失败，首次生成会走冷启动。`, "error");
+        }
+        return false;
+      } finally {
+        prewarmInFlightRef.current.delete(key);
+      }
+    })();
+    prewarmInFlightRef.current.set(key, task);
+    return task;
+  }, [notify, prewarmByKey, prewarmKey]);
+
+  const selectedPrewarmState = prewarmByKey[prewarmKey(avatarId, model)] ?? "idle";
+
+  useEffect(() => {
+    if (!PREWARMABLE_MODELS.has(model) || !avatarId) return;
+    void requestAvatarPrewarm(avatarId, model, { modelConnected: selectedModelConnected });
+  }, [avatarId, model, requestAvatarPrewarm, selectedModelConnected]);
+
   // ---------- Init: fetch avatars & models ----------
   useEffect(() => {
     void (async () => {
@@ -889,6 +965,10 @@ export default function App() {
   // ---------- Actions ----------
   const handleStart = useCallback(async () => {
     if (!videoRef.current) return;
+    if (PREWARMABLE_MODELS.has(model) && selectedModelConnected && selectedPrewarmState !== "ready") {
+      const ready = await requestAvatarPrewarm(avatarId, model, { force: true, modelConnected: selectedModelConnected });
+      if (!ready) return;
+    }
 
     const previousSessionId = sessionIdRef.current;
     if (previousSessionId) {
@@ -974,7 +1054,10 @@ export default function App() {
     notify,
     qwenVoice,
     releaseSession,
+    requestAvatarPrewarm,
     resetLiveState,
+    selectedModelConnected,
+    selectedPrewarmState,
     ttsProvider,
     waitForSessionReady,
     fasterliveportraitConfig,
@@ -1497,9 +1580,6 @@ export default function App() {
   const showStart = connection === "idle" || connection === "error" || connection === "connecting" || connection === "queued";
   const chatMaxVisible = readChatMaxVisible();
   const selectedModelLabel = MODEL_LABELS_FOR_STAGE[model] ?? model;
-  const selectedModelStatus = modelStatuses.find((item) => item.id === model);
-  const selectedModelBadge = modelConnectionBadge(selectedModelStatus, models.includes(model));
-  const selectedModelConnected = selectedModelBadge.connected;
   const wav2lipPostprocessModeLocked = sessionId !== null && connection !== "idle" && connection !== "error";
   const fasterliveportraitDirty = JSON.stringify(fasterliveportraitConfig) !== JSON.stringify(fasterliveportraitAppliedConfig);
   const fasterliveportraitLive = model === "fasterliveportrait" && sessionId !== null && connection !== "idle" && connection !== "error";
@@ -1679,6 +1759,7 @@ export default function App() {
                     modelConnected={selectedModelConnected}
                     modelBadge={selectedModelBadge}
                     queueInfo={queueInfo}
+                    prewarmState={selectedPrewarmState}
                     onAvatarChange={handleAvatarChange}
                     onStart={() => void handleStart()}
                     onCustomAvatarCreate={(file, name) => void handleCreateCustomAvatar(file, name)}

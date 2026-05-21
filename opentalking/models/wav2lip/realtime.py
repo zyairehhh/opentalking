@@ -61,6 +61,7 @@ class RealtimeAvatarSession:
     reference_mode: ReferenceMode = "image"
     ref_frame_dir: str | None = None
     ref_frame_metadata_path: str | None = None
+    prepared_cache_dir: str | None = None
     template_mode: TemplateMode = "image"
     template_video: str | None = None
     template_frame_dir: str | None = None
@@ -119,11 +120,15 @@ def _as_bool(value: object, *, default: bool = False) -> bool:
 
 
 def _max_long_edge() -> int:
-    raw = os.environ.get("OPENTALKING_WAV2LIP_MAX_LONG_EDGE", "0").strip()
+    raw = (
+        os.environ.get("OPENTALKING_WAV2LIP_MAX_LONG_EDGE")
+        or os.environ.get("OMNIRT_WAV2LIP_MAX_LONG_EDGE")
+        or "832"
+    ).strip()
     try:
         return max(0, int(raw))
     except ValueError:
-        return 0
+        return 832
 
 
 def _scale_video_to_max_long_edge(video: AvatarVideoSpec) -> AvatarVideoSpec:
@@ -195,6 +200,13 @@ class RealtimeAvatarService:
             label="ref_frame_metadata_path",
             must_be_dir=False,
         )
+        prepared_cache_dir_str = self._optional_allowed_path(
+            config.get("prepared_cache_dir"),
+            code="bad_prepared_cache_dir",
+            label="prepared_cache_dir",
+            must_be_dir=False,
+            allow_missing_leaf=True,
+        )
         sample_rate = int(config.get("sample_rate", 16000))
         video = _scale_video_to_max_long_edge(
             AvatarVideoSpec(
@@ -225,6 +237,7 @@ class RealtimeAvatarService:
             reference_mode=reference_mode,  # type: ignore[arg-type]
             ref_frame_dir=ref_frame_dir_str,
             ref_frame_metadata_path=ref_frame_metadata_path_str,
+            prepared_cache_dir=prepared_cache_dir_str,
             audio=AvatarAudioSpec(
                 sample_rate=sample_rate,
                 channels=int(config.get("channels", 1)),
@@ -249,6 +262,7 @@ class RealtimeAvatarService:
         label: str,
         must_be_dir: bool,
         required: bool = False,
+        allow_missing_leaf: bool = False,
     ) -> str | None:
         value = str(raw).strip() if raw is not None else ""
         if not value:
@@ -262,8 +276,12 @@ class RealtimeAvatarService:
             raise RealtimeAvatarError(code, f"{label} is outside allowed frame roots.")
         if must_be_dir and not path.is_dir():
             raise RealtimeAvatarError(code, f"{label} not found.")
-        if not must_be_dir and not path.is_file():
+        if not must_be_dir and not allow_missing_leaf and not path.is_file():
             raise RealtimeAvatarError(code, f"{label} not found.")
+        if not must_be_dir and allow_missing_leaf:
+            existing = path if path.exists() else path.parent
+            if not existing.exists():
+                raise RealtimeAvatarError(code, f"{label} parent not found.")
         return str(path)
 
     def push_audio_chunk(self, session_id: str, pcm_s16le: bytes) -> tuple[bytes, dict[str, object]]:

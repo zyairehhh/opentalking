@@ -4,6 +4,7 @@ import asyncio
 import base64
 import json
 import logging
+import os
 import tempfile
 import time
 from pathlib import Path
@@ -75,6 +76,33 @@ def _log_task_exception(task: asyncio.Task, sid: str) -> None:
         return
     if exc is not None:
         log.exception("FlashTalk init task failed: session=%s", sid, exc_info=exc)
+
+
+def _local_runner_device(model: str, settings: Any, default_device: str) -> str:
+    model = model.strip().lower()
+    if model == "quicktalk":
+        return str(
+            os.environ.get("OPENTALKING_QUICKTALK_DEVICE")
+            or getattr(settings, "quicktalk_device", "")
+            or os.environ.get("OPENTALKING_TORCH_DEVICE")
+            or getattr(settings, "torch_device", "")
+            or os.environ.get("OPENTALKING_DEVICE")
+            or getattr(settings, "device", "")
+            or os.environ.get("DEVICE")
+            or default_device
+        )
+    if model == "wav2lip":
+        return str(
+            os.environ.get("OPENTALKING_WAV2LIP_DEVICE")
+            or getattr(settings, "wav2lip_device", "")
+            or os.environ.get("OPENTALKING_TORCH_DEVICE")
+            or getattr(settings, "torch_device", "")
+            or os.environ.get("OPENTALKING_DEVICE")
+            or getattr(settings, "device", "")
+            or os.environ.get("DEVICE")
+            or default_device
+        )
+    return default_device
 
 
 def _create_runner(
@@ -164,13 +192,14 @@ def _create_runner(
             else None,
         )
 
+    local_device = _local_runner_device(model, settings, device)
     return SessionRunner(
         session_id=sid,
         avatar_id=avatar_id,
         model_type=model,
         avatars_root=avatars_root,
         redis=r,
-        device=device,
+        device=local_device,
         llm_base_url=settings.llm_base_url,
         llm_api_key=settings.llm_api_key,
         llm_model=settings.llm_model,

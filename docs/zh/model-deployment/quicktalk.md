@@ -68,6 +68,40 @@ bash scripts/start_unified.sh --backend local --model quicktalk --api-port 8210 
 
 打开 `http://localhost:5280`，选择 `QuickTalk Local` 形象和 `quicktalk` 模型。若不指定 `--web-port`，默认前端地址为 `http://localhost:5173`。
 
+## 准备 Avatar Cache
+
+QuickTalk 会为每个 avatar 生成运行缓存：
+
+- `examples/avatars/<avatar>/quicktalk/template_<width>x<height>.mp4`
+- `examples/avatars/<avatar>/quicktalk/face_cache_v3_<width>x<height>.npz`
+
+这些文件由本机模型和 avatar 共同决定，属于部署环境生成物，不建议提交到代码仓。需要提前准备时，运行：
+
+```bash title="终端"
+cd "$DIGITAL_HUMAN_HOME/opentalking"
+
+opentalking-prepare-cache \
+  --model quicktalk \
+  --avatars-root examples/avatars \
+  --quicktalk-model-root models/quicktalk \
+  --device cuda:0 \
+  --model-backend pth \
+  --verify
+```
+
+只准备单个 avatar：
+
+```bash title="终端"
+opentalking-prepare-cache \
+  --model quicktalk \
+  --avatars-root examples/avatars \
+  --avatar singer \
+  --quicktalk-model-root models/quicktalk \
+  --device cuda:0 \
+  --model-backend pth \
+  --verify
+```
+
 ## `/models` 验证
 
 ```bash title="终端"

@@ -18,6 +18,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from apps.api.core.config import get_settings
+from apps.api.routes.avatars import _call_adapter_warmup
 from apps.api.routes import avatars, events, health, models, sessions, tts_preview, voices
 from opentalking.voice.store import init_voice_store
 from opentalking.core.in_memory_redis import InMemoryRedis
@@ -70,6 +71,19 @@ def _env_bool(name: str, *, default: bool = False) -> bool:
     if raw is None:
         return default
     return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _adapter_device(model_type: str, default_device: str) -> str:
+    model_type = model_type.strip().lower()
+    if model_type == "wav2lip":
+        return os.environ.get("OPENTALKING_WAV2LIP_DEVICE") or default_device
+    if model_type == "quicktalk":
+        return (
+            os.environ.get("OPENTALKING_QUICKTALK_DEVICE")
+            or os.environ.get("OPENTALKING_TORCH_DEVICE")
+            or default_device
+        )
+    return default_device
 
 
 @asynccontextmanager
@@ -127,10 +141,9 @@ async def unified_lifespan(app: FastAPI):
                 def _do_prewarm(adapter=adapter, aid=aid, model_type=model_type) -> None:
                     log.info("prewarm: building worker for avatar=%s model=%s", aid, model_type)
                     if hasattr(adapter, "load_model"):
-                        adapter.load_model(device)
+                        adapter.load_model(_adapter_device(model_type, device))
                     state = adapter.load_avatar(str(avatars_root / aid))
-                    if hasattr(adapter, "warmup"):
-                        adapter.warmup()
+                    _call_adapter_warmup(adapter, state)
                     log.info("prewarm: ready avatar=%s fps=%s", aid, getattr(state, "fps", None))
 
                 loop = asyncio.get_running_loop()

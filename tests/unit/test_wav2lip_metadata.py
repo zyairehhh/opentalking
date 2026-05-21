@@ -480,6 +480,74 @@ def test_quicktalk_template_defaults_to_image_for_static_avatar(tmp_path: Path) 
     assert runner._quicktalk_template_frame_dir() is None
 
 
+def test_quicktalk_template_video_prefers_prepared_sized_cache_over_stale_metadata(tmp_path: Path) -> None:
+    avatar_dir = tmp_path / "avatar"
+    avatar_dir.mkdir()
+    quicktalk_dir = avatar_dir / "quicktalk"
+    quicktalk_dir.mkdir()
+    prepared = quicktalk_dir / "template_512x512.mp4"
+    prepared.write_bytes(b"prepared-video")
+    (avatar_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "id": "avatar",
+                "model_type": "quicktalk",
+                "width": 512,
+                "height": 512,
+                "fps": 25,
+                "metadata": {
+                    "quicktalk": {
+                        "template_video": "quicktalk/template_900.mp4",
+                        "face_cache": "quicktalk/face_cache_v3_900.npz",
+                    }
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    runner = FlashTalkRunner.__new__(FlashTalkRunner)
+    runner.model_type = "quicktalk"
+    runner.avatar_id = "avatar"
+    runner.avatars_root = tmp_path
+
+    assert runner._quicktalk_template_video() == prepared.resolve()
+
+
+def test_quicktalk_face_cache_prefers_prepared_sized_cache_over_stale_metadata(tmp_path: Path) -> None:
+    avatar_dir = tmp_path / "avatar"
+    avatar_dir.mkdir()
+    quicktalk_dir = avatar_dir / "quicktalk"
+    quicktalk_dir.mkdir()
+    prepared = quicktalk_dir / "face_cache_v3_512x512.npz"
+    prepared.write_bytes(b"prepared-cache")
+    (avatar_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "id": "avatar",
+                "model_type": "quicktalk",
+                "width": 512,
+                "height": 512,
+                "fps": 25,
+                "metadata": {
+                    "quicktalk": {
+                        "template_video": "quicktalk/template_900.mp4",
+                        "face_cache": "quicktalk/face_cache_v3_900.npz",
+                    }
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    runner = FlashTalkRunner.__new__(FlashTalkRunner)
+    runner.model_type = "quicktalk"
+    runner.avatar_id = "avatar"
+    runner.avatars_root = tmp_path
+
+    assert runner._quicktalk_face_cache() == prepared.resolve()
+
+
 @pytest.mark.asyncio
 async def test_quicktalk_init_session_sends_template_args(tmp_path: Path) -> None:
     avatar_dir = tmp_path / "avatar"

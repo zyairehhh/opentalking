@@ -85,6 +85,7 @@ class RealtimeV3Worker:
         asset_root: Path,
         template_video: Path,
         face_cache_dir: Path | None = None,
+        face_cache_file: Path | None = None,
         batch_size: int = 1,
         device: str = "cuda:0",
         output_transform: str = "bgr",
@@ -98,6 +99,7 @@ class RealtimeV3Worker:
         model_backend: str = "auto",
     ) -> None:
         self.template_video = template_video
+        self.face_cache_file = face_cache_file
         if (neck_fade_start is None) != (neck_fade_end is None):
             raise ValueError("neck_fade_start and neck_fade_end must be set together")
         if neck_fade_start is not None and neck_fade_end is not None and not 0.0 <= neck_fade_start < neck_fade_end <= 1.0:
@@ -178,6 +180,13 @@ class RealtimeV3Worker:
         return out
 
     def _load_or_build_template_cache(self, max_template_seconds: float | None) -> Sequence[tuple[np.ndarray, list[int], np.ndarray]]:
+        if self.face_cache_file is not None:
+            cached = self.v2.load_face_cache(self.face_cache_file)
+            if cached is not None and len(cached) == len(self.frames):
+                print(f"v3_template_cache=asset_hit frames={len(cached)} path={self.face_cache_file}", flush=True)
+                return cached
+            print(f"v3_template_cache=asset_miss path={self.face_cache_file}", flush=True)
+
         read_limit = max_template_seconds if max_template_seconds is not None else len(self.frames) / self.fps
         cache_path = self.v2.face_cache_path(self.template_video, len(self.frames), self.fps, read_limit)
         cached = self.v2.load_face_cache(cache_path) if cache_path is not None else None

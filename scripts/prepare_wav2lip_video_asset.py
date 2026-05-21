@@ -17,6 +17,7 @@ from opentalking.avatar.mouth_metadata import (
     detect_mouth_landmarks,
     image_file_sha256,
 )
+from apps.cli.prepare_cache import _normalized_model_crop_from_coords
 
 
 def _sha256(path: Path) -> str:
@@ -27,18 +28,23 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _write_frame_metadata(frame_path: Path, frame_bgr) -> dict[str, Any] | None:
+def _write_frame_metadata(frame_path: Path, frame_bgr, detector: Any | None = None) -> dict[str, Any] | None:
     landmarks = detect_mouth_landmarks(frame_bgr)
     if landmarks is None:
         return None
     height, width = frame_bgr.shape[:2]
     face_box = _normalized_face_box(landmarks, width=width, height=height)
-    return {
+    metadata = {
         "mouth_polygon_source": "mediapipe",
         "source_frame_hash": _sha256(frame_path),
         "face_box": face_box,
         "animation": _animation_from_landmarks(landmarks, width=width, height=height),
     }
+    if detector is not None:
+        coords = detector._detect_face_box(frame_bgr)
+        metadata["model_crop"] = _normalized_model_crop_from_coords(coords, width=width, height=height)
+        metadata["model_crop_source"] = "wav2lip_detector"
+    return metadata
 
 
 def prepare_asset(
@@ -51,6 +57,9 @@ def prepare_asset(
     target_height: int | None,
     fps: int | None,
     max_frames: int,
+    wav2lip_model_root: Path | None = None,
+    wav2lip_face_det_device: str | None = None,
+    skip_model_crop: bool = False,
 ) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     frames_dir = out_dir / "frames"
@@ -73,6 +82,17 @@ def prepare_asset(
     frames: dict[str, Any] = {}
     missing_frames: list[str] = []
     first_frame_path: Path | None = None
+    detector = None
+    if not skip_model_crop:
+        from opentalking.models.wav2lip.runtime import Wav2LipRealtimeRuntime
+        import os
+
+        if wav2lip_face_det_device:
+            os.environ["OPENTALKING_WAV2LIP_FACE_DET_DEVICE"] = wav2lip_face_det_device
+        detector = Wav2LipRealtimeRuntime(
+            models_dir=(wav2lip_model_root.expanduser().resolve() if wav2lip_model_root else None),
+            device="cpu",
+        )
     index = 0
     while index < max_frames:
         ok, frame = cap.read()
@@ -85,7 +105,7 @@ def prepare_asset(
         cv2.imwrite(str(frame_path), frame, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
         if first_frame_path is None:
             first_frame_path = frame_path
-        metadata = _write_frame_metadata(frame_path, frame)
+        metadata = _write_frame_metadata(frame_path, frame, detector)
         if metadata is None:
             missing_frames.append(frame_name)
         else:
@@ -156,6 +176,9 @@ def main() -> None:
     parser.add_argument("--target-height", type=int)
     parser.add_argument("--fps", type=int)
     parser.add_argument("--max-frames", type=int, default=125)
+    parser.add_argument("--wav2lip-model-root", type=Path)
+    parser.add_argument("--wav2lip-face-det-device")
+    parser.add_argument("--skip-model-crop", action="store_true")
     args = parser.parse_args()
     prepare_asset(
         source_video=args.source_video,
@@ -166,6 +189,9 @@ def main() -> None:
         target_height=args.target_height,
         fps=args.fps,
         max_frames=max(1, args.max_frames),
+        wav2lip_model_root=args.wav2lip_model_root,
+        wav2lip_face_det_device=args.wav2lip_face_det_device,
+        skip_model_crop=args.skip_model_crop,
     )
 
 

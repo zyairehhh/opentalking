@@ -328,6 +328,8 @@ def _build_wav2lip_session(
         config["ref_frame_dir"] = frame_config["ref_frame_dir"]
     if frame_config.get("ref_frame_metadata_path"):
         config["ref_frame_metadata_path"] = frame_config["ref_frame_metadata_path"]
+    if frame_config.get("reference_mode") == "frames":
+        config["prepared_cache_dir"] = str((avatar_path / "wav2lip").resolve())
     if frame_config.get("preprocessed") is not None:
         config["preprocessed"] = bool(frame_config.get("preprocessed"))
 
@@ -339,7 +341,11 @@ def _build_wav2lip_session(
         image_bytes=ref_image.read_bytes(),
         config=config,
     )
-    runtime._session_state(session)
+    preload_result = None
+    if frame_config.get("reference_mode") == "frames" and hasattr(runtime, "preload_reference"):
+        preload_result = runtime.preload_reference(session)
+    else:
+        runtime._session_state(session)
     return _Wav2LipLocalState(
         manifest=manifest,
         avatar_path=avatar_path,
@@ -350,11 +356,13 @@ def _build_wav2lip_session(
             "reference_mode": frame_config.get("reference_mode"),
             "ref_frame_dir": frame_config.get("ref_frame_dir"),
             "ref_frame_metadata_path": frame_config.get("ref_frame_metadata_path"),
+            "prepared_cache_dir": config.get("prepared_cache_dir"),
             "preprocessed": bool(frame_config.get("preprocessed")),
             "wav2lip_postprocess_mode": session.wav2lip_postprocess_mode,
             "video_width": session.video.width,
             "video_height": session.video.height,
             "video_fps": session.video.fps,
+            "preload_result": preload_result,
         },
     )
 
