@@ -41,6 +41,8 @@ import {
 import {
   COSYVOICE_MODEL_OPTIONS,
   COSYVOICE_VOICE_OPTIONS,
+  LOCAL_COSYVOICE_MODEL_OPTIONS,
+  LOCAL_TTS_VOICE_OPTIONS,
   SAMBERT_MODEL_OPTIONS,
   type TtsProviderExtended,
   isEdgeTts,
@@ -65,6 +67,8 @@ function bailianModelOptions(provider: TtsProviderExtended): { id: string; label
       return COSYVOICE_MODEL_OPTIONS;
     case "sambert":
       return SAMBERT_MODEL_OPTIONS;
+    case "local_cosyvoice":
+      return LOCAL_COSYVOICE_MODEL_OPTIONS;
     default:
       return [];
   }
@@ -78,6 +82,8 @@ function bailianVoiceOptions(provider: TtsProviderExtended): { id: string; label
       return COSYVOICE_VOICE_OPTIONS;
     case "sambert":
       return [];
+    case "local_cosyvoice":
+      return LOCAL_TTS_VOICE_OPTIONS;
     default:
       return [];
   }
@@ -86,6 +92,7 @@ function bailianVoiceOptions(provider: TtsProviderExtended): { id: string; label
 function catalogProviderKey(p: TtsProviderExtended): string | null {
   if (p === "dashscope") return "dashscope";
   if (p === "cosyvoice") return "cosyvoice";
+  if (p === "local_cosyvoice") return "local_cosyvoice";
   return null;
 }
 
@@ -133,6 +140,7 @@ const LLM_SYSTEM_PROMPT_STORAGE_KEY = "opentalking-llm-system-prompt";
 const SESSION_PANEL_COLLAPSED_KEY = "opentalking-session-panel-collapsed";
 const CUSTOM_REFERENCE_NAME_KEY = "opentalking-custom-reference-name";
 const FASTLIVEPORTRAIT_CONFIG_STORAGE_KEY = "opentalking-fasterliveportrait-config-v2";
+const ASR_PROVIDER_STORAGE_KEY = "opentalking-asr-provider-v1";
 const LEGACY_FASTLIVEPORTRAIT_DEFAULT_CONFIG: FasterLivePortraitConfig = {
   head_motion_multiplier: 1.0,
   pose_motion_multiplier: 0.35,
@@ -190,6 +198,11 @@ const OVERDRIVEN_FASTLIVEPORTRAIT_DEFAULT_CONFIG: FasterLivePortraitConfig = {
   cfg_scale: 5.0,
 };
 
+function normalizeAsrProvider(value: string | null | undefined, fallback = "dashscope"): string {
+  const provider = (value ?? "").trim();
+  return ["dashscope", "sensevoice"].includes(provider) ? provider : fallback;
+}
+
 type SpeakAudioResponse = { session_id: string; status: string; text: string };
 type SessionRecord = { session_id: string; state?: string };
 type PrewarmState = "idle" | "preparing" | "ready" | "failed";
@@ -199,6 +212,13 @@ type AvatarPrewarmResponse = {
   status: "ready" | "failed" | string;
   cache?: { status?: string; frames?: number | null };
   runtime?: { type?: string; cache_hit?: boolean; elapsed_ms?: number };
+};
+type HealthResponse = {
+  status: string;
+  tts_provider?: string;
+  stt_provider?: string;
+  stt_model?: string;
+  stt_device?: string;
 };
 
 function sanitizeFasterLivePortraitConfig(raw: unknown): FasterLivePortraitConfig {
@@ -445,6 +465,15 @@ export default function App() {
   const selectedModelStatus = modelStatuses.find((item) => item.id === model);
   const selectedModelBadge = modelConnectionBadge(selectedModelStatus, models.includes(model));
   const selectedModelConnected = selectedModelBadge.connected;
+  const [asrProvider, setAsrProvider] = useState(() => {
+    try {
+      const saved = window.localStorage.getItem(ASR_PROVIDER_STORAGE_KEY);
+      return saved ? normalizeAsrProvider(saved, "dashscope") : "";
+    } catch {
+      return "";
+    }
+  });
+  const [asrModel, setAsrModel] = useState("paraformer-realtime-v2");
   const [edgeVoice, setEdgeVoice] = useState<string>(() => {
     try {
       const s = window.localStorage.getItem(EDGE_VOICE_STORAGE_KEY);
@@ -458,7 +487,7 @@ export default function App() {
   const [ttsProvider, setTtsProvider] = useState<TtsProviderExtended>(() => {
     try {
       const s = window.localStorage.getItem(TTS_PROVIDER_STORAGE_KEY)?.trim();
-      if (s === "edge" || s === "dashscope" || s === "cosyvoice" || s === "sambert") return s;
+      if (s === "edge" || s === "dashscope" || s === "cosyvoice" || s === "sambert" || s === "local_cosyvoice") return s;
     } catch {
       /* ignore */
     }
@@ -644,6 +673,15 @@ export default function App() {
   }, [qwenVoice]);
 
   useEffect(() => {
+    if (!asrProvider) return;
+    try {
+      window.localStorage.setItem(ASR_PROVIDER_STORAGE_KEY, asrProvider);
+    } catch {
+      /* ignore */
+    }
+  }, [asrProvider]);
+
+  useEffect(() => {
     try {
       window.localStorage.setItem(LLM_SYSTEM_PROMPT_STORAGE_KEY, llmSystemPrompt);
     } catch {
@@ -779,13 +817,16 @@ export default function App() {
   useEffect(() => {
     void (async () => {
       try {
-        const [av, mo] = await Promise.all([
+        const [av, mo, health] = await Promise.all([
           apiGet<AvatarSummary[]>("/avatars"),
           apiGet<{ models: string[]; statuses?: ModelStatus[]; default_model?: string | null }>("/models"),
+          apiGet<HealthResponse>("/health"),
           loadVoices(),
         ]);
         setAvatars(av);
         setModels(mo.models);
+        setAsrProvider((prev) => normalizeAsrProvider(prev || health.stt_provider, "dashscope"));
+        setAsrModel(health.stt_model || "paraformer-realtime-v2");
         const statuses = mo.statuses ?? mo.models.map((id) => ({ id, connected: true }));
         setModelStatuses(statuses);
         const initialAvatar = pickInitialAvatar(av, mo.models);
@@ -1324,6 +1365,7 @@ export default function App() {
         isEdgeTts(ttsProvider) ? edgeVoice : ttsProvider === "sambert" ? "" : qwenVoice,
       );
       fd.append("tts_provider", ttsProvider);
+      fd.append("stt_provider", asrProvider);
       if (!isEdgeTts(ttsProvider)) {
         fd.append("tts_model", qwenModel);
       }
@@ -1347,7 +1389,7 @@ export default function App() {
         }
       }
     },
-    [edgeVoice, qwenModel, qwenVoice, sessionId, ttsProvider],
+    [asrProvider, edgeVoice, qwenModel, qwenVoice, sessionId, ttsProvider],
   );
 
   const handleInterrupt = useCallback(() => {
@@ -1686,6 +1728,9 @@ export default function App() {
             onTtsPreviewTextChange={setTtsPreviewText}
             onPreviewTts={() => void handlePreviewTts()}
             ttsPreviewing={ttsPreviewing}
+            asrProvider={asrProvider}
+            asrModel={asrModel}
+            onAsrProviderChange={setAsrProvider}
             llmSystemPrompt={llmSystemPrompt}
             onLlmSystemPromptChange={setLlmSystemPrompt}
             onReferenceImageChange={setReferenceImageFile}
@@ -1786,6 +1831,7 @@ export default function App() {
                 onNotify={notify}
                 onOpenSettings={() => setSettingsExpanded(true)}
                 ttsProvider={ttsProvider}
+                sttProvider={asrProvider}
                 edgeVoice={edgeVoice}
                 qwenModel={qwenModel}
                 qwenVoice={qwenVoice}

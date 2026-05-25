@@ -104,6 +104,7 @@ interface ChatInputProps {
   onNotify?: (message: string, tone?: "info" | "success" | "error") => void;
   /** 当前 TTS 选项（用于识别上传 / WS meta；控件在设置侧栏） */
   ttsProvider?: TtsProviderExtended;
+  sttProvider?: string;
   edgeVoice?: string;
   qwenModel?: string;
   qwenVoice?: string;
@@ -160,6 +161,7 @@ export function ChatInput({
   onOpenSettings,
   onNotify,
   ttsProvider = "edge",
+  sttProvider = "",
   edgeVoice = "",
   qwenModel = "",
   qwenVoice = "",
@@ -393,6 +395,7 @@ export function ChatInput({
                   : qwenVoice ?? "",
               tts_provider: ttsProvider,
               tts_model: !isEdgeTts(ttsProvider) ? qwenModel ?? "" : "",
+              stt_provider: sttProvider,
             }),
           );
           if (PCM_PREROLL_HEAD_SILENCE_SAMPLES > 0) {
@@ -446,6 +449,7 @@ export function ChatInput({
       edgeVoice,
       qwenModel,
       qwenVoice,
+      sttProvider,
       streamingAsrSessionId,
       ttsProvider,
     ],

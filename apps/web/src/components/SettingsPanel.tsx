@@ -52,6 +52,7 @@ const TTS_PROVIDER_LABELS: Record<TtsProviderExtended, string> = {
   dashscope: "Qwen",
   cosyvoice: "Cosy",
   sambert: "Sambert",
+  local_cosyvoice: "Local CosyVoice",
 };
 
 const TTS_PROVIDER_SUBTITLES: Record<TtsProviderExtended, string> = {
@@ -59,6 +60,17 @@ const TTS_PROVIDER_SUBTITLES: Record<TtsProviderExtended, string> = {
   dashscope: "Realtime",
   cosyvoice: "Bailian",
   sambert: "Bailian",
+  local_cosyvoice: "本地模型",
+};
+
+const ASR_PROVIDER_LABELS: Record<string, string> = {
+  dashscope: "API 语音识别",
+  sensevoice: "SenseVoiceSmall",
+};
+
+const ASR_PROVIDER_SUBTITLES: Record<string, string> = {
+  dashscope: "DashScope API",
+  sensevoice: "本地模型",
 };
 
 const WAV2LIP_POSTPROCESS_OPTIONS: { id: Wav2LipPostprocessMode; label: string }[] = [
@@ -145,6 +157,9 @@ interface SettingsPanelProps {
   onTtsPreviewTextChange: (value: string) => void;
   onPreviewTts: () => void;
   ttsPreviewing?: boolean;
+  asrProvider: string;
+  asrModel: string;
+  onAsrProviderChange: (provider: string) => void;
 }
 
 type SettingsSectionProps = {
@@ -360,10 +375,14 @@ export function SettingsPanel({
   onTtsPreviewTextChange,
   onPreviewTts,
   ttsPreviewing = false,
+  asrProvider,
+  asrModel,
+  onAsrProviderChange,
 }: SettingsPanelProps) {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     avatars: true,
     model: true,
+    asr: true,
     voice: true,
     role: true,
     reference: true,
@@ -403,13 +422,19 @@ export function SettingsPanel({
     };
   });
   const selectedModelBadge = modelConnectionBadge(modelStatusById.get(model), modelConnected);
-  const providerOptions: ColumnOption[] = (["edge", "dashscope", "cosyvoice", "sambert"] as TtsProviderExtended[]).map((p) => ({
+  const providerOptions: ColumnOption[] = (["edge", "dashscope", "cosyvoice", "sambert", "local_cosyvoice"] as TtsProviderExtended[]).map((p) => ({
     id: p,
     label: TTS_PROVIDER_LABELS[p],
     subtitle: TTS_PROVIDER_SUBTITLES[p],
     hasChildren: true,
   }));
   const selectedProvider = providerOptions.find((option) => option.id === ttsProvider) ?? providerOptions[0];
+  const asrProviderOptions: ColumnOption[] = ["sensevoice", "dashscope"].map((p) => ({
+    id: p,
+    label: ASR_PROVIDER_LABELS[p] ?? p,
+    subtitle: ASR_PROVIDER_SUBTITLES[p] ?? p,
+  }));
+  const selectedAsrLabel = ASR_PROVIDER_LABELS[asrProvider] ?? asrProvider;
   const qwenModelColumnOptions = qwenModelOptions.map((option) => ({
     id: option.id,
     label: option.label,
@@ -635,6 +660,31 @@ export function SettingsPanel({
                 </div>
               </div>
             ) : null}
+          </div>
+        </SettingsSection>
+
+        <SettingsSection
+          id="asr"
+          title="语音识别"
+          open={openSections.asr}
+          onToggle={toggleSection}
+        >
+          <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-3">
+            <p className="text-xs font-semibold text-slate-500">
+              ASR: {selectedAsrLabel}
+            </p>
+            <p className="mt-1 truncate text-sm font-semibold text-slate-900">{asrModel || "OPENTALKING_STT_MODEL"}</p>
+            <div className="grid grid-cols-1 gap-1">
+              {asrProviderOptions.map((option) => (
+                <LevelOneButton
+                  key={option.id}
+                  option={option}
+                  selected={option.id === asrProvider}
+                  onClick={() => onAsrProviderChange(option.id)}
+                />
+              ))}
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-slate-500">默认由 OPENTALKING_STT_PROVIDER 控制；连续语音和上传语音共用该本地/API ASR 配置，选择 API 语音识别时走原 DashScope 链路。</p>
           </div>
         </SettingsSection>
 

@@ -43,11 +43,11 @@ from opentalking.avatar.fasterliveportrait_config import (
 )
 from opentalking.providers.stt.dashscope.adapter import (
     decode_audio_file_to_pcm_i16,
-    transcribe_audio_file_path,
-    transcribe_pcm_chunk_queue_sync,
+    ensure_wav_16k_mono,
 )
+from opentalking.providers.stt.factory import normalize_stt_provider, transcribe_pcm_chunk_queue_sync, transcribe_wav_path_sync
 from opentalking.providers.tts.edge_zh_voices import normalize_optional_edge_voice
-from opentalking.providers.tts.providers import BAILIAN_TTS_PROVIDERS, normalize_tts_provider
+from opentalking.providers.tts.providers import BAILIAN_TTS_PROVIDERS, LOCAL_TTS_PROVIDERS, normalize_tts_provider
 from opentalking.providers.tts.qwen_tts_voices import normalize_optional_qwen_voice, sanitize_qwen_model
 from opentalking.pipeline.recording.recording import (
     export_flashtalk_recording,
@@ -66,6 +66,7 @@ def _effective_tts_provider(requested: str | None) -> str:
 
 
 _BAILIAN_TTS = BAILIAN_TTS_PROVIDERS
+_LOCAL_TTS = LOCAL_TTS_PROVIDERS
 
 
 def _is_flashtalk_compatible_model(model: str | None) -> bool:
@@ -87,7 +88,7 @@ def _normalize_voice_for_speak(
     """返回 (voice, 生效的 tts_provider, tts_model)。tts_model 仅百炼分支有值。"""
     eff = _effective_tts_provider(tts_provider)
     try:
-        if eff in _BAILIAN_TTS:
+        if eff in _BAILIAN_TTS or eff in _LOCAL_TTS:
             vn = normalize_optional_qwen_voice(voice)
             tm = sanitize_qwen_model(tts_model)
             return vn, eff, tm
@@ -667,11 +668,53 @@ async def speak(session_id: str, body: SpeakRequest, request: Request) -> dict[s
     return {"session_id": session_id, "status": "queued"}
 
 
+def _normalize_requested_stt_provider(value: str | None) -> str | None:
+    try:
+        return normalize_stt_provider(value, default=None)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+async def _transcribe_upload_path(upload_path: Path, *, stt_provider: str | None = None) -> str:
+    """Uploaded audio file -> 16k WAV -> configured STT provider."""
+    t_total0 = time.perf_counter()
+    upload_sz = upload_path.stat().st_size
+    requested_stt_provider = _normalize_requested_stt_provider(stt_provider)
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        wav_path = Path(tmp.name)
+    try:
+        t_ff0 = time.perf_counter()
+        await ensure_wav_16k_mono(upload_path, wav_path)
+        ffmpeg_ms = (time.perf_counter() - t_ff0) * 1000.0
+        text, stt_ms = await asyncio.to_thread(
+            transcribe_wav_path_sync,
+            wav_path,
+            provider=requested_stt_provider,
+        )
+        total_ms = (time.perf_counter() - t_total0) * 1000.0
+        log.info(
+            "STT upload timing: provider=%s upload_bytes=%d ffmpeg_ms=%.0f stt_ms=%.0f total_ms=%.0f text_chars=%d",
+            requested_stt_provider or "configured",
+            upload_sz,
+            ffmpeg_ms,
+            stt_ms,
+            total_ms,
+            len(text.strip()),
+        )
+        return text
+    finally:
+        try:
+            wav_path.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
 @router.post("/{session_id}/transcribe")
 async def transcribe(
     session_id: str,
     request: Request,
     file: UploadFile = File(...),
+    stt_provider: str | None = Form(default=None),
 ) -> dict[str, str]:
     """上传短音频 → 百炼 DashScope ASR → 返回识别文本（不触发数字人播报）。"""
     r: redis.Redis = request.app.state.redis
@@ -691,7 +734,7 @@ async def transcribe(
         upload_path = Path(tmp.name)
 
     try:
-        text = await transcribe_audio_file_path(upload_path)
+        text = await _transcribe_upload_path(upload_path, stt_provider=stt_provider)
     except RuntimeError as e:
         raise HTTPException(status_code=502, detail=str(e)) from e
     except Exception as e:  # noqa: BLE001
@@ -714,6 +757,7 @@ async def speak_audio(
     voice: str | None = Form(default=None),
     tts_provider: str | None = Form(default=None),
     tts_model: str | None = Form(default=None),
+    stt_provider: str | None = Form(default=None),
 ) -> dict[str, str]:
     """上传语音 → 百炼 ASR → 将识别文本送入与会话相同的 speak 流水线（LLM→TTS→FlashTalk）。"""
     r: redis.Redis = request.app.state.redis
@@ -733,7 +777,7 @@ async def speak_audio(
         upload_path = Path(tmp.name)
 
     try:
-        text = await transcribe_audio_file_path(upload_path)
+        text = await _transcribe_upload_path(upload_path, stt_provider=stt_provider)
     except RuntimeError as e:
         raise HTTPException(status_code=502, detail=str(e)) from e
     except Exception as e:  # noqa: BLE001
@@ -861,6 +905,7 @@ async def speak_audio_stream_ws(websocket: WebSocket, session_id: str) -> None:
             tts_provider=meta.get("tts_provider"),
             tts_model=meta.get("tts_model"),
         )
+        requested_stt_provider = _normalize_requested_stt_provider(meta.get("stt_provider"))
     except HTTPException as e:
         detail = e.detail if isinstance(e.detail, str) else str(e.detail)
         await websocket.send_json({"error": detail})
@@ -899,7 +944,11 @@ async def speak_audio_stream_ws(websocket: WebSocket, session_id: str) -> None:
     dashscope_ms = 0.0
     try:
         text, dashscope_ms = await asyncio.wait_for(
-            asyncio.to_thread(transcribe_pcm_chunk_queue_sync, sq),
+            asyncio.to_thread(
+                transcribe_pcm_chunk_queue_sync,
+                sq,
+                provider=requested_stt_provider,
+            ),
             timeout=120.0,
         )
     except asyncio.TimeoutError:
@@ -930,7 +979,8 @@ async def speak_audio_stream_ws(websocket: WebSocket, session_id: str) -> None:
 
     total_ms = (time.perf_counter() - t_stream0) * 1000.0
     log.info(
-        "STT streaming timing: pcm_rx_bytes=%d dashscope_ms=%.0f wall_total_ms=%.0f text_chars=%d",
+        "STT streaming timing: provider=%s pcm_rx_bytes=%d stt_ms=%.0f wall_total_ms=%.0f text_chars=%d",
+        requested_stt_provider or "configured",
         pcm_rx_stats["bytes"],
         dashscope_ms,
         total_ms,

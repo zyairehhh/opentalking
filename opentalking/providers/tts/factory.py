@@ -9,6 +9,7 @@ from opentalking.providers.tts.edge.adapter import EdgeTTSAdapter
 from opentalking.providers.tts.providers import (
     CORE_TTS_PROVIDERS,
     COSYVOICE_TTS_PROVIDERS,
+    LOCAL_TTS_PROVIDERS,
     QWEN_TTS_PROVIDERS,
     SAMBERT_TTS_PROVIDERS,
 )
@@ -50,6 +51,7 @@ def _tts_voice_for_log_dashscope() -> str:
 _QWEN_RT = QWEN_TTS_PROVIDERS
 _COSY_WS = COSYVOICE_TTS_PROVIDERS
 _SAMBERT = SAMBERT_TTS_PROVIDERS
+_LOCAL = LOCAL_TTS_PROVIDERS
 _CORE = CORE_TTS_PROVIDERS
 
 
@@ -64,6 +66,8 @@ def tts_provider_log_label() -> str:
         return "dashscope_sambert"
     if p == "elevenlabs":
         return "elevenlabs"
+    if p in _LOCAL:
+        return p
     return "edge"
 
 
@@ -123,6 +127,27 @@ def tts_log_profile(
             f"TTS_API=dashscope_sambert | OPENTALKING_TTS_PROVIDER={raw_display} | "
             f"model={model!r} dashscope_api_key_set={key_ok} | {req_part}"
         )
+
+    if p == "local_cosyvoice":
+        model = (
+            (tts_model_override or "").strip()
+            or os.environ.get(
+                "OPENTALKING_LOCAL_COSYVOICE_MODEL",
+                "FunAudioLLM/Fun-CosyVoice3-0.5B-2512",
+            ).strip()
+        )
+        return f"TTS_API=local_cosyvoice | model={model!r} device={os.environ.get('OPENTALKING_LOCAL_TTS_DEVICE', os.environ.get('OPENTALKING_LOCAL_AUDIO_DEVICE', 'auto'))!r} | {req_part}"
+
+    if p == "local_qwen3_tts":
+        model = (
+            (tts_model_override or "").strip()
+            or os.environ.get(
+                "OPENTALKING_LOCAL_QWEN3_TTS_MODEL",
+                "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+            ).strip()
+        )
+        service = os.environ.get("OPENTALKING_LOCAL_QWEN3_TTS_SERVICE_URL", "").strip() or "(unset)"
+        return f"TTS_API=local_qwen3_tts | model={model!r} service={service!r} | {req_part}"
 
     if p == "elevenlabs":
         try:
@@ -184,6 +209,24 @@ def create_tts_adapter(
         from opentalking.providers.tts.dashscope_sambert.adapter import DashScopeSambertTTSAdapter
 
         return DashScopeSambertTTSAdapter(
+            default_voice=default_voice,
+            sample_rate=sample_rate,
+            chunk_ms=chunk_ms,
+            model=tts_model,
+        )
+    if p == "local_cosyvoice":
+        from opentalking.providers.tts.local_cosyvoice.adapter import LocalCosyVoiceTTSAdapter
+
+        return LocalCosyVoiceTTSAdapter(
+            default_voice=default_voice,
+            sample_rate=sample_rate,
+            chunk_ms=chunk_ms,
+            model=tts_model,
+        )
+    if p == "local_qwen3_tts":
+        from opentalking.providers.tts.local_qwen3_tts.adapter import LocalQwen3TTSAdapter
+
+        return LocalQwen3TTSAdapter(
             default_voice=default_voice,
             sample_rate=sample_rate,
             chunk_ms=chunk_ms,
@@ -295,7 +338,7 @@ def build_tts_adapter(
         )
 
     # For dashscope/bailian/etc., delegate to create_tts_adapter
-    if provider in _QWEN_RT or provider in _COSY_WS or provider in _SAMBERT:
+    if provider in _QWEN_RT or provider in _COSY_WS or provider in _SAMBERT or provider in _LOCAL:
         return create_tts_adapter(
             sample_rate=sample_rate,
             chunk_ms=chunk_ms,

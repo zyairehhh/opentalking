@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 
 from opentalking.core.queue_status import get_flashtalk_queue_status
+from opentalking.providers.stt.factory import stt_status
 
 router = APIRouter(tags=["health"])
 
@@ -13,8 +14,13 @@ async def healthz() -> dict[str, str]:
 
 
 @router.get("/health")
-async def health() -> dict[str, str]:
-    return {"status": "ok"}
+async def health(request: Request) -> dict[str, str]:
+    settings = request.app.state.settings
+    return {
+        "status": "ok",
+        "tts_provider": getattr(settings, "normalized_tts_provider", "edge"),
+        **{f"stt_{key}": value for key, value in stt_status().items()},
+    }
 
 
 @router.get("/queue/status")

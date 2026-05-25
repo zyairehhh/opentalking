@@ -67,6 +67,20 @@ def _flatten_config(raw: dict[str, Any] | None) -> dict[str, Any]:
             "elevenlabs_voice_id": "tts_elevenlabs_voice_id",
             "elevenlabs_output_format": "tts_elevenlabs_output_format",
         },
+        "stt": {
+            "provider": "stt_provider",
+            "model": "stt_model",
+            "device": "stt_device",
+        },
+        "local_audio": {
+            "model_root": "local_audio_model_root",
+            "device": "local_audio_device",
+            "cosyvoice_model": "local_cosyvoice_model",
+            "cosyvoice_service_url": "local_cosyvoice_service_url",
+            "cosyvoice_service_urls": "local_cosyvoice_service_urls",
+            "qwen3_tts_model": "local_qwen3_tts_model",
+            "qwen3_tts_service_url": "local_qwen3_tts_service_url",
+        },
         "model": {"torch_device": "torch_device", "default_model": "default_model"},
     }
 
@@ -263,7 +277,7 @@ class Settings(BaseSettings):
     llm_model: str = "qwen-turbo"
     llm_system_prompt: str = "You are a friendly digital human assistant."
 
-    #: edge | dashscope | bailian | qwen | qwen_tts | cosyvoice | sambert（OPENTALKING_TTS_PROVIDER）
+    #: edge | dashscope | bailian | qwen | qwen_tts | cosyvoice | sambert | local_*（OPENTALKING_TTS_PROVIDER）
     tts_provider: str = Field(default="edge")
 
     #: 音色目录 SQLite；默认 ./data/opentalking.sqlite3
@@ -281,6 +295,20 @@ class Settings(BaseSettings):
     tts_elevenlabs_voice_id: str = ""
     tts_elevenlabs_output_format: str = "mp3_22050_32"
     ffmpeg_bin: str = "ffmpeg"
+
+    #: dashscope | funasr | sensevoice | sherpa_onnx（OPENTALKING_STT_PROVIDER）
+    stt_provider: str = "dashscope"
+    stt_model: str = "paraformer-realtime-v2"
+    stt_device: str = "auto"
+
+    #: Shared local model root for local ASR/TTS assets.
+    local_audio_model_root: str = "./models/local-audio"
+    local_audio_device: str = "auto"
+    local_cosyvoice_model: str = "FunAudioLLM/Fun-CosyVoice3-0.5B-2512"
+    local_cosyvoice_service_url: str = ""
+    local_cosyvoice_service_urls: str = ""
+    local_qwen3_tts_model: str = "Qwen/Qwen3-TTS-12Hz-0.6B-Base"
+    local_qwen3_tts_service_url: str = ""
 
     torch_device: str = "cpu"
     default_fps: int = 25
@@ -350,6 +378,16 @@ class Settings(BaseSettings):
         except ValueError:
             return "auto"
         return provider or "edge"
+
+    @property
+    def normalized_stt_provider(self) -> str:
+        from opentalking.providers.stt.factory import normalize_stt_provider
+
+        try:
+            provider = normalize_stt_provider(self.stt_provider, default="dashscope")
+        except ValueError:
+            return "dashscope"
+        return provider or "dashscope"
 
     @property
     def normalized_flashtalk_mode(self) -> str:
