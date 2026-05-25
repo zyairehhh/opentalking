@@ -40,8 +40,10 @@ The default speech recognition backend is DashScope Paraformer realtime.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DASHSCOPE_API_KEY` | _empty_ | Consumed directly by the DashScope SDK. When the language model also runs on DashScope, this variable must be set to the same value as `OPENTALKING_LLM_API_KEY`. |
-| `OPENTALKING_STT_MODEL` | `paraformer-realtime-v2` | DashScope realtime speech recognition model. |
+| `OPENTALKING_STT_PROVIDER` | `dashscope` | STT provider. Use `dashscope` for cloud STT; local deployments can select `sensevoice`. |
+| `OPENTALKING_STT_API_KEY` | _empty_ | STT module API key. It is not populated from LLM or vendor fallback keys. |
+| `OPENTALKING_STT_MODEL` | `paraformer-realtime-v2` | DashScope realtime STT model; local `sensevoice` reports `iic/SenseVoiceSmall`. |
+| `OPENTALKING_STT_DEVICE` | `auto` | Local STT device selection; ignored by DashScope STT. |
 
 ### Text-to-speech
 
@@ -51,7 +53,10 @@ and does not require an API key.
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `OPENTALKING_TTS_PROVIDER` | `edge` | One of `edge`, `dashscope`, `cosyvoice`, `elevenlabs`. |
+| `OPENTALKING_TTS_MODEL` | _empty_ | TTS model id; DashScope Qwen realtime TTS commonly uses `qwen3-tts-flash-realtime`. |
+| `OPENTALKING_TTS_API_KEY` | _empty_ | TTS module API key. It is not populated from LLM or STT fallback keys. |
 | `OPENTALKING_TTS_VOICE` | `zh-CN-XiaoxiaoNeural` | Voice identifier. Format depends on the provider. |
+| `OPENTALKING_TTS_SERVICE_URL` | _empty_ | Optional TTS WebSocket/service URL override. |
 
 Configuration for DashScope realtime TTS and ElevenLabs is documented in
 [§4 Advanced tuning](#4-advanced-tuning).
@@ -159,7 +164,8 @@ documented below.
 
 ```env
 OPENTALKING_TTS_PROVIDER=dashscope
-OPENTALKING_QWEN_TTS_MODEL=qwen3-tts-flash-realtime
+OPENTALKING_TTS_API_KEY=<dashscope-api-key>
+OPENTALKING_TTS_MODEL=qwen3-tts-flash-realtime
 OPENTALKING_QWEN_TTS_REUSE_WS=1
 ```
 

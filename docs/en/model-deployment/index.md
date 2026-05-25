@@ -21,7 +21,7 @@ flowchart LR
 | Layer | Default for first run | When to change it |
 |-------|-----------------------|-------------------|
 | LLM | DashScope OpenAI-compatible endpoint | Use OpenAI, vLLM, Ollama, or DeepSeek when those are already standard in your environment. |
-| STT | DashScope Paraformer realtime | Keep it unless you need a different realtime ASR provider. |
+| STT | DashScope Paraformer realtime | Keep it unless you need a different realtime STT provider. |
 | TTS | Edge TTS | Use DashScope, CosyVoice, or ElevenLabs for production voices and voice cloning. |
 | Avatar assets | Built-in examples | Prepare model-specific assets before selecting Wav2Lip, QuickTalk, FlashHead, or FlashTalk. |
 | Talking-head backend | `mock` first, then the Wav2Lip local path | Use QuickTalk / FlashTalk through OmniRT, FlashHead direct WS, or another model service. |

@@ -329,7 +329,7 @@ export function BailianVoiceClone({ onSuccess, onClose }: BailianVoiceCloneProps
     <div className="mx-auto max-w-xl rounded-lg border border-slate-200 bg-white text-sm text-slate-800 shadow-sm shadow-slate-200/70">
       <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-4 py-3">
         <div>
-          <p className="text-xs font-medium text-slate-500">声音与角色</p>
+          <p className="text-xs font-medium text-slate-500">语音合成</p>
           <h2 className="mt-0.5 text-base font-semibold text-slate-950">百炼音色复刻</h2>
         </div>
         <button

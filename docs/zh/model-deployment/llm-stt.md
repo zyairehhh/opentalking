@@ -28,12 +28,13 @@ OPENTALKING_LLM_MODEL=qwen-flash
 默认语音识别后端为 DashScope Paraformer realtime。
 
 ```env title=".env"
-DASHSCOPE_API_KEY=<dashscope-api-key>
+OPENTALKING_STT_PROVIDER=dashscope
+OPENTALKING_STT_API_KEY=<dashscope-api-key>
 OPENTALKING_STT_MODEL=paraformer-realtime-v2
 ```
 
-DashScope 部署中，`DASHSCOPE_API_KEY` 与 `OPENTALKING_LLM_API_KEY` 可以使用同一把 key。
-如果文本对话正常但麦克风输入失败，优先检查这个 key。
+DashScope 部署中，LLM 与 STT 可以使用同一把实际 key，但必须分别写入
+`OPENTALKING_LLM_API_KEY` 与 `OPENTALKING_STT_API_KEY`。如果文本对话正常但麦克风输入失败，优先检查 STT 模块 key。
 
 ## 验证
 

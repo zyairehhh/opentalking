@@ -73,6 +73,35 @@ def _env_bool(name: str, *, default: bool = False) -> bool:
     return raw.strip().lower() in {"1", "true", "yes", "on"}
 
 
+async def _prewarm_local_stt_on_startup() -> None:
+    if not _env_bool("OPENTALKING_STT_PREWARM_ON_STARTUP", default=True):
+        log.info("STT startup prewarm disabled by OPENTALKING_STT_PREWARM_ON_STARTUP=0")
+        return
+
+    def _do_prewarm() -> tuple[bool, dict[str, str]]:
+        from opentalking.providers.stt import factory as stt_factory
+
+        status = stt_factory.stt_status()
+        return stt_factory.prewarm_stt_adapter(), status
+
+    loop = asyncio.get_running_loop()
+    try:
+        prewarmed, status = await loop.run_in_executor(None, _do_prewarm)
+    except Exception:  # noqa: BLE001
+        log.warning("STT startup prewarm failed; service will continue", exc_info=True)
+        return
+    if prewarmed:
+        log.info(
+            "STT startup prewarm ready: provider=%s model=%s device=%s model_dir=%s",
+            status.get("provider"),
+            status.get("model"),
+            status.get("device"),
+            status.get("model_dir"),
+        )
+    else:
+        log.info("STT startup prewarm skipped: provider=%s", status.get("provider"))
+
+
 def _adapter_device(model_type: str, default_device: str) -> str:
     model_type = model_type.strip().lower()
     if model_type == "wav2lip":
@@ -111,6 +140,7 @@ async def unified_lifespan(app: FastAPI):
         avatars_root,
         device,
     )
+    await _prewarm_local_stt_on_startup()
 
     # Optional: warm one or more avatar Workers at startup so the very first
     # session doesn't pay the 30-120s ``_build_fast_restore_contexts`` cost.

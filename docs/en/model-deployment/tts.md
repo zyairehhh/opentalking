@@ -9,7 +9,7 @@ production voices, cloning, or provider-specific voice quality.
 | Provider | Best for | Required configuration |
 |----------|----------|------------------------|
 | `edge` | First run, CPU evaluation, no API key | `OPENTALKING_TTS_PROVIDER=edge` |
-| `dashscope` | Chinese realtime TTS and voice cloning | `DASHSCOPE_API_KEY` plus DashScope TTS settings |
+| `dashscope` | Chinese realtime TTS and voice cloning | `OPENTALKING_TTS_API_KEY` plus DashScope TTS settings |
 | `cosyvoice` | Custom voice service or CosyVoice deployment | CosyVoice WebSocket URL/settings |
 | `elevenlabs` | Hosted multilingual voices | ElevenLabs API key and voice id |
 
@@ -27,8 +27,8 @@ the synthesis backend.
 
 ```env title=".env"
 OPENTALKING_TTS_PROVIDER=dashscope
-DASHSCOPE_API_KEY=<dashscope-api-key>
-OPENTALKING_QWEN_TTS_MODEL=qwen3-tts-flash-realtime
+OPENTALKING_TTS_API_KEY=<dashscope-api-key>
+OPENTALKING_TTS_MODEL=qwen3-tts-flash-realtime
 OPENTALKING_QWEN_TTS_REUSE_WS=1
 ```
 

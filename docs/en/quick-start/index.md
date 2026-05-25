@@ -71,7 +71,7 @@ OPENTALKING_TTS_PROVIDER=edge
 OPENTALKING_TTS_VOICE=zh-CN-XiaoxiaoNeural
 ```
 
-`edge` TTS does not require an API key. If you use DashScope STT or DashScope TTS, configure `DASHSCOPE_API_KEY` as well.
+`edge` TTS does not require an API key. If you use DashScope STT or DashScope TTS, configure `OPENTALKING_STT_API_KEY` or `OPENTALKING_TTS_API_KEY` for that module.
 
 ### 4. Start Mock Mode
 

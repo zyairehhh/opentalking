@@ -132,15 +132,20 @@ OPENTALKING_LLM_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 OPENTALKING_LLM_API_KEY=sk-your-key
 OPENTALKING_LLM_MODEL=qwen-flash
 
-# Voice synthesis / voice cloning when using DashScope-backed providers
-DASHSCOPE_API_KEY=sk-your-key
+# Speech-to-text when using DashScope STT; local SenseVoice does not need a key
+OPENTALKING_STT_PROVIDER=dashscope
+OPENTALKING_STT_MODEL=paraformer-realtime-v2
+OPENTALKING_STT_API_KEY=sk-your-key
+
+# Voice synthesis / voice cloning when using DashScope TTS
+OPENTALKING_TTS_API_KEY=sk-your-key
 
 # Other TTS options
 OPENTALKING_TTS_PROVIDER=edge
 OPENTALKING_TTS_VOICE=zh-CN-XiaoxiaoNeural
 ```
 
-> Note: `edge` TTS does not require a key. `DASHSCOPE_API_KEY` is only required when using real-time STT or DashScope voice synthesis.
+> Note: `edge` TTS does not require a key. LLM, STT, and TTS no longer share fallback keys; if you use the same DashScope key, set it explicitly in each `OPENTALKING_*_API_KEY` variable.
 
 ### 1. Fast First Run
 

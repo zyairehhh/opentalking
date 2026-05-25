@@ -69,7 +69,7 @@ def test_local_tts_defaults_use_downloadable_model_ids(monkeypatch):
     from opentalking.providers.tts.local_qwen3_tts.adapter import LocalQwen3TTSAdapter
 
     for key in [
-        "OPENTALKING_LOCAL_COSYVOICE_MODEL",
+        "OPENTALKING_TTS_LOCAL_COSYVOICE_MODEL",
         "OPENTALKING_LOCAL_QWEN3_TTS_MODEL",
     ]:
         monkeypatch.delenv(key, raising=False)
@@ -79,6 +79,7 @@ def test_local_tts_defaults_use_downloadable_model_ids(monkeypatch):
 
 
 def test_local_cosyvoice3_uses_automodel(monkeypatch):
+    from opentalking.core import config as core_config
     from opentalking.providers.tts.local_cosyvoice import adapter as cosy_adapter
 
     loaded: dict[str, object] = {}
@@ -92,6 +93,17 @@ def test_local_cosyvoice3_uses_automodel(monkeypatch):
         __import__("sys").modules,
         "cosyvoice.cli.cosyvoice",
         SimpleNamespace(AutoModel=FakeAutoModel),
+    )
+    monkeypatch.delenv("OPENTALKING_TTS_LOCAL_COSYVOICE_MODEL_DIR", raising=False)
+    monkeypatch.delenv("OPENTALKING_TTS_LOCAL_COSYVOICE_MODEL_DIR", raising=False)
+    monkeypatch.setattr(
+        core_config,
+        "get_settings",
+        lambda: SimpleNamespace(
+            tts_tts_local_cosyvoice_model_dir="",
+            tts_local_cosyvoice_model_dir="",
+            local_audio_model_root="",
+        ),
     )
     monkeypatch.setattr(cosy_adapter, "_resolve_model_path", lambda model: f"/models/{model}")
 
@@ -112,8 +124,8 @@ def test_local_tts_adapters_read_settings_when_env_is_absent(monkeypatch):
         "OPENTALKING_LOCAL_AUDIO_MODEL_ROOT",
         "OPENTALKING_LOCAL_AUDIO_DEVICE",
         "OPENTALKING_LOCAL_TTS_DEVICE",
-        "OPENTALKING_LOCAL_COSYVOICE_MODEL",
-        "OPENTALKING_LOCAL_COSYVOICE_SERVICE_URL",
+        "OPENTALKING_TTS_LOCAL_COSYVOICE_MODEL",
+        "OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URL",
         "OPENTALKING_LOCAL_QWEN3_TTS_MODEL",
         "OPENTALKING_LOCAL_QWEN3_TTS_SERVICE_URL",
     ]:
@@ -124,8 +136,8 @@ def test_local_tts_adapters_read_settings_when_env_is_absent(monkeypatch):
         lambda: SimpleNamespace(
             local_audio_model_root="/settings/local-audio",
             local_audio_device="cpu",
-            local_cosyvoice_model="settings/CosyVoice",
-            local_cosyvoice_service_url="http://127.0.0.1:19090/cosy",
+            tts_local_cosyvoice_model="settings/CosyVoice",
+            tts_local_cosyvoice_service_url="http://127.0.0.1:19090/cosy",
             local_qwen3_tts_model="settings/Qwen3-TTS",
             local_qwen3_tts_service_url="http://127.0.0.1:19091/qwen3",
         ),
@@ -141,13 +153,13 @@ def test_local_tts_adapters_read_settings_when_env_is_absent(monkeypatch):
     assert qwen3.service_url == "http://127.0.0.1:19091/qwen3"
 
 
-def test_local_cosyvoice_service_url_map_routes_by_model(monkeypatch):
+def test_tts_local_cosyvoice_service_url_map_routes_by_model(monkeypatch):
     from opentalking.providers.tts.local_cosyvoice.adapter import LocalCosyVoiceTTSAdapter
 
-    monkeypatch.setenv("OPENTALKING_LOCAL_COSYVOICE_MODEL", "FunAudioLLM/Fun-CosyVoice3-0.5B-2512")
-    monkeypatch.setenv("OPENTALKING_LOCAL_COSYVOICE_SERVICE_URL", "http://127.0.0.1:19090/synthesize")
+    monkeypatch.setenv("OPENTALKING_TTS_LOCAL_COSYVOICE_MODEL", "FunAudioLLM/Fun-CosyVoice3-0.5B-2512")
+    monkeypatch.setenv("OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URL", "http://127.0.0.1:19090/synthesize")
     monkeypatch.setenv(
-        "OPENTALKING_LOCAL_COSYVOICE_SERVICE_URLS",
+        "OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URLS",
         "FunAudioLLM/Fun-CosyVoice3-0.5B-2512=http://127.0.0.1:19090/synthesize,"
         "iic/CosyVoice-300M=http://127.0.0.1:19091/synthesize",
     )
@@ -245,9 +257,66 @@ def test_stt_factory_reuses_local_adapter_for_same_runtime(monkeypatch):
     second = factory.create_stt_adapter("sensevoice")
 
     assert first is second
-
     assert first.model == "iic/SenseVoiceSmall"
     assert first.device == "cpu"
+
+
+def test_local_funasr_runtime_disables_update_check(monkeypatch):
+    from opentalking.providers.stt import factory
+
+    loaded: dict[str, object] = {}
+
+    class FakeAutoModel:
+        def __init__(self, model, **kwargs):
+            loaded["model"] = model
+            loaded["kwargs"] = kwargs
+
+    monkeypatch.setitem(
+        __import__("sys").modules,
+        "funasr",
+        SimpleNamespace(AutoModel=FakeAutoModel),
+    )
+
+    runtime = factory.LocalFunASRSTTAdapter(
+        provider="sensevoice",
+        model="iic/SenseVoiceSmall",
+        model_dir="/models/sensevoice",
+        device="cpu",
+    )._load_runtime()
+
+    assert isinstance(runtime, FakeAutoModel)
+    assert loaded["model"] == "/models/sensevoice"
+    assert loaded["kwargs"] == {"device": "cpu", "disable_update": True}
+
+
+def test_stt_prewarm_skips_api_provider(monkeypatch):
+    from opentalking.providers.stt import factory
+
+    monkeypatch.setenv("OPENTALKING_STT_DEFAULT_PROVIDER", "dashscope")
+    monkeypatch.setattr(
+        factory,
+        "create_stt_adapter",
+        lambda provider=None: pytest.fail("API STT provider must not be prewarmed"),
+    )
+
+    assert factory.prewarm_stt_adapter() is False
+
+
+def test_stt_prewarm_loads_local_adapter(monkeypatch):
+    from opentalking.providers.stt import factory
+
+    calls: list[str] = []
+
+    class FakeAdapter:
+        def _load_runtime(self):
+            calls.append("loaded")
+            return object()
+
+    monkeypatch.setenv("OPENTALKING_STT_DEFAULT_PROVIDER", "sensevoice")
+    monkeypatch.setattr(factory, "create_stt_adapter", lambda provider=None: FakeAdapter())
+
+    assert factory.prewarm_stt_adapter() is True
+    assert calls == ["loaded"]
 
 
 def test_stt_extract_text_removes_sensevoice_tags():
@@ -352,8 +421,8 @@ def test_cosyvoice_service_script_exposes_http_contract():
     service = Path("scripts/local_cosyvoice_service.py").read_text(encoding="utf-8")
 
     assert "@app.post(\"/synthesize\")" in service
-    assert "OPENTALKING_LOCAL_COSYVOICE_MODEL_DIR" in service
-    assert "OPENTALKING_LOCAL_COSYVOICE_PROMPT_AUDIO" in service
+    assert "OPENTALKING_TTS_LOCAL_COSYVOICE_MODEL_DIR" in service
+    assert "OPENTALKING_TTS_LOCAL_COSYVOICE_PROMPT_AUDIO" in service
     assert "inference_zero_shot" in service
     assert "audio/L16" in service
 
@@ -492,7 +561,7 @@ def test_cosyvoice_service_request_prompt_overrides_default(monkeypatch):
         (
             "opentalking.providers.tts.local_cosyvoice.adapter",
             "LocalCosyVoiceTTSAdapter",
-            "OPENTALKING_LOCAL_COSYVOICE_SERVICE_URL",
+            "OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URL",
         ),
         (
             "opentalking.providers.tts.local_qwen3_tts.adapter",
@@ -595,7 +664,7 @@ async def test_local_tts_service_wav_response_uses_content_type_decoder(
 @pytest.mark.asyncio
 async def test_local_cosyvoice_service_pcm_response_streams_without_full_body(monkeypatch):
     module = importlib.import_module("opentalking.providers.tts.local_cosyvoice.adapter")
-    monkeypatch.setenv("OPENTALKING_LOCAL_COSYVOICE_SERVICE_URL", "http://127.0.0.1:19090/synthesize")
+    monkeypatch.setenv("OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URL", "http://127.0.0.1:19090/synthesize")
     pcm_body = np.arange(320, dtype="<i2").tobytes()
     first = pcm_body[:321]
     second = pcm_body[321:]
@@ -652,7 +721,7 @@ async def test_local_cosyvoice_service_pcm_response_streams_without_full_body(mo
 @pytest.mark.asyncio
 async def test_local_cosyvoice_service_payload_includes_system_voice_mode(tmp_path, monkeypatch):
     module = importlib.import_module("opentalking.providers.tts.local_cosyvoice.adapter")
-    monkeypatch.setenv("OPENTALKING_LOCAL_COSYVOICE_SERVICE_URL", "http://127.0.0.1:19090/synthesize")
+    monkeypatch.setenv("OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URL", "http://127.0.0.1:19090/synthesize")
     monkeypatch.setenv("OPENTALKING_LOCAL_AUDIO_MODEL_ROOT", str(tmp_path))
     voice_dir = tmp_path / "voices" / "system" / "local-cross-lingual"
     voice_dir.mkdir(parents=True)
@@ -708,7 +777,7 @@ async def test_local_cosyvoice_service_payload_includes_system_voice_mode(tmp_pa
 @pytest.mark.asyncio
 async def test_local_cosyvoice_service_payload_includes_local_voice_prompt(tmp_path, monkeypatch):
     module = importlib.import_module("opentalking.providers.tts.local_cosyvoice.adapter")
-    monkeypatch.setenv("OPENTALKING_LOCAL_COSYVOICE_SERVICE_URL", "http://127.0.0.1:19090/synthesize")
+    monkeypatch.setenv("OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URL", "http://127.0.0.1:19090/synthesize")
     monkeypatch.setenv("OPENTALKING_LOCAL_AUDIO_MODEL_ROOT", str(tmp_path))
     voice_dir = tmp_path / "voices" / "clones" / "local-test-voice"
     voice_dir.mkdir(parents=True)

@@ -37,7 +37,7 @@ flowchart LR
 ## 前置条件
 
 - 已完成 [快速上手](../tutorials/quickstart.md) 或 [Mock 端到端案例](../tutorials/cases/mock-e2e.md)。
-- `.env` 中已配置 `OPENTALKING_LLM_API_KEY` 与 `DASHSCOPE_API_KEY`。
+- `.env` 中已配置 `OPENTALKING_LLM_API_KEY`；如启用语音输入，另配 `OPENTALKING_STT_API_KEY`。
 - 浏览器建议使用 Chromium 内核。
 
 ## 1. 配置客服人设
@@ -66,7 +66,7 @@ bash scripts/quickstart/start_mock.sh
 ```
 
 打开 <http://localhost:5173>，选择内置 avatar 与 `mock` 模型，开始语音对话。此时画面是占位数字人，
-但 ASR、LLM、TTS、字幕事件和 WebRTC 链路都已真实运行。
+但 STT、LLM、TTS、字幕事件和 WebRTC 链路都已真实运行。
 
 ## 3. 用 API 嵌入业务系统
 

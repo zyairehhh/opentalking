@@ -1,4 +1,4 @@
-"""Speech-to-text provider selection for DashScope and local ASR runtimes."""
+"""Speech-to-text provider selection for DashScope and local STT runtimes."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ def _clean_text(text: str) -> str:
     return _SENSEVOICE_TAG_RE.sub("", text).strip()
 
 
-_ADAPTER_CACHE: dict[tuple[str, str, str, str], object] = {}
+_ADAPTER_CACHE: dict[tuple[str, str, str, str, str], object] = {}
 _ADAPTER_CACHE_LOCK = threading.Lock()
 
 
@@ -48,14 +48,22 @@ def _settings_value(name: str, default: str = "") -> str:
     return default
 
 
+def _provider_env(provider: str, field: str) -> str:
+    key_provider = provider.upper().replace("-", "_")
+    return os.environ.get(f"OPENTALKING_STT_{key_provider}_{field}", "").strip()
+
+
 def _provider() -> str:
-    raw = os.environ.get("OPENTALKING_STT_PROVIDER", "").strip()
-    if raw:
-        return normalize_stt_provider(raw, default="dashscope") or "dashscope"
-    return (
-        normalize_stt_provider(_settings_value("stt_provider", "dashscope"), default="dashscope")
-        or "dashscope"
-    )
+    for raw in (
+        os.environ.get("OPENTALKING_STT_DEFAULT_PROVIDER", ""),
+        _settings_value("stt_default_provider", ""),
+        os.environ.get("OPENTALKING_STT_PROVIDER", ""),
+        _settings_value("stt_provider", ""),
+    ):
+        value = str(raw or "").strip()
+        if value:
+            return normalize_stt_provider(value, default="dashscope") or "dashscope"
+    return "dashscope"
 
 
 def _model_root() -> Path:
@@ -68,7 +76,13 @@ def _model_root() -> Path:
 
 
 def _device() -> str:
+    return _device_for_provider(_provider())
+
+
+def _device_for_provider(provider: str) -> str:
     for value in (
+        _provider_env(provider, "DEVICE"),
+        _settings_value(f"stt_{provider}_device", ""),
         os.environ.get("OPENTALKING_STT_DEVICE", ""),
         os.environ.get("OPENTALKING_LOCAL_AUDIO_DEVICE", ""),
         _settings_value("stt_device", ""),
@@ -81,19 +95,46 @@ def _device() -> str:
 
 
 def _stt_model(provider: str) -> str:
-    direct = os.environ.get("OPENTALKING_STT_MODEL", "").strip()
+    provider = normalize_stt_provider(provider, default="dashscope") or "dashscope"
+    if provider == "funasr":
+        return (
+            _provider_env("funasr", "MODEL")
+            or _settings_value("stt_funasr_model", "")
+            or os.environ.get("OPENTALKING_STT_MODEL", "").strip()
+            or _settings_value("stt_model", "")
+            or "iic/Fun-ASR-Nano-2512"
+        )
+    if provider == "sensevoice":
+        return (
+            _provider_env("sensevoice", "MODEL")
+            or _settings_value("stt_sensevoice_model", "")
+            or "iic/SenseVoiceSmall"
+        )
+    if provider == "sherpa_onnx":
+        return (
+            _provider_env("sherpa_onnx", "MODEL")
+            or _settings_value("stt_sherpa_onnx_model", "")
+            or os.environ.get("OPENTALKING_STT_MODEL", "").strip()
+            or _settings_value("stt_model", "")
+        )
+    return (
+        _provider_env("dashscope", "MODEL")
+        or _settings_value("stt_dashscope_model", "")
+        or os.environ.get("OPENTALKING_STT_MODEL", "").strip()
+        or _settings_value("stt_model", "")
+        or "paraformer-realtime-v2"
+    )
+
+
+def _stt_model_dir(provider: str, model: str | None = None) -> str:
+    provider = normalize_stt_provider(provider, default="dashscope") or "dashscope"
+    direct = _provider_env(provider, "MODEL_DIR") or _settings_value(f"stt_{provider}_model_dir", "")
     if direct:
         return direct
-    configured = _settings_value("stt_model", "")
-    if configured and configured != "paraformer-realtime-v2":
-        return configured
-    if provider == "funasr":
-        return os.environ.get("OPENTALKING_FUNASR_MODEL", "iic/Fun-ASR-Nano-2512").strip()
-    if provider == "sensevoice":
-        return os.environ.get("OPENTALKING_SENSEVOICE_MODEL", "iic/SenseVoiceSmall").strip()
-    if provider == "sherpa_onnx":
-        return os.environ.get("OPENTALKING_SHERPA_ONNX_MODEL", "").strip()
-    return configured or "paraformer-realtime-v2"
+    if provider in LOCAL_STT_PROVIDERS:
+        return str(_local_path_for_model((model or _stt_model(provider)).strip()))
+    return ""
+    return ""
 
 
 def _local_path_for_model(model: str) -> Path:
@@ -140,14 +181,24 @@ def _extract_text(result: Any) -> str:
 class LocalFunASRSTTAdapter:
     """FunASR/SenseVoice local adapter loaded lazily on first transcription."""
 
-    def __init__(self, *, provider: str, model: str | None = None, device: str | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        provider: str,
+        model: str | None = None,
+        model_dir: str | None = None,
+        device: str | None = None,
+    ) -> None:
         self.provider = provider
         self.model = (model or _stt_model(provider)).strip()
-        self.device = (device or _device()).strip() or "auto"
+        self.model_dir = (model_dir or _stt_model_dir(provider, self.model)).strip()
+        self.device = (device or _device_for_provider(provider)).strip() or "auto"
         self.model_root = _model_root()
         self._runtime: Any | None = None
 
     def _runtime_model_name(self) -> str:
+        if self.model_dir:
+            return self.model_dir
         local_path = _local_path_for_model(self.model)
         return str(local_path) if local_path.exists() else self.model
 
@@ -165,6 +216,7 @@ class LocalFunASRSTTAdapter:
         kwargs: dict[str, Any] = {}
         if self.device and self.device != "auto":
             kwargs["device"] = self.device
+        kwargs["disable_update"] = True
         self._runtime = AutoModel(model=self._runtime_model_name(), **kwargs)
         return self._runtime
 
@@ -254,20 +306,35 @@ def _read_wav_float32_mono(path: Path) -> np.ndarray:
 def create_stt_adapter(provider: str | None = None):
     selected = normalize_stt_provider(provider, default=None) or _provider()
     model = _stt_model(selected)
-    device = _device()
-    cache_key = (selected, model, device, str(_model_root()))
+    model_dir = _stt_model_dir(selected, model)
+    device = _device_for_provider(selected)
+    cache_key = (selected, model, model_dir, device, str(_model_root()))
     with _ADAPTER_CACHE_LOCK:
         cached = _ADAPTER_CACHE.get(cache_key)
         if cached is not None:
             return cached
     if selected in {"funasr", "sensevoice"}:
-        adapter = LocalFunASRSTTAdapter(provider=selected, model=model, device=device)
+        adapter = LocalFunASRSTTAdapter(provider=selected, model=model, model_dir=model_dir, device=device)
     elif selected == "sherpa_onnx":
         adapter = SherpaOnnxSTTAdapter(model=model)
     else:
         return None
     with _ADAPTER_CACHE_LOCK:
         return _ADAPTER_CACHE.setdefault(cache_key, adapter)
+
+
+def prewarm_stt_adapter(provider: str | None = None) -> bool:
+    selected = normalize_stt_provider(provider, default=None) or _provider()
+    if selected not in LOCAL_STT_PROVIDERS:
+        return False
+
+    adapter = create_stt_adapter(selected)
+    if adapter is None:
+        return False
+    load_runtime = getattr(adapter, "_load_runtime", None)
+    if callable(load_runtime):
+        load_runtime()
+    return True
 
 
 def clear_stt_adapter_cache() -> None:
@@ -308,6 +375,51 @@ def transcribe_pcm_chunk_queue_sync(
     return adapter.transcribe_pcm_queue(chunk_queue, sample_rate=sample_rate)
 
 
-def stt_status() -> dict[str, str]:
+def stt_status(provider: str | None = None) -> dict[str, str]:
+    selected = normalize_stt_provider(provider, default=None) or _provider()
+    model = _stt_model(selected)
+    model_dir = _stt_model_dir(selected, model)
+    return {
+        "provider": selected,
+        "model": model,
+        "model_dir": model_dir,
+        "device": _device_for_provider(selected),
+    }
+
+
+def stt_enabled_providers() -> list[str]:
+    raw = os.environ.get("OPENTALKING_STT_ENABLED_PROVIDERS", "").strip() or _settings_value(
+        "stt_enabled_providers",
+        "",
+    )
+    if not raw:
+        return [_provider()]
+    out: list[str] = []
+    for item in raw.replace(";", ",").split(","):
+        provider = normalize_stt_provider(item, default=None)
+        if provider and provider not in out:
+            out.append(provider)
+    return out or [_provider()]
+
+
+def stt_provider_config(provider: str) -> dict[str, str | bool]:
     selected = _provider()
-    return {"provider": selected, "model": _stt_model(selected), "device": _device()}
+    selected = normalize_stt_provider(provider, default=None) or selected
+    model = _stt_model(selected)
+    model_dir = _stt_model_dir(selected, model)
+    key = ""
+    if selected == "dashscope":
+        key = (
+            _provider_env("dashscope", "API_KEY")
+            or _settings_value("stt_dashscope_api_key", "")
+            or os.environ.get("OPENTALKING_STT_API_KEY", "").strip()
+            or _settings_value("stt_api_key", "")
+        )
+    config: dict[str, str | bool] = {
+        "provider": selected,
+        "model": model,
+        "model_dir": model_dir,
+        "device": _device_for_provider(selected),
+        "key_set": bool(key),
+    }
+    return config

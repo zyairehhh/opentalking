@@ -51,7 +51,7 @@ OPENTALKING_LLM_API_KEY=<gateway-token>
 
 OPENTALKING_TTS_PROVIDER=dashscope
 OPENTALKING_TTS_VOICE=<voice-id>
-DASHSCOPE_API_KEY=<dashscope-or-internal-token>
+OPENTALKING_STT_API_KEY=<dashscope-or-internal-token>
 ```
 
 If TTS is fully private, extend the provider layer. Use [Developing](../docs/developing.md)

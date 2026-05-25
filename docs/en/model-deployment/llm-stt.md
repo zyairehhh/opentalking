@@ -31,13 +31,15 @@ request after creating a `mock` session.
 The default speech-recognition backend is DashScope Paraformer realtime.
 
 ```env title=".env"
-DASHSCOPE_API_KEY=<dashscope-api-key>
+OPENTALKING_STT_PROVIDER=dashscope
+OPENTALKING_STT_API_KEY=<dashscope-api-key>
 OPENTALKING_STT_MODEL=paraformer-realtime-v2
 ```
 
-For DashScope-based deployments, `DASHSCOPE_API_KEY` and
-`OPENTALKING_LLM_API_KEY` can use the same key. If microphone input fails but text
-`speak` works, verify this key first.
+For DashScope-based deployments, LLM and STT may use the same actual key, but it
+must be written explicitly to `OPENTALKING_LLM_API_KEY` and
+`OPENTALKING_STT_API_KEY`. If microphone input fails but text `speak` works, verify
+the STT module key first.
 
 ## Verification
 

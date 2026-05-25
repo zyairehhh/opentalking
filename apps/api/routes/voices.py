@@ -153,7 +153,7 @@ async def _validate_local_cosyvoice_prompt(wav: bytes, prompt_text: str) -> dict
     try:
         recognized, stt_ms = await asyncio.to_thread(transcribe_wav_path_sync, wav_path)
     except Exception as exc:
-        log.warning("local cosyvoice prompt ASR validation failed: %s", exc)
+        log.warning("local cosyvoice prompt STT validation failed: %s", exc)
         return {**stats, "recognized_text": "", "stt_error": str(exc)}
     finally:
         wav_path.unlink(missing_ok=True)

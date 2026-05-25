@@ -283,24 +283,24 @@ def create_app(service: CosyVoiceService) -> FastAPI:
 
 
 def build_service_from_env() -> CosyVoiceService:
-    device = os.environ.get("OPENTALKING_LOCAL_COSYVOICE_DEVICE", "cuda:0")
-    fp16_raw = os.environ.get("OPENTALKING_LOCAL_COSYVOICE_FP16", "auto").strip().lower()
+    device = os.environ.get("OPENTALKING_TTS_LOCAL_COSYVOICE_DEVICE", "cuda:0")
+    fp16_raw = os.environ.get("OPENTALKING_TTS_LOCAL_COSYVOICE_FP16", "auto").strip().lower()
     fp16 = device.startswith("cuda") if fp16_raw == "auto" else fp16_raw not in {"0", "false", "no", "off"}
     return CosyVoiceService(
         model_dir=os.environ.get(
-            "OPENTALKING_LOCAL_COSYVOICE_MODEL_DIR",
+            "OPENTALKING_TTS_LOCAL_COSYVOICE_MODEL_DIR",
             "/data2/zhongyi/model/opentalking-local-audio/FunAudioLLM__Fun-CosyVoice3-0.5B-2512",
         ),
         runtime_dir=os.environ.get(
-            "OPENTALKING_LOCAL_COSYVOICE_RUNTIME_DIR",
+            "OPENTALKING_TTS_LOCAL_COSYVOICE_RUNTIME_DIR",
             "/data2/zhongyi/model/opentalking-local-audio/runtime/CosyVoice",
         ),
         device=device,
-        prompt_audio=os.environ.get("OPENTALKING_LOCAL_COSYVOICE_PROMPT_AUDIO", ""),
-        prompt_text=os.environ.get("OPENTALKING_LOCAL_COSYVOICE_PROMPT_TEXT", ""),
-        mode=os.environ.get("OPENTALKING_LOCAL_COSYVOICE_MODE", "zero_shot"),
+        prompt_audio=os.environ.get("OPENTALKING_TTS_LOCAL_COSYVOICE_PROMPT_AUDIO", ""),
+        prompt_text=os.environ.get("OPENTALKING_TTS_LOCAL_COSYVOICE_PROMPT_TEXT", ""),
+        mode=os.environ.get("OPENTALKING_TTS_LOCAL_COSYVOICE_MODE", "zero_shot"),
         instruction=os.environ.get(
-            "OPENTALKING_LOCAL_COSYVOICE_INSTRUCTION",
+            "OPENTALKING_TTS_LOCAL_COSYVOICE_INSTRUCTION",
             "You are a helpful assistant.<|endofprompt|>",
         ),
         fp16=fp16,
@@ -308,13 +308,13 @@ def build_service_from_env() -> CosyVoiceService:
 
 
 service = build_service_from_env()
-if os.environ.get("OPENTALKING_LOCAL_COSYVOICE_PRELOAD", "0").strip().lower() in {
+if os.environ.get("OPENTALKING_TTS_LOCAL_COSYVOICE_PRELOAD", "0").strip().lower() in {
     "1",
     "true",
     "yes",
     "on",
 }:
-    warmup_text = os.environ.get("OPENTALKING_LOCAL_COSYVOICE_WARMUP_TEXT", "你好")
+    warmup_text = os.environ.get("OPENTALKING_TTS_LOCAL_COSYVOICE_WARMUP_TEXT", "你好")
     service.prewarm(text=warmup_text)
 app = create_app(service)
 

@@ -134,6 +134,8 @@ def unified_client(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> TestClien
     avatars_dir = Path(__file__).resolve().parents[3] / "examples" / "avatars"
     monkeypatch.setenv("OPENTALKING_AVATARS_DIR", str(avatars_dir))
     monkeypatch.setenv("OPENTALKING_FLASHTALK_WS_URL", "ws://127.0.0.1:8765")
+    monkeypatch.setenv("OPENTALKING_STT_DEFAULT_PROVIDER", "sensevoice")
+    monkeypatch.setenv("OPENTALKING_TTS_DEFAULT_PROVIDER", "edge")
     unified_main.get_settings.cache_clear()
     try:
         with TestClient(unified_main.create_app()) as client:
@@ -292,7 +294,7 @@ def test_speak_audio_passes_request_level_stt_provider(
 
     create_response = unified_client.post(
         "/sessions",
-        json={"avatar_id": "singer", "model": "flashtalk"},
+        json={"avatar_id": "singer", "model": "flashtalk", "stt_provider": "sensevoice"},
     )
     session_id = create_response.json()["session_id"]
     response = unified_client.post(
@@ -363,8 +365,10 @@ def test_update_fasterliveportrait_config_for_active_session(
 @pytest.mark.parametrize("tts_provider", ["dashscope", "cosyvoice", "sambert"])
 def test_create_session_accepts_bailian_tts_providers(
     unified_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
     tts_provider: str,
 ) -> None:
+    monkeypatch.setenv("OPENTALKING_TTS_DASHSCOPE_API_KEY", "test-tts-key")
     response = unified_client.post(
         "/sessions",
         json={

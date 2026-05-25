@@ -132,15 +132,20 @@ OPENTALKING_LLM_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 OPENTALKING_LLM_API_KEY=sk-your-key
 OPENTALKING_LLM_MODEL=qwen-flash
 
-# 声音合成/声音复刻（若使用百炼后端）
-DASHSCOPE_API_KEY=sk-your-key
+# 语音识别（若使用 DashScope STT；本地 SenseVoice 不需要 key）
+OPENTALKING_STT_PROVIDER=dashscope
+OPENTALKING_STT_MODEL=paraformer-realtime-v2
+OPENTALKING_STT_API_KEY=sk-your-key
+
+# 声音合成/声音复刻（若使用 DashScope TTS）
+OPENTALKING_TTS_API_KEY=sk-your-key
 
 # 其他声音合成选项
 OPENTALKING_TTS_PROVIDER=edge
 OPENTALKING_TTS_VOICE=zh-CN-XiaoxiaoNeural
 ```
 
-> 注意：`edge` TTS 不需要 key。`DASHSCOPE_API_KEY` 只在使用实时 STT 或 DashScope 语音合成时需要。
+> 注意：`edge` TTS 不需要 key。LLM、STT、TTS 不再共享 fallback key；即使用同一把 DashScope key，也要分别写入对应的 `OPENTALKING_*_API_KEY`。
 
 ### 1. 快速上手
 

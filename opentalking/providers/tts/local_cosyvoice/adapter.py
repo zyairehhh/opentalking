@@ -70,9 +70,9 @@ def _parse_service_url_map(raw: str) -> dict[str, str]:
 
 
 def _service_url_map() -> dict[str, str]:
-    raw = os.environ.get("OPENTALKING_LOCAL_COSYVOICE_SERVICE_URLS", "").strip() or _settings_value(
-        "local_cosyvoice_service_urls",
-        "",
+    raw = (
+        os.environ.get("OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URLS", "").strip()
+        or _settings_value("tts_local_cosyvoice_service_urls", "")
     )
     return _parse_service_url_map(raw)
 
@@ -88,7 +88,7 @@ def _resolve_service_url_for_model(model: str, default_model: str, default_url: 
         return default_url
     raise RuntimeError(
         f"No local CosyVoice service URL configured for model {model!r}. "
-        "Set OPENTALKING_LOCAL_COSYVOICE_SERVICE_URLS or omit tts_model to use the default local model."
+        "Set OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URLS or omit tts_model to use the default local model."
     )
 
 
@@ -141,7 +141,9 @@ def _resolve_local_voice_prompt(voice: str | None) -> dict[str, str] | None:
 
 def _env_device() -> str:
     return (
-        os.environ.get("OPENTALKING_LOCAL_TTS_DEVICE", "").strip()
+        os.environ.get("OPENTALKING_TTS_LOCAL_COSYVOICE_DEVICE", "").strip()
+        or _settings_value("tts_local_cosyvoice_device", "")
+        or os.environ.get("OPENTALKING_LOCAL_TTS_DEVICE", "").strip()
         or os.environ.get("OPENTALKING_LOCAL_AUDIO_DEVICE", "").strip()
         or _settings_value("local_audio_device", "auto")
         or "auto"
@@ -227,14 +229,23 @@ class LocalCosyVoiceTTSAdapter:
         self.sample_rate = sample_rate
         self.chunk_ms = chunk_ms
         self.default_model = (
-            os.environ.get("OPENTALKING_LOCAL_COSYVOICE_MODEL")
-            or _settings_value("local_cosyvoice_model", "")
+            os.environ.get("OPENTALKING_TTS_LOCAL_COSYVOICE_MODEL")
+            or _settings_value("tts_local_cosyvoice_model", "")
             or "FunAudioLLM/Fun-CosyVoice3-0.5B-2512"
         ).strip()
         self.model = (model or self.default_model).strip()
+        self.model_dir = (
+            os.environ.get("OPENTALKING_TTS_LOCAL_COSYVOICE_MODEL_DIR", "").strip()
+            or _settings_value("tts_local_cosyvoice_model_dir", "")
+            or _resolve_model_path(self.model)
+        )
+        self.runtime_dir = (
+            os.environ.get("OPENTALKING_TTS_LOCAL_COSYVOICE_RUNTIME_DIR", "").strip()
+            or _settings_value("tts_local_cosyvoice_runtime_dir", "")
+        )
         default_service_url = (
-            os.environ.get("OPENTALKING_LOCAL_COSYVOICE_SERVICE_URL", "").strip()
-            or _settings_value("local_cosyvoice_service_url", "")
+            os.environ.get("OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URL", "").strip()
+            or _settings_value("tts_local_cosyvoice_service_url", "")
         )
         self.service_url = _resolve_service_url_for_model(
             self.model,
@@ -335,9 +346,9 @@ class LocalCosyVoiceTTSAdapter:
         except ImportError as exc:
             raise RuntimeError(
                 "Local CosyVoice requires a local service URL or the CosyVoice Python package. "
-                "Set OPENTALKING_LOCAL_COSYVOICE_SERVICE_URL, or install the local-audio runtime."
+                "Set OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URL, or install the local-audio runtime."
             ) from exc
-        model_dir = _resolve_model_path(self.model)
+        model_dir = self.model_dir or _resolve_model_path(self.model)
         kwargs: dict[str, Any] = {
             "load_jit": False,
             "load_trt": False,

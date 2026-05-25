@@ -45,9 +45,10 @@ from opentalking.providers.stt.dashscope.adapter import (
     decode_audio_file_to_pcm_i16,
     ensure_wav_16k_mono,
 )
-from opentalking.providers.stt.factory import normalize_stt_provider, transcribe_pcm_chunk_queue_sync, transcribe_wav_path_sync
+from opentalking.providers.stt.factory import normalize_stt_provider, stt_provider_config, transcribe_pcm_chunk_queue_sync, transcribe_wav_path_sync
 from opentalking.providers.tts.edge_zh_voices import normalize_optional_edge_voice
 from opentalking.providers.tts.providers import BAILIAN_TTS_PROVIDERS, LOCAL_TTS_PROVIDERS, normalize_tts_provider
+from opentalking.providers.tts.factory import tts_provider_config
 from opentalking.providers.tts.qwen_tts_voices import normalize_optional_qwen_voice, sanitize_qwen_model
 from opentalking.pipeline.recording.recording import (
     export_flashtalk_recording,
@@ -60,7 +61,8 @@ def _effective_tts_provider(requested: str | None) -> str:
     if r:
         return r
     try:
-        return get_settings().tts_provider.strip().lower()
+        settings = get_settings()
+        return getattr(settings, "normalized_tts_default_provider", None) or settings.tts_provider.strip().lower()
     except Exception:
         return "edge"
 
@@ -71,6 +73,50 @@ _LOCAL_TTS = LOCAL_TTS_PROVIDERS
 
 def _is_flashtalk_compatible_model(model: str | None) -> bool:
     return (model or "").strip().lower() in {"flashtalk", "flashhead", "fasterliveportrait"}
+
+
+def _settings_value(settings: object, name: str) -> str:
+    return str(getattr(settings, name, "") or "").strip()
+
+
+def _env_or_settings(settings: object, env_name: str, settings_name: str) -> str:
+    return os.environ.get(env_name, "").strip() or _settings_value(settings, settings_name)
+
+
+def _effective_stt_provider(requested: str | None, settings: object) -> str:
+    try:
+        return (
+            normalize_stt_provider(requested, default=None)
+            or _settings_value(settings, "normalized_stt_default_provider")
+            or _settings_value(settings, "normalized_stt_provider")
+            or "dashscope"
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+def _require_audio_provider_config(
+    *,
+    stt_provider: str,
+    tts_provider: str | None,
+    settings: object,
+) -> None:
+    if stt_provider == "dashscope" and not stt_provider_config("dashscope").get("key_set"):
+        raise HTTPException(
+            status_code=400,
+            detail="API STT 缺少 OPENTALKING_STT_DASHSCOPE_API_KEY，请在后端 .env 配置后重启服务。",
+        )
+    effective_tts = (
+        tts_provider
+        or _settings_value(settings, "normalized_tts_default_provider")
+        or _settings_value(settings, "normalized_tts_provider")
+        or "edge"
+    )
+    if effective_tts in _BAILIAN_TTS and not tts_provider_config(effective_tts).get("key_set"):
+        raise HTTPException(
+            status_code=400,
+            detail="API TTS 缺少 OPENTALKING_TTS_DASHSCOPE_API_KEY，请在后端 .env 配置后重启服务。",
+        )
 
 
 async def _await_result(value: Awaitable[Any] | Any) -> Any:
@@ -386,6 +432,12 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
         tts_provider = normalize_tts_provider(body.tts_provider, default=None)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
+    stt_provider = _effective_stt_provider(body.stt_provider, settings)
+    _require_audio_provider_config(
+        stt_provider=stt_provider,
+        tts_provider=tts_provider,
+        settings=settings,
+    )
     try:
         fasterliveportrait_config = (
             normalize_fasterliveportrait_runtime_config(body.fasterliveportrait_config)
@@ -414,6 +466,7 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
         avatar_id=body.avatar_id,
         model=body.model,
         tts_provider=tts_provider,
+        stt_provider=stt_provider,
         tts_voice=tts_voice,
         llm_system_prompt=llm_system_prompt,
         custom_ref_image_path=custom_ref_image_path,
@@ -716,7 +769,7 @@ async def transcribe(
     file: UploadFile = File(...),
     stt_provider: str | None = Form(default=None),
 ) -> dict[str, str]:
-    """上传短音频 → 百炼 DashScope ASR → 返回识别文本（不触发数字人播报）。"""
+    """上传短音频 → STT provider → 返回识别文本（不触发数字人播报）。"""
     r: redis.Redis = request.app.state.redis
     s = await session_service.get_session(r, session_id)
     if not s:
@@ -759,7 +812,7 @@ async def speak_audio(
     tts_model: str | None = Form(default=None),
     stt_provider: str | None = Form(default=None),
 ) -> dict[str, str]:
-    """上传语音 → 百炼 ASR → 将识别文本送入与会话相同的 speak 流水线（LLM→TTS→FlashTalk）。"""
+    """上传语音 → STT provider → 将识别文本送入与会话相同的 speak 流水线（LLM→TTS→FlashTalk）。"""
     r: redis.Redis = request.app.state.redis
     s = await session_service.get_session(r, session_id)
     if not s:
@@ -862,7 +915,7 @@ async def speak_flashtalk_audio(
 
 @router.websocket("/{session_id}/speak_audio_stream")
 async def speak_audio_stream_ws(websocket: WebSocket, session_id: str) -> None:
-    """浏览器经 WebSocket 推送 PCM s16le mono 16kHz 分块 → DashScope 流式 ASR → speak 流水线。"""
+    """浏览器经 WebSocket 推送 PCM s16le mono 16kHz 分块 → 流式 STT → speak 流水线。"""
     await websocket.accept()
     try:
         r: redis.Redis = websocket.app.state.redis  # type: ignore[attr-defined]

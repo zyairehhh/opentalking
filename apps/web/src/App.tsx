@@ -198,9 +198,56 @@ const OVERDRIVEN_FASTLIVEPORTRAIT_DEFAULT_CONFIG: FasterLivePortraitConfig = {
   cfg_scale: 5.0,
 };
 
+const STT_MODEL_BY_PROVIDER: Record<string, string> = {
+  dashscope: "paraformer-realtime-v2",
+  sensevoice: "iic/SenseVoiceSmall",
+};
+
 function normalizeAsrProvider(value: string | null | undefined, fallback = "dashscope"): string {
   const provider = (value ?? "").trim();
   return ["dashscope", "sensevoice"].includes(provider) ? provider : fallback;
+}
+
+function sttModelForProvider(provider: string): string {
+  return STT_MODEL_BY_PROVIDER[normalizeAsrProvider(provider)] ?? "OPENTALKING_STT_MODEL";
+}
+
+function sttProviderNeedsApiKey(provider: string): boolean {
+  return normalizeAsrProvider(provider, "dashscope") === "dashscope";
+}
+
+function ttsProviderNeedsApiKey(provider: TtsProviderExtended): boolean {
+  return provider === "dashscope" || provider === "cosyvoice" || provider === "sambert";
+}
+
+function apiErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof ApiError && error.detail) return error.detail;
+  if (error instanceof Error && error.message) return error.message;
+  return fallback;
+}
+
+function validateAudioProviderConfigBeforeStart({
+  sttProvider,
+  ttsProvider,
+  runtimeStatus,
+}: {
+  sttProvider: string;
+  ttsProvider: TtsProviderExtended;
+  runtimeStatus: HealthResponse | null;
+}): string | null {
+  const missing: string[] = [];
+  const sttStatus = runtimeStatus?.stt_providers?.[normalizeAsrProvider(sttProvider, "dashscope")];
+  const ttsStatus = runtimeStatus?.tts_providers?.[ttsProvider];
+  const sttKeySet = sttStatus?.key_set ?? runtimeStatus?.stt_key_set;
+  const ttsKeySet = ttsStatus?.key_set ?? runtimeStatus?.tts_key_set;
+  if (sttProviderNeedsApiKey(sttProvider) && sttKeySet !== true) {
+    missing.push("API 语音识别缺少 OPENTALKING_STT_DASHSCOPE_API_KEY");
+  }
+  if (ttsProviderNeedsApiKey(ttsProvider) && ttsKeySet !== true) {
+    missing.push("当前 TTS API 缺少 OPENTALKING_TTS_DASHSCOPE_API_KEY");
+  }
+  if (missing.length === 0) return null;
+  return `${missing.join("；")}。请在后端 .env 配置后重启服务。`;
 }
 
 type SpeakAudioResponse = { session_id: string; status: string; text: string };
@@ -216,9 +263,18 @@ type AvatarPrewarmResponse = {
 type HealthResponse = {
   status: string;
   tts_provider?: string;
+  tts_key_set?: boolean;
+  tts_service_url_set?: boolean;
+  tts_default_provider?: string;
+  tts_enabled_providers?: string[];
+  tts_providers?: Record<string, { key_set?: boolean; model?: string; model_dir?: string; service_url_set?: boolean }>;
   stt_provider?: string;
+  stt_key_set?: boolean;
   stt_model?: string;
   stt_device?: string;
+  stt_default_provider?: string;
+  stt_enabled_providers?: string[];
+  stt_providers?: Record<string, { key_set?: boolean; model?: string; model_dir?: string; device?: string }>;
 };
 
 function sanitizeFasterLivePortraitConfig(raw: unknown): FasterLivePortraitConfig {
@@ -407,6 +463,7 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentSubtitle, setCurrentSubtitle] = useState("");
+  const [, setRuntimeStatus] = useState<HealthResponse | null>(null);
 
   const clearSubtitleFallbackTimer = useCallback(() => {
     if (subtitleFallbackTimerRef.current !== null) {
@@ -429,6 +486,27 @@ export default function App() {
     );
   }, []);
 
+  const appendAssistantError = useCallback((message: string) => {
+    const normalized = message.startsWith("出错了：") ? message : `出错了：${message}`;
+    const msgId = streamingAssistantMsgIdRef.current ?? pendingAssistantMsgIdRef.current;
+    streamingAssistantMsgIdRef.current = null;
+    pendingAssistantMsgIdRef.current = null;
+    subtitleAccRef.current = "";
+    subtitleMediaReadyRef.current = false;
+    clearSubtitleFallbackTimer();
+    setIsSpeaking(false);
+    if (msgId) {
+      setMessages((prev) =>
+        prev.map((m) => (m.id === msgId ? { ...m, text: normalized } : m)),
+      );
+      return;
+    }
+    setMessages((prev) => [
+      ...prev,
+      { id: makeId(), role: "assistant", text: normalized, timestamp: Date.now() },
+    ]);
+  }, [clearSubtitleFallbackTimer]);
+
   // UI
   const [settingsExpanded, setSettingsExpanded] = useState(() => {
     try {
@@ -443,7 +521,6 @@ export default function App() {
   const [voiceCloneOpen, setVoiceCloneOpen] = useState(false);
   const [promptSaving, setPromptSaving] = useState(false);
   const [referenceSaving, setReferenceSaving] = useState(false);
-  const [referenceImageFile, setReferenceImageFile] = useState<File | null>(null);
   const [panelTab, setPanelTab] = useState<PanelTab>("chat");
   const [sessionPanelCollapsed, setSessionPanelCollapsed] = useState(() => {
     try {
@@ -473,7 +550,8 @@ export default function App() {
       return "";
     }
   });
-  const [asrModel, setAsrModel] = useState("paraformer-realtime-v2");
+  const [asrModel, setAsrModel] = useState(STT_MODEL_BY_PROVIDER.dashscope);
+  const [activeAsrProvider, setActiveAsrProvider] = useState("");
   const [edgeVoice, setEdgeVoice] = useState<string>(() => {
     try {
       const s = window.localStorage.getItem(EDGE_VOICE_STORAGE_KEY);
@@ -737,6 +815,7 @@ export default function App() {
     (clearMessages = false) => {
       closePeerConnection();
       setSessionId(null);
+      setActiveAsrProvider("");
       setIsSpeaking(false);
       setQueueInfo(null);
       setExpiringCountdown(null);
@@ -823,10 +902,14 @@ export default function App() {
           apiGet<HealthResponse>("/health"),
           loadVoices(),
         ]);
+        setRuntimeStatus(health);
         setAvatars(av);
         setModels(mo.models);
-        setAsrProvider((prev) => normalizeAsrProvider(prev || health.stt_provider, "dashscope"));
-        setAsrModel(health.stt_model || "paraformer-realtime-v2");
+        setAsrProvider((prev) => {
+          const next = normalizeAsrProvider(prev || health.stt_provider, "dashscope");
+          setAsrModel(sttModelForProvider(next));
+          return next;
+        });
         const statuses = mo.statuses ?? mo.models.map((id) => ({ id, connected: true }));
         setModelStatuses(statuses);
         const initialAvatar = pickInitialAvatar(av, mo.models);
@@ -885,6 +968,7 @@ export default function App() {
         setConnection("idle");
         setExpiringCountdown(null);
         setSessionId(null);
+        setActiveAsrProvider("");
         setIsSpeaking(false);
         subtitleAccRef.current = "";
         const orphanId = streamingAssistantMsgIdRef.current;
@@ -897,24 +981,10 @@ export default function App() {
         }
       }
       if (ev === "error") {
-        setIsSpeaking(false);
-        clearSubtitleFallbackTimer();
         const d = data && typeof data === "object" ? (data as { message?: string; code?: string }) : {};
         const detail = d.message || d.code || "语音合成失败，请切换可用音色后重试。";
-        const msgId = streamingAssistantMsgIdRef.current ?? pendingAssistantMsgIdRef.current;
-        streamingAssistantMsgIdRef.current = null;
-        pendingAssistantMsgIdRef.current = null;
-        subtitleAccRef.current = "";
-        if (msgId) {
-          setMessages((prev) =>
-            prev.map((m) => (m.id === msgId ? { ...m, text: `出错了：${detail}` } : m)),
-          );
-        } else {
-          setMessages((prev) => [
-            ...prev,
-            { id: makeId(), role: "assistant", text: `出错了：${detail}`, timestamp: Date.now() },
-          ]);
-        }
+        appendAssistantError(detail);
+        notify(`对话失败：${detail}`, "error");
       }
       if (ev === "speech.started") {
         setIsSpeaking(true);
@@ -983,7 +1053,7 @@ export default function App() {
       }
     });
     return stop;
-  }, [clearSubtitleFallbackTimer, flushSubtitleDisplay, flushSubtitleMessage, sessionId]);
+  }, [appendAssistantError, clearSubtitleFallbackTimer, flushSubtitleDisplay, flushSubtitleMessage, notify, sessionId]);
 
   // Resolves when FlashTalk slot is acquired (session.queued position=0)
   const slotAcquiredRef = useRef<(() => void) | null>(null);
@@ -1006,6 +1076,26 @@ export default function App() {
   // ---------- Actions ----------
   const handleStart = useCallback(async () => {
     if (!videoRef.current) return;
+    const lockedAsrProvider = normalizeAsrProvider(asrProvider, "dashscope");
+    let latestRuntimeStatus: HealthResponse | null = null;
+    try {
+      latestRuntimeStatus = await apiGet<HealthResponse>("/health");
+      setRuntimeStatus(latestRuntimeStatus);
+    } catch (error) {
+      console.warn("Failed to refresh runtime status before start", error);
+    }
+
+    const startBlockReason = validateAudioProviderConfigBeforeStart({
+      sttProvider: lockedAsrProvider,
+      ttsProvider,
+      runtimeStatus: latestRuntimeStatus,
+    });
+    if (startBlockReason) {
+      notify(startBlockReason, "error");
+      setSettingsExpanded(true);
+      return;
+    }
+
     if (PREWARMABLE_MODELS.has(model) && selectedModelConnected && selectedPrewarmState !== "ready") {
       const ready = await requestAvatarPrewarm(avatarId, model, { force: true, modelConnected: selectedModelConnected });
       if (!ready) return;
@@ -1017,6 +1107,9 @@ export default function App() {
       resetLiveState();
     }
 
+    setAsrProvider(lockedAsrProvider);
+    setActiveAsrProvider(lockedAsrProvider);
+    setAsrModel(sttModelForProvider(lockedAsrProvider));
     setConnection("connecting");
     setQueueInfo(null);
     let createdSessionId: string | null = null;
@@ -1026,6 +1119,7 @@ export default function App() {
         model,
         llm_system_prompt: llmSystemPrompt.trim() || undefined,
         tts_provider: ttsProvider,
+        stt_provider: lockedAsrProvider,
         tts_voice: isEdgeTts(ttsProvider) ? edgeVoice : ttsProvider === "sambert" ? undefined : qwenVoice,
         wav2lip_postprocess_mode:
           model === "wav2lip" && wav2lipPostprocessMode !== "auto" ? wav2lipPostprocessMode : undefined,
@@ -1069,6 +1163,7 @@ export default function App() {
       closePeerConnection();
       const pc = await startPlayback(created.session_id, videoRef.current!);
       pcRef.current = pc;
+      setActiveAsrProvider(lockedAsrProvider);
       videoRef.current!.muted = false;
       setConnection("live");
       await apiPost(`/sessions/${created.session_id}/start`, {});
@@ -1087,6 +1182,7 @@ export default function App() {
       notify(msg, "error");
     }
   }, [
+    asrProvider,
     avatarId,
     closePeerConnection,
     edgeVoice,
@@ -1156,44 +1252,6 @@ export default function App() {
       setPromptSaving(false);
     }
   }, [avatarId, llmSystemPrompt, notify, releaseSession, resetLiveState]);
-
-  const saveReferenceImageFile = useCallback(async (file: File | null, customName?: string) => {
-    if (!file) {
-      notify("请先选择一张参考图再上传。", "info");
-      return;
-    }
-    const trimmedName = customName?.trim();
-    if (trimmedName) {
-      try {
-        window.localStorage.setItem(CUSTOM_REFERENCE_NAME_KEY, trimmedName);
-      } catch {
-        /* ignore */
-      }
-    }
-    setReferenceSaving(true);
-    try {
-      const fd = new FormData();
-      fd.set("avatar_id", avatarId);
-      fd.set("reference_image", file);
-      await apiPostForm("/sessions/customize/reference", fd);
-      setReferenceImageFile(null);
-      const sid = sessionIdRef.current;
-      if (sid) await releaseSession(sid);
-      resetLiveState(true);
-      setConnection("idle");
-      notify(trimmedName ? `自定义形象「${trimmedName}」已保存，页面即将刷新并在新会话生效。` : "参考图已保存，页面即将刷新并在新会话生效。", "success");
-      window.setTimeout(() => window.location.reload(), 900);
-    } catch (e) {
-      console.warn("save reference image failed", e);
-      notify("上传参考图失败，请查看后端日志。", "error");
-    } finally {
-      setReferenceSaving(false);
-    }
-  }, [avatarId, notify, releaseSession, resetLiveState]);
-
-  const handleSaveReferenceImage = useCallback(async () => {
-    await saveReferenceImageFile(referenceImageFile);
-  }, [referenceImageFile, saveReferenceImageFile]);
 
   const handleCreateCustomAvatar = useCallback(async (file: File, name: string) => {
     const trimmedName = name.trim();
@@ -1333,24 +1391,27 @@ export default function App() {
       };
       void apiPost(`/sessions/${sessionId}/${endpoint}`, payload).catch((err) => {
         console.warn(`${endpoint} failed`, err);
-        if (pendingAssistantMsgIdRef.current === pendingId) {
-          pendingAssistantMsgIdRef.current = null;
-        }
-        setMessages((prev) => prev.filter((m) => m.id !== pendingId));
-        setIsSpeaking(false);
-        notify("发送失败，请确认会话仍处于已连接状态。", "error");
+        const detail = apiErrorMessage(err, "请确认会话仍处于已连接状态。");
+        appendAssistantError(`发送失败：${detail}`);
+        notify(`发送失败：${detail}`, "error");
       });
     },
-    [edgeVoice, isSpeaking, model, notify, qwenModel, qwenVoice, sessionId, ttsProvider],
+    [appendAssistantError, edgeVoice, isSpeaking, notify, qwenModel, qwenVoice, sessionId, ttsProvider],
   );
 
-  /** 流式 ASR（WebSocket PCM）成功后仅追加本地消息（speak 已由后端入队） */
+  /** 流式 STT（WebSocket PCM）成功后仅追加本地消息（speak 已由后端入队） */
   const handleSpeakAudioStreamResult = useCallback(({ text }: { text: string }) => {
     setMessages((prev) => [
       ...prev,
       { id: makeId(), role: "user", text, timestamp: Date.now() },
     ]);
   }, []);
+
+  const handleSpeakAudioStreamError = useCallback((message: string) => {
+    const detail = message || "语音识别失败，请检查 STT 配置。";
+    appendAssistantError(`语音识别失败：${detail}`);
+    notify(`语音识别失败：${detail}`, "error");
+  }, [appendAssistantError, notify]);
 
   const handleSpeakAudio = useCallback(
     async (blob: Blob) => {
@@ -1365,7 +1426,7 @@ export default function App() {
         isEdgeTts(ttsProvider) ? edgeVoice : ttsProvider === "sambert" ? "" : qwenVoice,
       );
       fd.append("tts_provider", ttsProvider);
-      fd.append("stt_provider", asrProvider);
+      fd.append("stt_provider", activeAsrProvider || normalizeAsrProvider(asrProvider, "dashscope"));
       if (!isEdgeTts(ttsProvider)) {
         fd.append("tts_model", qwenModel);
       }
@@ -1383,13 +1444,16 @@ export default function App() {
         if (error instanceof DOMException && error.name === "AbortError") return;
         // 勿将 connection 置为 error，否则会重新出现「开始 Demo」全屏遮罩
         console.warn("speak_audio failed", error);
+        const detail = apiErrorMessage(error, "请检查 STT 配置和后端日志。");
+        appendAssistantError(`语音识别失败：${detail}`);
+        notify(`语音识别失败：${detail}`, "error");
       } finally {
         if (speakAudioAbortRef.current === ac) {
           speakAudioAbortRef.current = null;
         }
       }
     },
-    [asrProvider, edgeVoice, qwenModel, qwenVoice, sessionId, ttsProvider],
+    [activeAsrProvider, appendAssistantError, asrProvider, edgeVoice, notify, qwenModel, qwenVoice, sessionId, ttsProvider],
   );
 
   const handleInterrupt = useCallback(() => {
@@ -1619,6 +1683,8 @@ export default function App() {
   }, [closePeerConnection, releaseSession]);
 
   const currentAvatar = avatars.find((a) => a.id === avatarId) ?? null;
+  const sessionConfigLocked = connection === "connecting" || connection === "queued" || connection === "live" || connection === "expiring";
+  const effectiveAsrProvider = activeAsrProvider || normalizeAsrProvider(asrProvider, "dashscope");
   const showStart = connection === "idle" || connection === "error" || connection === "connecting" || connection === "queued";
   const chatMaxVisible = readChatMaxVisible();
   const selectedModelLabel = MODEL_LABELS_FOR_STAGE[model] ?? model;
@@ -1728,16 +1794,18 @@ export default function App() {
             onTtsPreviewTextChange={setTtsPreviewText}
             onPreviewTts={() => void handlePreviewTts()}
             ttsPreviewing={ttsPreviewing}
-            asrProvider={asrProvider}
+            asrProvider={sessionConfigLocked ? effectiveAsrProvider : asrProvider}
             asrModel={asrModel}
-            onAsrProviderChange={setAsrProvider}
+            onAsrProviderChange={(provider) => {
+              const normalized = normalizeAsrProvider(provider, "dashscope");
+              setAsrProvider(normalized);
+              setAsrModel(sttModelForProvider(normalized));
+            }}
+            configLocked={sessionConfigLocked}
             llmSystemPrompt={llmSystemPrompt}
             onLlmSystemPromptChange={setLlmSystemPrompt}
-            onReferenceImageChange={setReferenceImageFile}
             onSavePrompt={() => void handleSavePrompt()}
-            onSaveReferenceImage={() => void handleSaveReferenceImage()}
             promptSaving={promptSaving}
-            referenceSaving={referenceSaving}
             onOpenVoiceClone={() => setVoiceCloneOpen(true)}
           />
         </div>
@@ -1825,13 +1893,14 @@ export default function App() {
                 }
                 streamingAsrSessionId={sessionId}
                 onSpeakAudioStreamResult={handleSpeakAudioStreamResult}
+                onSpeakAudioStreamError={handleSpeakAudioStreamError}
                 onInterrupt={handleInterrupt}
                 isSpeaking={isSpeaking}
                 disabled={connection !== "live" && connection !== "expiring"}
                 onNotify={notify}
                 onOpenSettings={() => setSettingsExpanded(true)}
                 ttsProvider={ttsProvider}
-                sttProvider={asrProvider}
+                sttProvider={activeAsrProvider}
                 edgeVoice={edgeVoice}
                 qwenModel={qwenModel}
                 qwenVoice={qwenVoice}
