@@ -396,37 +396,40 @@ bash scripts/start_unified.sh \
 
 ### Coming soon
 
-- [ ] **更自然的实时对话**
-  强化打断、会话状态、低延迟响应、音画同步和异常恢复。
+- [ ] **更自然的实时对话体验**
+  继续打磨打断、低延迟响应、音画同步、长会话恢复和运行状态可见性。
 
-- [ ] **消费级显卡 路线完善**
-  补齐 QuickTalk 的一键资产检查、更多消费卡 benchmark，并逐步完善 Wav2Lip / MuseTalk adapter。
+- [ ] **消费级显卡多模型路线**
+  完善 QuickTalk / Wav2Lip / MuseTalk local 的资产检查、预热、缓存复用、低显存参数和更多 3090 / 4090 / WSL2 benchmark。
+
+- [ ] **Windows / WSL2 一键化部署**
+  在现有 Windows 部署文档和测试记录基础上，继续降低模型下载、运行时安装、环境检查和诊断门槛。
 
 - [ ] **高质量私有化部署**
-  面向企业私有化场景，完善外部 OmniRT 推理服务、容量调度、健康检查和生产监控。
+  完善外部 OmniRT 推理服务、多模型 endpoint、容量调度、健康检查、生产监控和 GPU / NPU 部署指引。
 
-- [ ] **Agent 与记忆能力**
-  对接 OpenClaw 或外部 Agent，复用其 memory、工具调用和知识库能力。
-
-- [ ] **生产级平台能力**
-  多会话调度、观测指标、安全合规、授权音色、合成内容标识。
+- [ ] **Agent、记忆与平台能力**
+  对接 OpenClaw 或外部 Agent，复用 memory、工具调用和知识库能力，并逐步补齐多会话调度、观测指标、安全合规、授权音色和合成内容标识。
 
 ### 已完成进展
 
-- **2026-05-17：QuickTalk 接入**
-  QuickTalk / Wav2Lip 新增更便捷使用方式，可通过 Opentalking 直接拉起推理进行数字人生成。
+- **2026-05-28：Windows / WSL2 部署文档与 benchmark 口径**
+  新增 Windows / WSL2 部署指南、WSL2 显存统计修复说明、benchmark 指标定义和测试记录，并接入文档站导航。
 
-- **2026-05-15：MuseTalk WebRTC 播放优化**
-  增加 MuseTalk 媒体 backpressure，提升 WebRTC 播放稳定性。
+- **2026-05-26：本地 STT/TTS + QuickTalk 私有化路线**
+  新增 SenseVoiceSmall 本地 STT、local CosyVoice3 TTS service、前端 provider 切换、启动前 key 校验、本地音频模型下载脚本和完整部署文档。
 
-- **2026-05-14：MuseTalk 适配**
-  增加 MuseTalk talking-head 路线，用于轻量全帧数字人验证。
+- **2026-05-25：MuseTalk local backend**
+  增加 MuseTalk 本地 adapter、资产准备脚本、支持矩阵和启动入口，用于轻量全帧数字人验证。
+
+- **2026-05-22：统一 audio2video runner**
+  将 local adapter 与 OmniRT 路线统一到 audio2video client / runner，减少 QuickTalk、Wav2Lip、MuseTalk 等模型在会话链路中的分叉逻辑。
+
+- **2026-05-21：Avatar 资产预热与缓存**
+  完善 QuickTalk / Wav2Lip 自定义形象资产预处理、预热、缓存命中和前端状态展示，减少首次会话等待时间。
 
 - **2026-05-13：模型 backend 解耦**
   将 `mock`、`local`、`direct_ws`、`omnirt` 从架构上拆开，支持不同模型按部署形态选择后端。
-
-- **2026-05-08：QuickTalk 本地适配器**
-  增加 QuickTalk model adapter、配置说明和异步初始化能力。
 
 - **2026-04-16：实时数字人基础体验**
   建立 Web 控制台、LLM 对话、TTS、字幕事件和 WebRTC 音视频播放的主链路。

@@ -6,12 +6,17 @@ import json
 import time
 import uuid
 from collections.abc import Awaitable, Mapping
-from typing import Any
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 import redis.asyncio as redis
 
 from opentalking.core.redis_keys import TASK_QUEUE, uploaded_pcm_key
 from opentalking.core.session_store import get_session_record, session_key, set_session_state
+
+if TYPE_CHECKING:
+    RedisHashValue: TypeAlias = bytes | bytearray | memoryview[int] | str | int | float
+else:
+    RedisHashValue: TypeAlias = bytes | bytearray | memoryview | str | int | float
 
 
 async def _await_result(value: Awaitable[Any] | Any) -> Any:
@@ -37,7 +42,7 @@ async def create_session(
     fasterliveportrait_config: Mapping[str, object] | None = None,
 ) -> str:
     sid = f"sess_{uuid.uuid4().hex[:12]}"
-    data = {
+    data: dict[RedisHashValue, RedisHashValue] = {
         "session_id": sid,
         "avatar_id": avatar_id,
         "model": model,

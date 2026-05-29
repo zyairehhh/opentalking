@@ -475,37 +475,40 @@ For more weight downloads, Docker, troubleshooting, and model configuration, see
 
 ### Coming Soon
 
-- [ ] **More natural real-time conversation**
-  Improve interruption, session state, low-latency response, audio/video sync, and error recovery.
+- [ ] **More natural real-time conversations**
+  Continue improving interruption, low-latency response, audio/video sync, long-session recovery, and runtime-state visibility.
 
-- [ ] **Consumer-GPU path improvements**
-  Add one-command QuickTalk asset checks, more consumer-GPU benchmarks, and gradually improve Wav2Lip / MuseTalk adapters.
+- [ ] **Consumer-GPU multi-model path**
+  Improve asset checks, warmup, cache reuse, low-VRAM settings, and more 3090 / 4090 / WSL2 benchmarks for QuickTalk, Wav2Lip, and MuseTalk local.
+
+- [ ] **Windows / WSL2 one-command deployment**
+  Build on the current Windows deployment guide and test records to simplify model downloads, runtime setup, environment checks, and diagnostics.
 
 - [ ] **High-quality private deployment**
-  Improve external OmniRT inference services, capacity scheduling, health checks, and production monitoring for private deployments.
+  Improve external OmniRT inference services, multi-model endpoints, capacity scheduling, health checks, production monitoring, and GPU / NPU deployment guidance.
 
-- [ ] **Agent and memory**
-  Connect OpenClaw or external agents and reuse memory, tool calling, and knowledge-base capabilities.
-
-- [ ] **Production platform capabilities**
-  Multi-session scheduling, observability metrics, security and compliance, authorized voices, and synthetic-content labeling.
+- [ ] **Agent, memory, and platform capabilities**
+  Connect OpenClaw or external agents, reuse memory, tool calling, and knowledge-base capabilities, and gradually add multi-session scheduling, observability metrics, security and compliance, authorized voices, and synthetic-content labeling.
 
 ### Completed Progress
 
-- **2026-05-17: QuickTalk integration**
-  QuickTalk / Wav2Lip now have easier startup paths and can be launched directly through OpenTalking for digital-human generation.
+- **2026-05-28: Windows / WSL2 deployment docs and benchmark conventions**
+  Added the Windows / WSL2 deployment guide, WSL2 VRAM statistics notes, benchmark metric definitions, test records, and documentation navigation entries.
 
-- **2026-05-15: MuseTalk WebRTC playback optimization**
-  Added MuseTalk media backpressure to improve WebRTC playback stability.
+- **2026-05-26: local STT/TTS + QuickTalk private path**
+  Added local SenseVoiceSmall STT, local CosyVoice3 TTS service integration, frontend provider switching, startup key checks, local audio model download helpers, and full deployment docs.
 
-- **2026-05-14: MuseTalk adaptation**
-  Added the MuseTalk talking-head path for lightweight full-frame digital-human validation.
+- **2026-05-25: MuseTalk local backend**
+  Added the MuseTalk local adapter, asset preparation script, support matrix updates, and startup entrypoint for lightweight full-frame digital-human validation.
+
+- **2026-05-22: unified audio2video runner**
+  Unified local adapters and OmniRT through the audio2video client / runner path, reducing session-pipeline branching across QuickTalk, Wav2Lip, MuseTalk, and related models.
+
+- **2026-05-21: avatar asset warmup and caching**
+  Improved QuickTalk / Wav2Lip custom-avatar preprocessing, warmup, cache-hit handling, and frontend status display to reduce first-session waiting time.
 
 - **2026-05-13: model backend decoupling**
   Decoupled `mock`, `local`, `direct_ws`, and `omnirt` at the architecture level so different models can choose different deployment backends.
-
-- **2026-05-08: QuickTalk local adapter**
-  Added the QuickTalk model adapter, configuration notes, and async initialization.
 
 - **2026-04-16: baseline real-time digital-human experience**
   Built the main Web console, LLM conversation, TTS, subtitle events, and WebRTC audio/video playback pipeline.
