@@ -121,6 +121,8 @@ function providerLabel(provider: TtsProviderExtended): string {
   if (provider === "dashscope") return "Qwen TTS";
   if (provider === "cosyvoice") return "CosyVoice";
   if (provider === "sambert") return "Sambert";
+  if (provider === "xiaomi_mimo") return "小米 MiMo";
+  if (provider === "openai_compatible") return "OpenAI-compatible TTS";
   return "Local CosyVoice";
 }
 
@@ -172,7 +174,9 @@ export function VideoCreationWorkspace({
   const effectiveModel = availableVideoModels.includes(model) ? model : availableVideoModels[0] ?? model;
   const selectedVoiceLabel = ttsProvider === "edge"
     ? EDGE_ZH_VOICES.find((voice) => voice.id === edgeVoice)?.label ?? edgeVoice
-    : qwenVoiceOptions.find((voice) => voice.id === qwenVoice)?.label ?? qwenVoice;
+    : ttsProvider === "openai_compatible"
+      ? "后端默认音色"
+      : qwenVoiceOptions.find((voice) => voice.id === qwenVoice)?.label ?? qwenVoice;
   const cloneVoiceCount = voiceCatalog.filter((item) => item.source === "clone").length;
   const canPreviewTts = audioSource !== "upload";
 
@@ -241,8 +245,8 @@ export function VideoCreationWorkspace({
       onNotify?.("请输入要试听的口播文本。", "info");
       return;
     }
-    const voice = ttsProvider === "edge" ? edgeVoice : ttsProvider === "sambert" ? "" : qwenVoice;
-    if (ttsProvider !== "edge" && ttsProvider !== "sambert" && !voice.trim()) {
+    const voice = ttsProvider === "edge" ? edgeVoice : ttsProvider === "sambert" || ttsProvider === "openai_compatible" ? "" : qwenVoice;
+    if (ttsProvider !== "edge" && ttsProvider !== "sambert" && ttsProvider !== "openai_compatible" && !voice.trim()) {
       onNotify?.("当前模型没有可用音色，请先复刻音色或切换模型。", "info");
       return;
     }
@@ -299,8 +303,8 @@ export function VideoCreationWorkspace({
         audioFile,
         text,
         ttsProvider,
-        ttsModel: ttsProvider === "edge" ? undefined : qwenModel,
-        voice: ttsProvider === "edge" ? edgeVoice : qwenVoice,
+        ttsModel: ttsProvider === "edge" || ttsProvider === "openai_compatible" ? undefined : qwenModel,
+        voice: ttsProvider === "edge" ? edgeVoice : ttsProvider === "openai_compatible" ? undefined : qwenVoice,
         fasterliveportraitConfig: effectiveModel === "fasterliveportrait" ? fasterliveportraitConfig : undefined,
       });
       setResult(response.export_video);
@@ -493,12 +497,12 @@ export function VideoCreationWorkspace({
                   <label className="block text-sm font-medium text-slate-700">
                     TTS
                     <select value={ttsProvider} onChange={(event) => onTtsProviderChange(event.target.value as TtsProviderExtended)} className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm">
-                      {(["edge", "dashscope", "cosyvoice", "sambert", "local_cosyvoice"] as TtsProviderExtended[]).map((item) => <option key={item} value={item}>{providerLabel(item)}</option>)}
+                      {(["edge", "dashscope", "cosyvoice", "sambert", "local_cosyvoice", "xiaomi_mimo", "openai_compatible"] as TtsProviderExtended[]).map((item) => <option key={item} value={item}>{providerLabel(item)}</option>)}
                     </select>
                   </label>
                   <label className="block text-sm font-medium text-slate-700">
                     模型
-                    <select disabled={ttsProvider === "edge"} value={ttsProvider === "edge" ? "" : qwenModel} onChange={(event) => onQwenModelChange(event.target.value)} className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm disabled:bg-slate-100">
+                    <select disabled={ttsProvider === "edge" || ttsProvider === "openai_compatible"} value={ttsProvider === "edge" || ttsProvider === "openai_compatible" ? "" : qwenModel} onChange={(event) => onQwenModelChange(event.target.value)} className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm disabled:bg-slate-100">
                       {qwenModelOptions.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
                     </select>
                   </label>
@@ -508,6 +512,8 @@ export function VideoCreationWorkspace({
                       <select value={edgeVoice} onChange={(event) => onEdgeVoiceChange(event.target.value)} className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm">
                         {EDGE_ZH_VOICES.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
                       </select>
+                    ) : ttsProvider === "openai_compatible" ? (
+                      <input disabled value="后端 .env 默认音色" className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500" />
                     ) : (
                       <select value={qwenVoice} onChange={(event) => onQwenVoiceChange(event.target.value)} className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm">
                         {qwenVoiceOptions.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}

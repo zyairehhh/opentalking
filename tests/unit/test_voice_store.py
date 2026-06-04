@@ -15,7 +15,7 @@ def test_init_voice_store_removes_legacy_local_default_voice(tmp_path, monkeypat
             """
             INSERT INTO tts_voice_entries
               (id, user_id, provider, voice_id, display_label, target_model, source)
-            VALUES (301, 1, 'local_cosyvoice', 'local-default', '默认本地音色', NULL, 'system')
+            VALUES (901, 1, 'local_cosyvoice', 'local-default', '默认本地音色', NULL, 'system')
             """
         )
 

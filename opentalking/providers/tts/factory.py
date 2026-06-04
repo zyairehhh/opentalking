@@ -11,8 +11,10 @@ from opentalking.providers.tts.providers import (
     CORE_TTS_PROVIDERS,
     COSYVOICE_TTS_PROVIDERS,
     LOCAL_TTS_PROVIDERS,
+    OPENAI_COMPATIBLE_TTS_PROVIDERS,
     QWEN_TTS_PROVIDERS,
     SAMBERT_TTS_PROVIDERS,
+    XIAOMI_MIMO_TTS_PROVIDERS,
     normalize_tts_provider,
 )
 
@@ -134,6 +136,148 @@ def _dashscope_api_key() -> str:
     )
 
 
+def _openai_tts_base_url() -> str:
+    return (
+        _provider_env("openai", "BASE_URL")
+        or os.environ.get("OPENTALKING_TTS_OPENAI_BASE_URL", "").strip()
+        or _settings_value("tts_openai_base_url", "")
+    ).rstrip("/")
+
+
+def _openai_tts_api_key() -> str:
+    return (
+        _provider_env("openai", "API_KEY")
+        or os.environ.get("OPENTALKING_TTS_OPENAI_API_KEY", "").strip()
+        or _settings_value("tts_openai_api_key", "")
+    )
+
+
+def _openai_tts_model() -> str:
+    return (
+        _provider_env("openai", "MODEL")
+        or os.environ.get("OPENTALKING_TTS_OPENAI_MODEL", "").strip()
+        or _settings_value("tts_openai_model", "")
+        or "gpt-4o-mini-tts"
+    )
+
+
+def _openai_tts_voice() -> str:
+    return (
+        _provider_env("openai", "VOICE")
+        or os.environ.get("OPENTALKING_TTS_OPENAI_VOICE", "").strip()
+        or _settings_value("tts_openai_voice", "")
+        or "alloy"
+    )
+
+
+def _openai_tts_response_format() -> str:
+    return (
+        _provider_env("openai", "RESPONSE_FORMAT")
+        or os.environ.get("OPENTALKING_TTS_OPENAI_RESPONSE_FORMAT", "").strip()
+        or _settings_value("tts_openai_response_format", "")
+        or "wav"
+    )
+
+
+def _openai_tts_protocol() -> str:
+    return (
+        _provider_env("openai", "PROTOCOL")
+        or os.environ.get("OPENTALKING_TTS_OPENAI_PROTOCOL", "").strip()
+        or _settings_value("tts_openai_protocol", "")
+        or "audio_speech"
+    )
+
+
+def _openai_tts_prompt() -> str:
+    return (
+        _provider_env("openai", "PROMPT")
+        or os.environ.get("OPENTALKING_TTS_OPENAI_PROMPT", "").strip()
+        or _settings_value("tts_openai_prompt", "")
+    )
+
+
+def _xiaomi_tts_base_url() -> str:
+    return (
+        _provider_env("xiaomi", "BASE_URL")
+        or _provider_env("xiaomi_mimo", "BASE_URL")
+        or os.environ.get("OPENTALKING_TTS_XIAOMI_BASE_URL", "").strip()
+        or os.environ.get("OPENTALKING_TTS_XIAOMI_MIMO_BASE_URL", "").strip()
+        or _settings_value("tts_xiaomi_base_url", "")
+        or _settings_value("tts_xiaomi_mimo_base_url", "")
+    ).rstrip("/")
+
+
+def _xiaomi_tts_api_key() -> str:
+    return (
+        _provider_env("xiaomi", "API_KEY")
+        or _provider_env("xiaomi_mimo", "API_KEY")
+        or os.environ.get("OPENTALKING_TTS_XIAOMI_API_KEY", "").strip()
+        or os.environ.get("OPENTALKING_TTS_XIAOMI_MIMO_API_KEY", "").strip()
+        or _settings_value("tts_xiaomi_api_key", "")
+        or _settings_value("tts_xiaomi_mimo_api_key", "")
+    )
+
+
+def _xiaomi_tts_model() -> str:
+    return (
+        _provider_env("xiaomi", "MODEL")
+        or _provider_env("xiaomi_mimo", "MODEL")
+        or os.environ.get("OPENTALKING_TTS_XIAOMI_MODEL", "").strip()
+        or os.environ.get("OPENTALKING_TTS_XIAOMI_MIMO_MODEL", "").strip()
+        or _settings_value("tts_xiaomi_model", "")
+        or _settings_value("tts_xiaomi_mimo_model", "")
+        or "mimo-v2.5-tts"
+    )
+
+
+def _xiaomi_tts_voice() -> str:
+    return (
+        _provider_env("xiaomi", "VOICE")
+        or _provider_env("xiaomi_mimo", "VOICE")
+        or os.environ.get("OPENTALKING_TTS_XIAOMI_VOICE", "").strip()
+        or os.environ.get("OPENTALKING_TTS_XIAOMI_MIMO_VOICE", "").strip()
+        or _settings_value("tts_xiaomi_voice", "")
+        or _settings_value("tts_xiaomi_mimo_voice", "")
+        or "mimo_default"
+    )
+
+
+def _xiaomi_tts_response_format() -> str:
+    return (
+        _provider_env("xiaomi", "RESPONSE_FORMAT")
+        or _provider_env("xiaomi_mimo", "RESPONSE_FORMAT")
+        or os.environ.get("OPENTALKING_TTS_XIAOMI_RESPONSE_FORMAT", "").strip()
+        or os.environ.get("OPENTALKING_TTS_XIAOMI_MIMO_RESPONSE_FORMAT", "").strip()
+        or _settings_value("tts_xiaomi_response_format", "")
+        or _settings_value("tts_xiaomi_mimo_response_format", "")
+        or "wav"
+    )
+
+
+def _xiaomi_tts_protocol() -> str:
+    return (
+        _provider_env("xiaomi", "PROTOCOL")
+        or _provider_env("xiaomi_mimo", "PROTOCOL")
+        or os.environ.get("OPENTALKING_TTS_XIAOMI_PROTOCOL", "").strip()
+        or os.environ.get("OPENTALKING_TTS_XIAOMI_MIMO_PROTOCOL", "").strip()
+        or _settings_value("tts_xiaomi_protocol", "")
+        or _settings_value("tts_xiaomi_mimo_protocol", "")
+        or "chat_completions"
+    )
+
+
+def _xiaomi_tts_prompt() -> str:
+    return (
+        _provider_env("xiaomi", "PROMPT")
+        or _provider_env("xiaomi_mimo", "PROMPT")
+        or os.environ.get("OPENTALKING_TTS_XIAOMI_PROMPT", "").strip()
+        or os.environ.get("OPENTALKING_TTS_XIAOMI_MIMO_PROMPT", "").strip()
+        or _settings_value("tts_xiaomi_prompt", "")
+        or _settings_value("tts_xiaomi_mimo_prompt", "")
+        or "自然、清晰、口语化的普通话。"
+    )
+
+
 def tts_enabled_providers() -> list[str]:
     raw = os.environ.get("OPENTALKING_TTS_ENABLED_PROVIDERS", "").strip() or _settings_value(
         "tts_enabled_providers",
@@ -229,6 +373,27 @@ def tts_provider_config(provider: str) -> dict[str, str | bool]:
             "key_set": False,
             "service_url_set": bool(service_url),
         }
+    if p in _OPENAI_COMPATIBLE:
+        return {
+            "provider": p,
+            "model": _openai_tts_model(),
+            "model_dir": "",
+            "voice": _openai_tts_voice(),
+            "device": "",
+            "key_set": bool(_openai_tts_api_key()),
+            "service_url_set": bool(_openai_tts_base_url()),
+        }
+    if p in _XIAOMI_MIMO:
+        return {
+            "provider": p,
+            "profile": "xiaomi_mimo",
+            "model": _xiaomi_tts_model(),
+            "model_dir": "",
+            "voice": _xiaomi_tts_voice(),
+            "device": "",
+            "key_set": bool(_xiaomi_tts_api_key()),
+            "service_url_set": bool(_xiaomi_tts_base_url()),
+        }
     return {
         "provider": p,
         "model": "",
@@ -248,6 +413,8 @@ _QWEN_RT = QWEN_TTS_PROVIDERS
 _COSY_WS = COSYVOICE_TTS_PROVIDERS
 _SAMBERT = SAMBERT_TTS_PROVIDERS
 _LOCAL = LOCAL_TTS_PROVIDERS
+_OPENAI_COMPATIBLE = OPENAI_COMPATIBLE_TTS_PROVIDERS
+_XIAOMI_MIMO = XIAOMI_MIMO_TTS_PROVIDERS
 _CORE = CORE_TTS_PROVIDERS
 
 
@@ -262,6 +429,10 @@ def tts_provider_log_label() -> str:
         return "dashscope_sambert"
     if p == "elevenlabs":
         return "elevenlabs"
+    if p in _OPENAI_COMPATIBLE:
+        return "openai_compatible"
+    if p in _XIAOMI_MIMO:
+        return "xiaomi_mimo"
     if p in _LOCAL:
         return p
     return "edge"
@@ -281,7 +452,7 @@ def tts_log_profile(
     except Exception:
         raw_cfg = os.environ.get("OPENTALKING_TTS_PROVIDER", "")
     raw_display = repr(raw_cfg.strip()) if str(raw_cfg).strip() else "(unset → code default edge)"
-    p = (tts_provider_override or "").strip().lower() or _provider()
+    p = normalize_tts_provider(tts_provider_override, default=None) or _provider()
     req = (request_voice or "").strip()
     req_part = f"speak_voice_arg={req!r}" if req else "speak_voice_arg=(none)"
 
@@ -360,6 +531,25 @@ def tts_log_profile(
         service = os.environ.get("OPENTALKING_LOCAL_QWEN3_TTS_SERVICE_URL", "").strip() or "(unset)"
         return f"TTS_API=local_qwen3_tts | model={model!r} service={service!r} | {req_part}"
 
+    if p in _OPENAI_COMPATIBLE:
+        model = (tts_model_override or "").strip() or _openai_tts_model()
+        voice = req or _openai_tts_voice()
+        return (
+            f"TTS_API=openai_compatible | OPENTALKING_TTS_PROVIDER={raw_display} | "
+            f"model={model!r} voice_effective={voice!r} base_url_set={bool(_openai_tts_base_url())} "
+            f"api_key_set={bool(_openai_tts_api_key())} format={_openai_tts_response_format()!r} | {req_part}"
+        )
+
+    if p in _XIAOMI_MIMO:
+        model = (tts_model_override or "").strip() or _xiaomi_tts_model()
+        voice = req or _xiaomi_tts_voice()
+        voice_display = "data:audio/*;base64,..." if voice.startswith("data:audio/") else voice
+        return (
+            f"TTS_API=xiaomi_mimo | OPENTALKING_TTS_PROVIDER={raw_display} | "
+            f"model={model!r} voice_effective={voice_display!r} base_url_set={bool(_xiaomi_tts_base_url())} "
+            f"api_key_set={bool(_xiaomi_tts_api_key())} format={_xiaomi_tts_response_format()!r} | {req_part}"
+        )
+
     if p == "elevenlabs":
         try:
             from opentalking.core.config import get_settings
@@ -396,7 +586,7 @@ def create_tts_adapter(
     tts_model: str | None = None,
 ):
     """返回与 EdgeTTSAdapter 相同接口的 TTS 适配器实例。"""
-    p = (tts_provider or "").strip().lower() or _provider()
+    p = normalize_tts_provider(tts_provider, default=None) or _provider()
     if p in _QWEN_RT:
         from opentalking.providers.tts.dashscope_qwen.adapter import DashScopeQwenTTSAdapter
 
@@ -456,6 +646,33 @@ def create_tts_adapter(
             sample_rate=sample_rate,
             chunk_ms=chunk_ms,
             model=tts_model,
+        )
+    if p in _OPENAI_COMPATIBLE or p in _XIAOMI_MIMO:
+        from opentalking.providers.tts.openai_compatible.adapter import OpenAICompatibleTTSAdapter
+
+        if p in _XIAOMI_MIMO:
+            return OpenAICompatibleTTSAdapter(
+                api_key=_xiaomi_tts_api_key(),
+                base_url=_xiaomi_tts_base_url(),
+                model=(tts_model or "").strip() or _xiaomi_tts_model(),
+                default_voice=(default_voice or "").strip() or _xiaomi_tts_voice(),
+                response_format=_xiaomi_tts_response_format(),
+                protocol=_xiaomi_tts_protocol(),
+                prompt=_xiaomi_tts_prompt(),
+                sample_rate=sample_rate,
+                chunk_ms=chunk_ms,
+            )
+
+        return OpenAICompatibleTTSAdapter(
+            api_key=_openai_tts_api_key(),
+            base_url=_openai_tts_base_url(),
+            model=(tts_model or "").strip() or _openai_tts_model(),
+            default_voice=(default_voice or "").strip() or _openai_tts_voice(),
+            response_format=_openai_tts_response_format(),
+            protocol=_openai_tts_protocol(),
+            prompt=_openai_tts_prompt(),
+            sample_rate=sample_rate,
+            chunk_ms=chunk_ms,
         )
     if p == "elevenlabs":
         try:
@@ -551,15 +768,30 @@ def build_tts_adapter(
     from opentalking.core.config import get_settings
 
     settings = settings or get_settings()
-    explicit_provider = (tts_provider or "").strip().lower()
+    explicit_provider = normalize_tts_provider(tts_provider, default=None)
+    env_provider = normalize_tts_provider(
+        os.environ.get("OPENTALKING_TTS_DEFAULT_PROVIDER", "")
+        or os.environ.get("OPENTALKING_TTS_PROVIDER", ""),
+        default=None,
+    )
     provider = (
         explicit_provider
+        or env_provider
         or getattr(settings, "normalized_tts_default_provider", None)
         or getattr(settings, "normalized_tts_provider", None)
         or _provider()
     )
-    effective_tts_model = (tts_model or "").strip() or getattr(settings, "tts_model", "").strip()
-    effective_tts_model = effective_tts_model or None
+    request_tts_model = (tts_model or "").strip() or None
+    effective_tts_model = request_tts_model or getattr(settings, "tts_model", "").strip() or None
+
+    if provider in _OPENAI_COMPATIBLE or provider in _XIAOMI_MIMO:
+        return create_tts_adapter(
+            sample_rate=sample_rate,
+            chunk_ms=chunk_ms,
+            default_voice=default_voice,
+            tts_provider=provider,
+            tts_model=request_tts_model,
+        )
 
     if provider == "elevenlabs":
         return _build_elevenlabs_adapter(

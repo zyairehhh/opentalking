@@ -63,6 +63,8 @@ const TTS_PROVIDER_LABELS: Record<TtsProviderExtended, string> = {
   cosyvoice: "Cosy",
   sambert: "Sambert",
   local_cosyvoice: "Local CosyVoice",
+  xiaomi_mimo: "小米 MiMo",
+  openai_compatible: "OpenAI API",
 };
 
 const TTS_PROVIDER_SUBTITLES: Record<TtsProviderExtended, string> = {
@@ -71,20 +73,28 @@ const TTS_PROVIDER_SUBTITLES: Record<TtsProviderExtended, string> = {
   cosyvoice: "Bailian",
   sambert: "Bailian",
   local_cosyvoice: "本地模型",
+  xiaomi_mimo: "OpenAI 兼容",
+  openai_compatible: "OpenAI-compatible",
 };
 
 const ASR_PROVIDER_LABELS: Record<string, string> = {
   dashscope: "API 语音识别",
+  xiaomi_mimo: "小米 MiMo 识别",
+  openai_compatible: "OpenAI API 识别",
   sensevoice: "SenseVoiceSmall",
 };
 
 const ASR_PROVIDER_SUBTITLES: Record<string, string> = {
   dashscope: "DashScope API",
+  xiaomi_mimo: "MiMo ASR",
+  openai_compatible: "OpenAI-compatible",
   sensevoice: "本地模型",
 };
 
 const ASR_PROVIDER_MODELS: Record<string, string> = {
   dashscope: "paraformer-realtime-v2",
+  xiaomi_mimo: "mimo-v2.5-asr",
+  openai_compatible: "OpenAI-compatible ASR",
   sensevoice: "iic/SenseVoiceSmall",
 };
 
@@ -482,14 +492,14 @@ export function SettingsPanel({
     subtitle: option.id,
     hasChildren: true,
   }));
-  const providerOptions: ColumnOption[] = (["edge", "dashscope", "cosyvoice", "sambert", "local_cosyvoice"] as TtsProviderExtended[]).map((p) => ({
+  const providerOptions: ColumnOption[] = (["edge", "dashscope", "cosyvoice", "sambert", "local_cosyvoice", "xiaomi_mimo", "openai_compatible"] as TtsProviderExtended[]).map((p) => ({
     id: p,
     label: TTS_PROVIDER_LABELS[p],
     subtitle: TTS_PROVIDER_SUBTITLES[p],
     hasChildren: p !== ttsProvider || qwenModelColumnOptions.length > 1,
   }));
   const selectedProvider = providerOptions.find((option) => option.id === ttsProvider) ?? providerOptions[0];
-  const asrProviderOptions: ColumnOption[] = ["sensevoice", "dashscope"].map((p) => ({
+  const asrProviderOptions: ColumnOption[] = ["sensevoice", "dashscope", "xiaomi_mimo", "openai_compatible"].map((p) => ({
     id: p,
     label: ASR_PROVIDER_LABELS[p] ?? p,
     subtitle: ASR_PROVIDER_SUBTITLES[p] ?? p,
@@ -508,7 +518,7 @@ export function SettingsPanel({
   }));
 
   const providerHasSingleModel = (provider: TtsProviderExtended) => {
-    if (provider === "edge") return true;
+    if (provider === "edge" || provider === "openai_compatible") return true;
     if (provider !== ttsProvider) return false;
     return qwenModelColumnOptions.length <= 1;
   };
@@ -519,7 +529,7 @@ export function SettingsPanel({
   };
 
   const handleVoiceBack = () => {
-    if (voiceView === "voices" && ttsProvider !== "edge" && !providerHasSingleModel(ttsProvider)) {
+    if (voiceView === "voices" && ttsProvider !== "edge" && ttsProvider !== "openai_compatible" && !providerHasSingleModel(ttsProvider)) {
       setVoiceView("models");
       return;
     }
@@ -887,7 +897,7 @@ export function SettingsPanel({
                 当前数字人运行中，停止后可修改语音识别配置。
               </p>
             ) : (
-              <p className="mt-2 text-xs leading-relaxed text-slate-500">默认由 OPENTALKING_STT_DEFAULT_PROVIDER 控制；连续语音和上传语音共用该本地/API STT 配置，选择 API 语音识别时走 DashScope STT 链路。</p>
+              <p className="mt-2 text-xs leading-relaxed text-slate-500">默认由 OPENTALKING_STT_DEFAULT_PROVIDER 控制；连续语音和上传语音共用该本地/API STT 配置，可选择 DashScope、小米 MiMo 或 OpenAI-compatible STT。</p>
             )}
           </div>
         </SettingsSection>
@@ -923,7 +933,7 @@ export function SettingsPanel({
                 />
                 <div className="flex gap-3">
                   <div className="flex w-14 shrink-0 flex-col gap-2">
-                    {voiceView === "models" || ttsProvider === "edge"
+                    {voiceView === "models" || ttsProvider === "edge" || ttsProvider === "openai_compatible"
                       ? providerOptions.map((option) => (
                           <LevelOneButton
                             key={option.id}
@@ -961,6 +971,11 @@ export function SettingsPanel({
                         value={edgeVoice}
                         onChange={onEdgeVoiceChange}
                       />
+                    ) : ttsProvider === "openai_compatible" ? (
+                      <div className="rounded-lg border border-slate-200 bg-white px-3 py-3">
+                        <p className="text-xs font-semibold text-slate-700">后端默认音色</p>
+                        <p className="mt-1 text-[11px] leading-relaxed text-slate-500">使用 OPENTALKING_TTS_OPENAI_VOICE；如服务不需要 voice 字段，可在 .env 中留空或使用服务默认值。</p>
+                      </div>
                     ) : (
                       <LevelTwoList
                         title="音色"
@@ -993,6 +1008,11 @@ export function SettingsPanel({
                   <p className="mt-1 truncate text-sm font-semibold text-slate-900">
                     {edgeVoiceOptions.find((option) => option.id === edgeVoice)?.label ?? edgeVoice}
                   </p>
+                ) : ttsProvider === "openai_compatible" ? (
+                  <div className="mt-1 space-y-1">
+                    <p className="truncate text-sm font-semibold text-slate-900">OpenAI-compatible TTS</p>
+                    <p className="truncate text-xs font-medium text-slate-500">模型、音色由后端 .env 控制</p>
+                  </div>
                 ) : (
                   <div className="mt-1 space-y-1">
                     <p className="truncate text-sm font-semibold text-slate-900">

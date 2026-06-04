@@ -26,12 +26,31 @@ export const LOCAL_COSYVOICE_MODEL_OPTIONS: { id: string; label: string }[] = [
 
 export const LOCAL_TTS_VOICE_OPTIONS: { id: string; label: string }[] = [];
 
+export const XIAOMI_MIMO_MODEL_OPTIONS: { id: string; label: string }[] = [
+  { id: "mimo-v2.5-tts", label: "MiMo v2.5 TTS" },
+  { id: "mimo-v2.5-tts-voiceclone", label: "MiMo v2.5 TTS VoiceClone" },
+];
+
+export const XIAOMI_MIMO_VOICE_OPTIONS: { id: string; label: string }[] = [
+  { id: "mimo_default", label: "MiMo 默认" },
+  { id: "冰糖", label: "冰糖（中文女声）" },
+  { id: "茉莉", label: "茉莉（中文女声）" },
+  { id: "苏打", label: "苏打（中文男声）" },
+  { id: "白桦", label: "白桦（中文男声）" },
+  { id: "Mia", label: "Mia（English female）" },
+  { id: "Chloe", label: "Chloe（English female）" },
+  { id: "Milo", label: "Milo（English male）" },
+  { id: "Dean", label: "Dean（English male）" },
+];
+
 export type TtsProviderExtended =
   | "edge"
   | "dashscope"
   | "cosyvoice"
   | "sambert"
-  | "local_cosyvoice";
+  | "local_cosyvoice"
+  | "xiaomi_mimo"
+  | "openai_compatible";
 
 export function isEdgeTts(p: string): boolean {
   return p === "edge";

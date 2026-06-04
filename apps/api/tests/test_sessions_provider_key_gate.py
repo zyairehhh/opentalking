@@ -73,6 +73,50 @@ def test_create_session_rejects_api_tts_without_module_key(monkeypatch, tmp_path
     assert "OPENTALKING_TTS_DASHSCOPE_API_KEY" in response.json()["detail"]
 
 
+def test_create_session_rejects_xiaomi_mimo_tts_without_profile_key(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.delenv("OPENTALKING_TTS_XIAOMI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENTALKING_TTS_XIAOMI_BASE_URL", raising=False)
+    monkeypatch.delenv("OPENTALKING_TTS_OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENTALKING_TTS_OPENAI_BASE_URL", raising=False)
+    monkeypatch.setenv("OPENTALKING_STT_PROVIDER", "sensevoice")
+
+    with _client(monkeypatch, tmp_path) as client:
+        response = client.post(
+            "/sessions",
+            json={"avatar_id": "singer", "model": "flashtalk", "tts_provider": "xiaomi_mimo"},
+        )
+
+    assert response.status_code == 400
+    detail = response.json()["detail"]
+    assert "OPENTALKING_TTS_XIAOMI_API_KEY" in detail
+    assert "OPENTALKING_TTS_DASHSCOPE_API_KEY" not in detail
+
+
+def test_create_session_rejects_xiaomi_mimo_stt_without_profile_key(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.delenv("OPENTALKING_STT_XIAOMI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENTALKING_STT_XIAOMI_BASE_URL", raising=False)
+    monkeypatch.delenv("OPENTALKING_STT_OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENTALKING_STT_OPENAI_BASE_URL", raising=False)
+    monkeypatch.setenv("OPENTALKING_TTS_PROVIDER", "local_cosyvoice")
+
+    with _client(monkeypatch, tmp_path) as client:
+        response = client.post(
+            "/sessions",
+            json={
+                "avatar_id": "singer",
+                "model": "flashtalk",
+                "stt_provider": "xiaomi_mimo",
+                "tts_provider": "local_cosyvoice",
+            },
+        )
+
+    assert response.status_code == 400
+    detail = response.json()["detail"]
+    assert "OPENTALKING_STT_XIAOMI_API_KEY" in detail
+    assert "OPENTALKING_STT_DASHSCOPE_API_KEY" not in detail
+    assert "OPENTALKING_STT_OPENAI_API_KEY" not in detail
+
+
 def test_unified_startup_prewarms_local_stt(monkeypatch, tmp_path: Path) -> None:
     from opentalking.providers.stt import factory as stt_factory
 

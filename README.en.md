@@ -491,7 +491,7 @@ OpenTalking's LLM uses the OpenAI-compatible interface, so pointing `OPENTALKING
   Continue improving interruption, low-latency response, audio/video sync, long-session recovery, and runtime-state visibility.
 
 - [ ] **Consumer-GPU multi-model path**
-  Improve asset checks, warmup, cache reuse, low-VRAM settings, and more 3090 / 4090 / WSL2 benchmarks for QuickTalk, Wav2Lip, and MuseTalk local.
+  Improve asset checks, warmup, cache reuse, low-VRAM settings, and more 3090 / 4090 / WSL2 benchmarks for QuickTalk, Wav2Lip, and MuseTalk local, while continuing FasterLivePortrait video-creation and video-clone benchmarks.
 
 - [ ] **Windows / WSL2 one-command deployment**
   Build on the current Windows deployment guide and test records to simplify model downloads, runtime setup, environment checks, and diagnostics.
@@ -499,10 +499,19 @@ OpenTalking's LLM uses the OpenAI-compatible interface, so pointing `OPENTALKING
 - [ ] **High-quality private deployment**
   Improve external OmniRT inference services, multi-model endpoints, capacity scheduling, health checks, production monitoring, and GPU / NPU deployment guidance.
 
+- [ ] **More cloud speech and multimodal providers**
+  Build on the current OpenAI-compatible, DashScope, and Xiaomi MiMo profiles to add more pluggable STT / TTS / LLM providers, a unified frontend selection experience, and provider-level health checks.
+
 - [ ] **Agent, memory, and platform capabilities**
   Connect OpenClaw or external agents, reuse memory, tool calling, and knowledge-base capabilities, and gradually add multi-session scheduling, observability metrics, security and compliance, authorized voices, and synthetic-content labeling.
 
 ### Completed Progress
+
+- **2026-06-05: OpenAI-compatible audio APIs and Xiaomi MiMo profiles**
+  Added OpenAI-compatible STT / TTS adapters, Xiaomi MiMo STT / TTS / voice-clone profiles, frontend provider selection and voice lists, provider-level key/base_url validation, and a reorganized `.env.example` with separate LLM / STT / TTS profiles to avoid mixing generic OpenAI-compatible and Xiaomi configuration.
+
+- **2026-06-04: FasterLivePortrait video creation and video clone**
+  Added the FasterLivePortrait video-creation parameter panel, video-clone workspace, custom source-asset upload, camera/uploaded-video driving input, and documentation screenshots outside the existing real-time conversation path, reusing the OmniRT + FasterLivePortrait runtime route.
 
 - **2026-05-28: Windows / WSL2 deployment docs and benchmark conventions**
   Added the Windows / WSL2 deployment guide, WSL2 VRAM statistics notes, benchmark metric definitions, test records, and documentation navigation entries.

@@ -216,3 +216,76 @@ def test_get_voices_includes_local_cosyvoice_system_voice_dirs(tmp_path, monkeyp
             "source": "system",
         }
     ]
+
+
+def test_get_voices_includes_xiaomi_mimo_system_voices(tmp_path, monkeypatch):
+    monkeypatch.setenv("OPENTALKING_SQLITE_PATH", str(tmp_path / "voices.sqlite3"))
+
+    app = FastAPI()
+    app.include_router(voices_routes.router)
+
+    response = TestClient(app).get("/voices?provider=xiaomi_mimo")
+
+    assert response.status_code == 200
+    items = response.json()["items"]
+    assert {
+        "id": 301,
+        "user_id": 1,
+        "provider": "xiaomi_mimo",
+        "voice_id": "mimo_default",
+        "display_label": "MiMo 默认",
+        "target_model": "mimo-v2.5-tts",
+        "source": "system",
+        "profile": "xiaomi_mimo",
+    } in items
+    assert any(
+        item["voice_id"] == "冰糖" and item["display_label"] == "冰糖（中文女声）"
+        for item in items
+    )
+    assert any(
+        item["voice_id"] == "Dean" and item["display_label"] == "Dean（English male）"
+        for item in items
+    )
+
+
+def test_xiaomi_mimo_clone_stores_reference_audio_data_uri(tmp_path, monkeypatch):
+    inserted: dict[str, object] = {}
+
+    monkeypatch.setenv("OPENTALKING_SQLITE_PATH", str(tmp_path / "voices.sqlite3"))
+    monkeypatch.setattr(
+        voices_routes.bailian_clone,
+        "convert_audio_to_wav_24k_mono",
+        lambda raw, suffix: _wav_bytes(),
+    )
+
+    def fake_insert_clone(**kwargs):
+        inserted.update(kwargs)
+        return 456
+
+    monkeypatch.setattr(voices_routes, "insert_clone", fake_insert_clone)
+    app = FastAPI()
+    app.include_router(voices_routes.router)
+
+    response = TestClient(app).post(
+        "/voices/clone",
+        data={
+            "provider": "xiaomi_mimo",
+            "target_model": "mimo-v2.5-tts-voiceclone",
+            "display_label": "小米复刻",
+            "prompt_text": "你好，今天阳光很好，我正在用自然清晰的声音，记录这一段音色。",
+        },
+        files={"audio": ("sample.wav", _wav_bytes(), "audio/wav")},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["provider"] == "xiaomi_mimo"
+    assert body["target_model"] == "mimo-v2.5-tts-voiceclone"
+    assert body["display_label"] == "小米复刻"
+    assert body["voice_id"].startswith("data:audio/wav;base64,")
+    assert inserted == {
+        "provider": "xiaomi_mimo",
+        "voice_id": body["voice_id"],
+        "display_label": "小米复刻",
+        "target_model": "mimo-v2.5-tts-voiceclone",
+    }

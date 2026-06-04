@@ -30,14 +30,14 @@ _IGNORED_LEGACY_ENV = (
 def _runtime_status_payload(request: Request) -> dict[str, Any]:
     settings = request.app.state.settings
     stt = stt_status()
-    stt_provider = stt.get("provider", "")
+    stt_provider = str(stt.get("provider", ""))
     stt_model = str(stt.get("model", ""))
     stt_device = str(stt.get("device", ""))
     stt_provider_list = stt_enabled_providers()
     if stt_provider not in stt_provider_list:
         stt_provider_list = [stt_provider, *stt_provider_list]
     stt_status_providers = [*stt_provider_list]
-    for provider in ("sensevoice", "dashscope"):
+    for provider in ("sensevoice", "dashscope", "xiaomi_mimo", "openai_compatible"):
         if provider not in stt_status_providers:
             stt_status_providers.append(provider)
     stt_provider_map = {provider: stt_provider_config(provider) for provider in stt_status_providers}
@@ -48,7 +48,7 @@ def _runtime_status_payload(request: Request) -> dict[str, Any]:
     if tts_provider not in tts_provider_list:
         tts_provider_list = [tts_provider, *tts_provider_list]
     tts_status_providers = [*tts_provider_list]
-    for provider in ("local_cosyvoice", "dashscope", "edge", "cosyvoice", "sambert"):
+    for provider in ("local_cosyvoice", "dashscope", "xiaomi_mimo", "openai_compatible", "edge", "cosyvoice", "sambert"):
         if provider not in tts_status_providers:
             tts_status_providers.append(provider)
     tts_provider_map = {provider: tts_provider_config(provider) for provider in tts_status_providers}

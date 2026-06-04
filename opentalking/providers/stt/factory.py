@@ -14,7 +14,7 @@ from typing import Any
 
 import numpy as np
 
-STT_PROVIDERS = frozenset({"dashscope", "funasr", "sensevoice", "sherpa_onnx"})
+STT_PROVIDERS = frozenset({"dashscope", "openai_compatible", "xiaomi_mimo", "funasr", "sensevoice", "sherpa_onnx"})
 LOCAL_STT_PROVIDERS = frozenset({"funasr", "sensevoice", "sherpa_onnx"})
 _SENSEVOICE_TAG_RE = re.compile(r"<\|[^|<>]+\|>")
 
@@ -94,6 +94,126 @@ def _device_for_provider(provider: str) -> str:
     return "auto"
 
 
+def _openai_stt_base_url() -> str:
+    return (
+        _provider_env("openai", "BASE_URL")
+        or os.environ.get("OPENTALKING_STT_OPENAI_BASE_URL", "").strip()
+        or _settings_value("stt_openai_base_url", "")
+    ).rstrip("/")
+
+
+def _openai_stt_api_key() -> str:
+    return (
+        _provider_env("openai", "API_KEY")
+        or os.environ.get("OPENTALKING_STT_OPENAI_API_KEY", "").strip()
+        or _settings_value("stt_openai_api_key", "")
+    )
+
+
+def _openai_stt_language() -> str:
+    return (
+        _provider_env("openai", "LANGUAGE")
+        or os.environ.get("OPENTALKING_STT_OPENAI_LANGUAGE", "").strip()
+        or _settings_value("stt_openai_language", "")
+    )
+
+
+def _openai_stt_response_format() -> str:
+    return (
+        _provider_env("openai", "RESPONSE_FORMAT")
+        or os.environ.get("OPENTALKING_STT_OPENAI_RESPONSE_FORMAT", "").strip()
+        or _settings_value("stt_openai_response_format", "")
+        or "json"
+    )
+
+
+def _openai_stt_protocol() -> str:
+    return (
+        _provider_env("openai", "PROTOCOL")
+        or os.environ.get("OPENTALKING_STT_OPENAI_PROTOCOL", "").strip()
+        or _settings_value("stt_openai_protocol", "")
+        or "audio_transcriptions"
+    )
+
+
+def _openai_stt_audio_format() -> str:
+    return (
+        _provider_env("openai", "AUDIO_FORMAT")
+        or os.environ.get("OPENTALKING_STT_OPENAI_AUDIO_FORMAT", "").strip()
+        or _settings_value("stt_openai_audio_format", "")
+        or "wav"
+    )
+
+
+def _xiaomi_stt_base_url() -> str:
+    return (
+        _provider_env("xiaomi", "BASE_URL")
+        or _provider_env("xiaomi_mimo", "BASE_URL")
+        or os.environ.get("OPENTALKING_STT_XIAOMI_BASE_URL", "").strip()
+        or os.environ.get("OPENTALKING_STT_XIAOMI_MIMO_BASE_URL", "").strip()
+        or _settings_value("stt_xiaomi_base_url", "")
+        or _settings_value("stt_xiaomi_mimo_base_url", "")
+    ).rstrip("/")
+
+
+def _xiaomi_stt_api_key() -> str:
+    return (
+        _provider_env("xiaomi", "API_KEY")
+        or _provider_env("xiaomi_mimo", "API_KEY")
+        or os.environ.get("OPENTALKING_STT_XIAOMI_API_KEY", "").strip()
+        or os.environ.get("OPENTALKING_STT_XIAOMI_MIMO_API_KEY", "").strip()
+        or _settings_value("stt_xiaomi_api_key", "")
+        or _settings_value("stt_xiaomi_mimo_api_key", "")
+    )
+
+
+def _xiaomi_stt_language() -> str:
+    return (
+        _provider_env("xiaomi", "LANGUAGE")
+        or _provider_env("xiaomi_mimo", "LANGUAGE")
+        or os.environ.get("OPENTALKING_STT_XIAOMI_LANGUAGE", "").strip()
+        or os.environ.get("OPENTALKING_STT_XIAOMI_MIMO_LANGUAGE", "").strip()
+        or _settings_value("stt_xiaomi_language", "")
+        or _settings_value("stt_xiaomi_mimo_language", "")
+    )
+
+
+def _xiaomi_stt_response_format() -> str:
+    return (
+        _provider_env("xiaomi", "RESPONSE_FORMAT")
+        or _provider_env("xiaomi_mimo", "RESPONSE_FORMAT")
+        or os.environ.get("OPENTALKING_STT_XIAOMI_RESPONSE_FORMAT", "").strip()
+        or os.environ.get("OPENTALKING_STT_XIAOMI_MIMO_RESPONSE_FORMAT", "").strip()
+        or _settings_value("stt_xiaomi_response_format", "")
+        or _settings_value("stt_xiaomi_mimo_response_format", "")
+        or "json"
+    )
+
+
+def _xiaomi_stt_protocol() -> str:
+    return (
+        _provider_env("xiaomi", "PROTOCOL")
+        or _provider_env("xiaomi_mimo", "PROTOCOL")
+        or os.environ.get("OPENTALKING_STT_XIAOMI_PROTOCOL", "").strip()
+        or os.environ.get("OPENTALKING_STT_XIAOMI_MIMO_PROTOCOL", "").strip()
+        or _settings_value("stt_xiaomi_protocol", "")
+        or _settings_value("stt_xiaomi_mimo_protocol", "")
+        or "chat_completions"
+    )
+
+
+def _xiaomi_stt_audio_format() -> str:
+    return (
+        _provider_env("xiaomi", "AUDIO_FORMAT")
+        or _provider_env("xiaomi_mimo", "AUDIO_FORMAT")
+        or os.environ.get("OPENTALKING_STT_XIAOMI_AUDIO_FORMAT", "").strip()
+        or os.environ.get("OPENTALKING_STT_XIAOMI_MIMO_AUDIO_FORMAT", "").strip()
+        or _settings_value("stt_xiaomi_audio_format", "")
+        or _settings_value("stt_xiaomi_mimo_audio_format", "")
+        or "wav"
+    )
+
+
 def _stt_model(provider: str) -> str:
     provider = normalize_stt_provider(provider, default="dashscope") or "dashscope"
     if provider == "funasr":
@@ -109,6 +229,23 @@ def _stt_model(provider: str) -> str:
             _provider_env("sensevoice", "MODEL")
             or _settings_value("stt_sensevoice_model", "")
             or "iic/SenseVoiceSmall"
+        )
+    if provider == "openai_compatible":
+        return (
+            _provider_env("openai", "MODEL")
+            or os.environ.get("OPENTALKING_STT_OPENAI_MODEL", "").strip()
+            or _settings_value("stt_openai_model", "")
+            or "whisper-1"
+        )
+    if provider == "xiaomi_mimo":
+        return (
+            _provider_env("xiaomi", "MODEL")
+            or _provider_env("xiaomi_mimo", "MODEL")
+            or os.environ.get("OPENTALKING_STT_XIAOMI_MODEL", "").strip()
+            or os.environ.get("OPENTALKING_STT_XIAOMI_MIMO_MODEL", "").strip()
+            or _settings_value("stt_xiaomi_model", "")
+            or _settings_value("stt_xiaomi_mimo_model", "")
+            or "mimo-v2.5-asr"
         )
     if provider == "sherpa_onnx":
         return (
@@ -313,7 +450,30 @@ def create_stt_adapter(provider: str | None = None):
         cached = _ADAPTER_CACHE.get(cache_key)
         if cached is not None:
             return cached
-    if selected in {"funasr", "sensevoice"}:
+    if selected in {"openai_compatible", "xiaomi_mimo"}:
+        from opentalking.providers.stt.openai_compatible.adapter import OpenAICompatibleSTTAdapter
+
+        if selected == "xiaomi_mimo":
+            adapter = OpenAICompatibleSTTAdapter(
+                api_key=_xiaomi_stt_api_key(),
+                base_url=_xiaomi_stt_base_url(),
+                model=model,
+                language=_xiaomi_stt_language(),
+                response_format=_xiaomi_stt_response_format(),
+                protocol=_xiaomi_stt_protocol(),
+                audio_format=_xiaomi_stt_audio_format(),
+            )
+        else:
+            adapter = OpenAICompatibleSTTAdapter(
+                api_key=_openai_stt_api_key(),
+                base_url=_openai_stt_base_url(),
+                model=model,
+                language=_openai_stt_language(),
+                response_format=_openai_stt_response_format(),
+                protocol=_openai_stt_protocol(),
+                audio_format=_openai_stt_audio_format(),
+            )
+    elif selected in {"funasr", "sensevoice"}:
         adapter = LocalFunASRSTTAdapter(provider=selected, model=model, model_dir=model_dir, device=device)
     elif selected == "sherpa_onnx":
         adapter = SherpaOnnxSTTAdapter(model=model)
@@ -375,16 +535,8 @@ def transcribe_pcm_chunk_queue_sync(
     return adapter.transcribe_pcm_queue(chunk_queue, sample_rate=sample_rate)
 
 
-def stt_status(provider: str | None = None) -> dict[str, str]:
-    selected = normalize_stt_provider(provider, default=None) or _provider()
-    model = _stt_model(selected)
-    model_dir = _stt_model_dir(selected, model)
-    return {
-        "provider": selected,
-        "model": model,
-        "model_dir": model_dir,
-        "device": _device_for_provider(selected),
-    }
+def stt_status(provider: str | None = None) -> dict[str, str | bool]:
+    return stt_provider_config(provider or _provider())
 
 
 def stt_enabled_providers() -> list[str]:
@@ -408,6 +560,7 @@ def stt_provider_config(provider: str) -> dict[str, str | bool]:
     model = _stt_model(selected)
     model_dir = _stt_model_dir(selected, model)
     key = ""
+    service_url = ""
     if selected == "dashscope":
         key = (
             _provider_env("dashscope", "API_KEY")
@@ -415,11 +568,20 @@ def stt_provider_config(provider: str) -> dict[str, str | bool]:
             or os.environ.get("OPENTALKING_STT_API_KEY", "").strip()
             or _settings_value("stt_api_key", "")
         )
+    elif selected == "openai_compatible":
+        key = _openai_stt_api_key()
+        service_url = _openai_stt_base_url()
+    elif selected == "xiaomi_mimo":
+        key = _xiaomi_stt_api_key()
+        service_url = _xiaomi_stt_base_url()
     config: dict[str, str | bool] = {
         "provider": selected,
         "model": model,
         "model_dir": model_dir,
         "device": _device_for_provider(selected),
         "key_set": bool(key),
+        "service_url_set": bool(service_url),
     }
+    if selected == "xiaomi_mimo":
+        config["profile"] = "xiaomi_mimo"
     return config

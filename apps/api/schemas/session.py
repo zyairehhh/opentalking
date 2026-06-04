@@ -58,13 +58,13 @@ class SpeakRequest(BaseModel):
     tts_provider: str | None = Field(
         default=None,
         description=(
-            "edge | elevenlabs | dashscope | cosyvoice | sambert | bailian | qwen | "
+            "edge | elevenlabs | openai_compatible | xiaomi_mimo | dashscope | cosyvoice | sambert | bailian | qwen | "
             "qwen_tts；不传则用 OPENTALKING_TTS_PROVIDER"
         ),
     )
     tts_model: str | None = Field(
         default=None,
-        description="百炼各线路或 ElevenLabs 可用：如 qwen3-tts-flash-realtime、cosyvoice-v3-flash、eleven_flash_v2_5",
+        description="TTS 模型覆盖：如 qwen3-tts-flash-realtime、cosyvoice-v3-flash、mimo-v2.5-tts、mimo-v2.5-tts-voiceclone、eleven_flash_v2_5",
     )
 
 

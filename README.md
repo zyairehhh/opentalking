@@ -412,7 +412,7 @@ OpenTalking 的 LLM 走 OpenAI-compatible 接口，把 `OPENTALKING_LLM_BASE_URL
   继续打磨打断、低延迟响应、音画同步、长会话恢复和运行状态可见性。
 
 - [ ] **消费级显卡多模型路线**
-  完善 QuickTalk / Wav2Lip / MuseTalk local 的资产检查、预热、缓存复用、低显存参数和更多 3090 / 4090 / WSL2 benchmark。
+  完善 QuickTalk / Wav2Lip / MuseTalk local 的资产检查、预热、缓存复用、低显存参数和更多 3090 / 4090 / WSL2 benchmark，并继续补齐 FasterLivePortrait 的视频创作与视频克隆评测数据。
 
 - [ ] **Windows / WSL2 一键化部署**
   在现有 Windows 部署文档和测试记录基础上，继续降低模型下载、运行时安装、环境检查和诊断门槛。
@@ -420,10 +420,19 @@ OpenTalking 的 LLM 走 OpenAI-compatible 接口，把 `OPENTALKING_LLM_BASE_URL
 - [ ] **高质量私有化部署**
   完善外部 OmniRT 推理服务、多模型 endpoint、容量调度、健康检查、生产监控和 GPU / NPU 部署指引。
 
+- [ ] **更多云端语音与多模态 provider**
+  在现有 OpenAI-compatible、DashScope、Xiaomi MiMo 等 profile 基础上，继续扩展可插拔 STT / TTS / LLM provider、统一前端选择体验和 provider 级健康检查。
+
 - [ ] **Agent、记忆与平台能力**
   对接 OpenClaw 或外部 Agent，复用 memory、工具调用和知识库能力，并逐步补齐多会话调度、观测指标、安全合规、授权音色和合成内容标识。
 
 ### 已完成进展
+
+- **2026-06-05：OpenAI-compatible 音频接口与 Xiaomi MiMo profile**
+  新增 OpenAI-compatible STT / TTS 适配层、小米 MiMo STT / TTS / voice clone profile、前端 provider 选择与音色列表、provider 级 key/base_url 校验，并把 `.env.example` 整理为 LLM / STT / TTS 独立 profile 模板，避免通用 OpenAI-compatible 配置与小米配置混用。
+
+- **2026-06-04：FasterLivePortrait 视频创作与视频克隆**
+  在现有实时对话链路外，补充 FasterLivePortrait 视频创作参数面板、视频克隆页面、自定义 source 资产上传、摄像头/上传视频 driving 输入和文档截图，复用 OmniRT + FasterLivePortrait runtime 路线。
 
 - **2026-05-28：Windows / WSL2 部署文档与 benchmark 口径**
   新增 Windows / WSL2 部署指南、WSL2 显存统计修复说明、benchmark 指标定义和测试记录，并接入文档站导航。

@@ -127,7 +127,7 @@ def test_runtime_status_reports_module_key_state_and_ignored_legacy_env(monkeypa
     assert payload["stt_providers"]["dashscope"]["key_set"] is True
     assert payload["tts_providers"]["dashscope"]["key_set"] is True
     assert "DASHSCOPE_API_KEY" in payload["ignored_legacy_env"]
-    assert "service_url_set" not in payload["stt_providers"]["dashscope"]
+    assert payload["stt_providers"]["dashscope"]["service_url_set"] is False
 
 
 def test_tts_legacy_service_url_does_not_override_dashscope_adapter(monkeypatch):
@@ -302,7 +302,7 @@ def test_runtime_status_reports_provider_specific_configs(monkeypatch):
     assert payload["stt_enabled_providers"] == ["sensevoice", "dashscope"]
     assert payload["stt_model"] == "provider-paraformer"
     assert payload["stt_key_set"] is True
-    assert "service_url_set" not in payload["stt_providers"]["dashscope"]
+    assert payload["stt_providers"]["dashscope"]["service_url_set"] is False
     assert payload["stt_providers"]["sensevoice"]["model_dir"] == "/models/stt/sensevoice"
     assert payload["tts_provider"] == "local_cosyvoice"
     assert payload["tts_default_provider"] == "local_cosyvoice"
