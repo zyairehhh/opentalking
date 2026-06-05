@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import io
 import json
 import logging
@@ -42,6 +43,12 @@ class VoiceItem(TypedDict):
     display_label: str
     target_model: str | None
     source: str
+
+
+def _voice_profile(provider: str) -> str | None:
+    if provider.strip().lower() == "xiaomi_mimo":
+        return "xiaomi_mimo"
+    return None
 
 
 def _upload_dir() -> Path:
@@ -260,8 +267,9 @@ async def get_voices(provider: str | None = None) -> JSONResponse:
     init_voice_store()
     p = provider.strip().lower() if provider else None
     rows = list_voices(provider=p)
-    items: list[VoiceItem] = [
-        {
+    items: list[VoiceItem] = []
+    for r in rows:
+        item: VoiceItem = {
             "id": r.id,
             "user_id": r.user_id,
             "provider": r.provider,
@@ -270,8 +278,10 @@ async def get_voices(provider: str | None = None) -> JSONResponse:
             "target_model": r.target_model,
             "source": r.source,
         }
-        for r in rows
-    ]
+        profile = _voice_profile(r.provider)
+        if profile:
+            item["profile"] = profile  # type: ignore[typeddict-unknown-key]
+        items.append(item)
     if p in {None, "local_cosyvoice"}:
         existing = {(item["provider"], item["voice_id"]) for item in items}
         for item in _local_cosyvoice_system_voice_items():
@@ -298,7 +308,7 @@ async def serve_voice_upload(token: str) -> FileResponse:
 async def post_voice_clone(
     request: Request,
     background_tasks: BackgroundTasks,
-    provider: str = Form(..., description="cosyvoice 或 dashscope（千问复刻）"),
+    provider: str = Form(..., description="local_cosyvoice、cosyvoice、dashscope 或 xiaomi_mimo"),
     target_model: str = Form(...),
     display_label: str = Form(...),
     audio: UploadFile = File(...),
@@ -311,11 +321,14 @@ async def post_voice_clone(
     - 本地 CosyVoice：保存为本地 prompt 音频和文本，不调用云端。
     - 云端 CosyVoice：需要本服务地址对公网可达（或配置 OPENTALKING_PUBLIC_BASE_URL）。
     - 千问（dashscope）：使用 base64，无需公网 URL。
+    - 小米 MiMo：保存参考音频 data URI，合成时传给 mimo-v2.5-tts-voiceclone。
     """
     init_voice_store()
     prov = provider.strip().lower()
-    if prov not in {"local_cosyvoice", "cosyvoice", "dashscope"}:
-        raise HTTPException(status_code=400, detail="provider 须为 local_cosyvoice、cosyvoice 或 dashscope")
+    if prov in {"xiaomi", "mimo"}:
+        prov = "xiaomi_mimo"
+    if prov not in {"local_cosyvoice", "cosyvoice", "dashscope", "xiaomi_mimo"}:
+        raise HTTPException(status_code=400, detail="provider 须为 local_cosyvoice、cosyvoice、dashscope 或 xiaomi_mimo")
 
     raw = await audio.read()
     if len(raw) < 256:
@@ -408,6 +421,28 @@ async def post_voice_clone(
                     "provider": "cosyvoice",
                     "target_model": tm,
                     "message": "CosyVoice 复刻成功，请在合成时选择相同 CosyVoice 模型。",
+                }
+            )
+
+        if prov == "xiaomi_mimo":
+            voice_id = "data:audio/wav;base64," + base64.b64encode(wav).decode("ascii")
+            effective_model = tm or "mimo-v2.5-tts-voiceclone"
+            eid = insert_clone(
+                provider="xiaomi_mimo",
+                voice_id=voice_id,
+                display_label=label,
+                target_model=effective_model,
+            )
+            return JSONResponse(
+                {
+                    "ok": True,
+                    "entry_id": eid,
+                    "voice_id": voice_id,
+                    "display_label": label,
+                    "provider": "xiaomi_mimo",
+                    "profile": "xiaomi_mimo",
+                    "target_model": effective_model,
+                    "message": "小米 MiMo 复刻音色已保存，请使用 mimo-v2.5-tts-voiceclone 合成。",
                 }
             )
 

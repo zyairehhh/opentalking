@@ -89,6 +89,20 @@ def _flatten_config(raw: dict[str, Any] | None) -> dict[str, Any]:
             "local_cosyvoice_service_url": "tts_local_cosyvoice_service_url",
             "local_cosyvoice_service_urls": "tts_local_cosyvoice_service_urls",
             "local_cosyvoice_device": "tts_local_cosyvoice_device",
+            "openai_base_url": "tts_openai_base_url",
+            "openai_api_key": "tts_openai_api_key",
+            "openai_model": "tts_openai_model",
+            "openai_voice": "tts_openai_voice",
+            "openai_response_format": "tts_openai_response_format",
+            "openai_protocol": "tts_openai_protocol",
+            "openai_prompt": "tts_openai_prompt",
+            "xiaomi_base_url": "tts_xiaomi_base_url",
+            "xiaomi_api_key": "tts_xiaomi_api_key",
+            "xiaomi_model": "tts_xiaomi_model",
+            "xiaomi_voice": "tts_xiaomi_voice",
+            "xiaomi_response_format": "tts_xiaomi_response_format",
+            "xiaomi_protocol": "tts_xiaomi_protocol",
+            "xiaomi_prompt": "tts_xiaomi_prompt",
         },
         "stt": {
             "default_provider": "stt_default_provider",
@@ -102,6 +116,13 @@ def _flatten_config(raw: dict[str, Any] | None) -> dict[str, Any]:
             "sensevoice_device": "stt_sensevoice_device",
             "dashscope_model": "stt_dashscope_model",
             "dashscope_api_key": "stt_dashscope_api_key",
+            "openai_base_url": "stt_openai_base_url",
+            "openai_api_key": "stt_openai_api_key",
+            "openai_model": "stt_openai_model",
+            "openai_language": "stt_openai_language",
+            "openai_response_format": "stt_openai_response_format",
+            "openai_protocol": "stt_openai_protocol",
+            "openai_audio_format": "stt_openai_audio_format",
         },
         "local_audio": {
             "model_root": "local_audio_model_root",
@@ -303,7 +324,7 @@ class Settings(BaseSettings):
     llm_model: str = "qwen-turbo"
     llm_system_prompt: str = "You are a friendly digital human assistant."
 
-    #: edge | dashscope | bailian | qwen | qwen_tts | cosyvoice | sambert | local_*（OPENTALKING_TTS_DEFAULT_PROVIDER）
+    #: edge | openai_compatible | xiaomi_mimo | dashscope | bailian | qwen | qwen_tts | cosyvoice | sambert | local_*（OPENTALKING_TTS_DEFAULT_PROVIDER）
     tts_default_provider: str = Field(default="")
     tts_enabled_providers: str = Field(default="")
 
@@ -344,9 +365,23 @@ class Settings(BaseSettings):
     tts_elevenlabs_model_id: str = "eleven_flash_v2_5"
     tts_elevenlabs_voice_id: str = ""
     tts_elevenlabs_output_format: str = "mp3_22050_32"
+    tts_openai_base_url: str = ""
+    tts_openai_api_key: str = ""
+    tts_openai_model: str = "gpt-4o-mini-tts"
+    tts_openai_voice: str = "alloy"
+    tts_openai_response_format: str = "wav"
+    tts_openai_protocol: str = "audio_speech"
+    tts_openai_prompt: str = ""
+    tts_xiaomi_base_url: str = ""
+    tts_xiaomi_api_key: str = ""
+    tts_xiaomi_model: str = "mimo-v2.5-tts"
+    tts_xiaomi_voice: str = "mimo_default"
+    tts_xiaomi_response_format: str = "wav"
+    tts_xiaomi_protocol: str = "chat_completions"
+    tts_xiaomi_prompt: str = "自然、清晰、口语化的普通话。"
     ffmpeg_bin: str = "ffmpeg"
 
-    #: dashscope | funasr | sensevoice | sherpa_onnx（OPENTALKING_STT_DEFAULT_PROVIDER）
+    #: dashscope | openai_compatible | xiaomi_mimo | funasr | sensevoice | sherpa_onnx（OPENTALKING_STT_DEFAULT_PROVIDER）
     stt_default_provider: str = ""
     stt_enabled_providers: str = ""
 
@@ -360,6 +395,20 @@ class Settings(BaseSettings):
     stt_sensevoice_device: str = "auto"
     stt_dashscope_model: str = "paraformer-realtime-v2"
     stt_dashscope_api_key: str = ""
+    stt_openai_base_url: str = ""
+    stt_openai_api_key: str = ""
+    stt_openai_model: str = "whisper-1"
+    stt_openai_language: str = ""
+    stt_openai_response_format: str = "json"
+    stt_openai_protocol: str = "audio_transcriptions"
+    stt_openai_audio_format: str = "wav"
+    stt_xiaomi_base_url: str = ""
+    stt_xiaomi_api_key: str = ""
+    stt_xiaomi_model: str = "mimo-v2.5-asr"
+    stt_xiaomi_language: str = ""
+    stt_xiaomi_response_format: str = "json"
+    stt_xiaomi_protocol: str = "chat_completions"
+    stt_xiaomi_audio_format: str = "wav"
 
     #: Shared local model root for local STT/TTS assets.
     local_audio_model_root: str = "./models/local-audio"

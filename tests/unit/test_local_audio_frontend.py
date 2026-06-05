@@ -25,7 +25,10 @@ def test_single_model_tts_provider_opens_voice_picker_first():
 
     assert "providerHasSingleModel" in settings
     assert 'setVoiceView(providerHasSingleModel(provider) ? "voices" : "models")' in settings
-    assert 'voiceView === "voices" && ttsProvider !== "edge" && !providerHasSingleModel(ttsProvider)' in settings
+    assert (
+        'voiceView === "voices" && ttsProvider !== "edge" && ttsProvider !== "openai_compatible"'
+        in settings
+    )
     assert "选择音色 ·" in settings
     assert "const qwenModelColumnOptions" in settings
     assert "const providerOptions" in settings

@@ -41,3 +41,17 @@ localCosyApplication satisfies {
   voice: "local-cosy-test";
   message: "已使用复刻音色：本地 Cosy 测试";
 };
+
+const xiaomiMimoApplication = resolveVoiceCloneApplication({
+  provider: "xiaomi_mimo",
+  targetModel: "mimo-v2.5-tts-voiceclone",
+  displayLabel: "小米复刻测试",
+  voiceId: "data:audio/wav;base64,AAAA",
+});
+
+xiaomiMimoApplication satisfies {
+  provider: "xiaomi_mimo";
+  model: "mimo-v2.5-tts-voiceclone";
+  voice: "data:audio/wav;base64,AAAA";
+  message: "已使用复刻音色：小米复刻测试";
+};

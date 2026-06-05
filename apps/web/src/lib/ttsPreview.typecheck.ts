@@ -32,3 +32,23 @@ const edgePayload = buildTTSPreviewPayload({
 });
 
 edgePayload satisfies { tts_model?: string };
+
+const openaiCompatiblePayload = buildTTSPreviewPayload({
+  text: "你好",
+  provider: "openai_compatible",
+});
+
+openaiCompatiblePayload satisfies { tts_provider: TtsProviderExtended; tts_model?: string; voice?: string };
+
+const xiaomiMimoPayload = buildTTSPreviewPayload({
+  text: "你好",
+  voice: "冰糖",
+  provider: "xiaomi_mimo",
+  model: "mimo-v2.5-tts",
+});
+
+xiaomiMimoPayload satisfies {
+  tts_provider: TtsProviderExtended;
+  tts_model?: string;
+  voice?: string;
+};

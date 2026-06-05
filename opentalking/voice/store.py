@@ -89,6 +89,16 @@ def init_voice_store() -> None:
             (107, "dashscope", "Roy", "Roy", None),
             # CosyVoice
             (201, "cosyvoice", "longanyang", "longanyang（示例·男）", None),
+            # Xiaomi MiMo, implemented via OpenAI-compatible chat/completions audio.
+            (301, "xiaomi_mimo", "mimo_default", "MiMo 默认", "mimo-v2.5-tts"),
+            (302, "xiaomi_mimo", "冰糖", "冰糖（中文女声）", "mimo-v2.5-tts"),
+            (303, "xiaomi_mimo", "茉莉", "茉莉（中文女声）", "mimo-v2.5-tts"),
+            (304, "xiaomi_mimo", "苏打", "苏打（中文男声）", "mimo-v2.5-tts"),
+            (305, "xiaomi_mimo", "白桦", "白桦（中文男声）", "mimo-v2.5-tts"),
+            (306, "xiaomi_mimo", "Mia", "Mia（English female）", "mimo-v2.5-tts"),
+            (307, "xiaomi_mimo", "Chloe", "Chloe（English female）", "mimo-v2.5-tts"),
+            (308, "xiaomi_mimo", "Milo", "Milo（English male）", "mimo-v2.5-tts"),
+            (309, "xiaomi_mimo", "Dean", "Dean（English male）", "mimo-v2.5-tts"),
         ]
         for sid, prov, vid, label, tm in seeds:
             cur.execute(

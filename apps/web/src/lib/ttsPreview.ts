@@ -17,20 +17,21 @@ export function buildTTSPreviewPayload({
   model,
 }: {
   text: string;
-  voice: string;
+  voice?: string;
   provider: TtsProviderExtended;
-  model: string;
+  model?: string;
 }): TTSPreviewPayload {
   const payload: TTSPreviewPayload = {
     text: text.trim(),
     tts_provider: provider,
   };
-  const trimmedVoice = voice.trim();
+  const trimmedVoice = (voice ?? "").trim();
   if (trimmedVoice && provider !== "sambert") {
     payload.voice = trimmedVoice;
   }
-  if (provider !== "edge") {
-    payload.tts_model = model;
+  const trimmedModel = (model ?? "").trim();
+  if (provider !== "edge" && provider !== "openai_compatible" && trimmedModel) {
+    payload.tts_model = trimmedModel;
   }
   return payload;
 }

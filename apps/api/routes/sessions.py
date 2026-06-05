@@ -47,7 +47,12 @@ from opentalking.providers.stt.dashscope.adapter import (
 )
 from opentalking.providers.stt.factory import normalize_stt_provider, stt_provider_config, transcribe_pcm_chunk_queue_sync, transcribe_wav_path_sync
 from opentalking.providers.tts.edge_zh_voices import normalize_optional_edge_voice
-from opentalking.providers.tts.providers import BAILIAN_TTS_PROVIDERS, LOCAL_TTS_PROVIDERS, normalize_tts_provider
+from opentalking.providers.tts.providers import (
+    BAILIAN_TTS_PROVIDERS,
+    LOCAL_TTS_PROVIDERS,
+    XIAOMI_MIMO_TTS_PROVIDERS,
+    normalize_tts_provider,
+)
 from opentalking.providers.tts.factory import tts_provider_config
 from opentalking.providers.tts.qwen_tts_voices import normalize_optional_qwen_voice, sanitize_qwen_model
 from opentalking.pipeline.recording.recording import (
@@ -59,7 +64,7 @@ from opentalking.pipeline.recording.recording import (
 def _effective_tts_provider(requested: str | None) -> str:
     r = (requested or "").strip().lower()
     if r:
-        return r
+        return normalize_tts_provider(r, default="edge") or "edge"
     try:
         settings = get_settings()
         return getattr(settings, "normalized_tts_default_provider", None) or settings.tts_provider.strip().lower()
@@ -69,6 +74,7 @@ def _effective_tts_provider(requested: str | None) -> str:
 
 _BAILIAN_TTS = BAILIAN_TTS_PROVIDERS
 _LOCAL_TTS = LOCAL_TTS_PROVIDERS
+_XIAOMI_MIMO_TTS = XIAOMI_MIMO_TTS_PROVIDERS
 _AUDIO_RENDERER_MODELS = frozenset(
     {"flashtalk", "flashhead", "fasterliveportrait", "quicktalk", "musetalk", "wav2lip"}
 )
@@ -110,22 +116,60 @@ def _require_audio_provider_config(
     tts_provider: str | None,
     settings: object,
 ) -> None:
-    if stt_provider == "dashscope" and not stt_provider_config("dashscope").get("key_set"):
-        raise HTTPException(
-            status_code=400,
-            detail="API STT 缺少 OPENTALKING_STT_DASHSCOPE_API_KEY，请在后端 .env 配置后重启服务。",
-        )
+    if stt_provider in {"dashscope", "openai_compatible", "xiaomi_mimo"}:
+        stt_status = stt_provider_config(stt_provider)
+        if not stt_status.get("key_set"):
+            if stt_provider == "openai_compatible":
+                key_name = "OPENTALKING_STT_OPENAI_API_KEY"
+            elif stt_provider == "xiaomi_mimo":
+                key_name = "OPENTALKING_STT_XIAOMI_API_KEY"
+            else:
+                key_name = "OPENTALKING_STT_DASHSCOPE_API_KEY"
+            raise HTTPException(
+                status_code=400,
+                detail=f"API STT 缺少 {key_name}，请在后端 .env 配置后重启服务。",
+            )
+        if stt_provider in {"openai_compatible", "xiaomi_mimo"} and not stt_status.get("service_url_set"):
+            url_name = (
+                "OPENTALKING_STT_XIAOMI_BASE_URL"
+                if stt_provider == "xiaomi_mimo"
+                else "OPENTALKING_STT_OPENAI_BASE_URL"
+            )
+            label = "小米 MiMo STT" if stt_provider == "xiaomi_mimo" else "OpenAI-compatible STT"
+            raise HTTPException(
+                status_code=400,
+                detail=f"{label} 缺少 {url_name}，请在后端 .env 配置后重启服务。",
+            )
     effective_tts = (
         tts_provider
         or _settings_value(settings, "normalized_tts_default_provider")
         or _settings_value(settings, "normalized_tts_provider")
         or "edge"
     )
-    if effective_tts in _BAILIAN_TTS and not tts_provider_config(effective_tts).get("key_set"):
-        raise HTTPException(
-            status_code=400,
-            detail="API TTS 缺少 OPENTALKING_TTS_DASHSCOPE_API_KEY，请在后端 .env 配置后重启服务。",
-        )
+    if effective_tts in _BAILIAN_TTS or effective_tts == "openai_compatible" or effective_tts in _XIAOMI_MIMO_TTS:
+        tts_status = tts_provider_config(effective_tts)
+        if not tts_status.get("key_set"):
+            key_name = (
+                "OPENTALKING_TTS_OPENAI_API_KEY"
+                if effective_tts == "openai_compatible"
+                else "OPENTALKING_TTS_XIAOMI_API_KEY"
+                if effective_tts in _XIAOMI_MIMO_TTS
+                else "OPENTALKING_TTS_DASHSCOPE_API_KEY"
+            )
+            raise HTTPException(
+                status_code=400,
+                detail=f"API TTS 缺少 {key_name}，请在后端 .env 配置后重启服务。",
+            )
+        if effective_tts == "openai_compatible" and not tts_status.get("service_url_set"):
+            raise HTTPException(
+                status_code=400,
+                detail="OpenAI-compatible TTS 缺少 OPENTALKING_TTS_OPENAI_BASE_URL，请在后端 .env 配置后重启服务。",
+            )
+        if effective_tts in _XIAOMI_MIMO_TTS and not tts_status.get("service_url_set"):
+            raise HTTPException(
+                status_code=400,
+                detail="小米 MiMo TTS 缺少 OPENTALKING_TTS_XIAOMI_BASE_URL，请在后端 .env 配置后重启服务。",
+            )
 
 
 async def _await_result(value: Awaitable[Any] | Any) -> Any:
@@ -143,11 +187,15 @@ def _normalize_voice_for_speak(
     """返回 (voice, 生效的 tts_provider, tts_model)。tts_model 仅百炼分支有值。"""
     eff = _effective_tts_provider(tts_provider)
     try:
+        if eff in _XIAOMI_MIMO_TTS:
+            vn = str(voice).strip() if voice else None
+            tm = str(tts_model).strip() if tts_model and str(tts_model).strip() else None
+            return vn, eff, tm
         if eff in _BAILIAN_TTS or eff in _LOCAL_TTS:
             vn = normalize_optional_qwen_voice(voice)
             tm = sanitize_qwen_model(tts_model)
             return vn, eff, tm
-        if eff == "elevenlabs":
+        if eff in {"elevenlabs", "openai_compatible"}:
             vn = str(voice).strip() if voice else None
             tm = str(tts_model).strip() if tts_model and str(tts_model).strip() else None
             return vn, eff, tm

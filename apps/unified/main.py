@@ -78,7 +78,7 @@ async def _prewarm_local_stt_on_startup() -> None:
         log.info("STT startup prewarm disabled by OPENTALKING_STT_PREWARM_ON_STARTUP=0")
         return
 
-    def _do_prewarm() -> tuple[bool, dict[str, str]]:
+    def _do_prewarm() -> tuple[bool, dict[str, str | bool]]:
         from opentalking.providers.stt import factory as stt_factory
 
         status = stt_factory.stt_status()

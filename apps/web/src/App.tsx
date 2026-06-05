@@ -53,6 +53,8 @@ import {
   LOCAL_COSYVOICE_MODEL_OPTIONS,
   LOCAL_TTS_VOICE_OPTIONS,
   SAMBERT_MODEL_OPTIONS,
+  XIAOMI_MIMO_MODEL_OPTIONS,
+  XIAOMI_MIMO_VOICE_OPTIONS,
   type TtsProviderExtended,
   isEdgeTts,
 } from "./constants/ttsBailian";
@@ -78,6 +80,8 @@ function bailianModelOptions(provider: TtsProviderExtended): { id: string; label
       return SAMBERT_MODEL_OPTIONS;
     case "local_cosyvoice":
       return LOCAL_COSYVOICE_MODEL_OPTIONS;
+    case "xiaomi_mimo":
+      return XIAOMI_MIMO_MODEL_OPTIONS;
     default:
       return [];
   }
@@ -93,6 +97,8 @@ function bailianVoiceOptions(provider: TtsProviderExtended): { id: string; label
       return [];
     case "local_cosyvoice":
       return LOCAL_TTS_VOICE_OPTIONS;
+    case "xiaomi_mimo":
+      return XIAOMI_MIMO_VOICE_OPTIONS;
     default:
       return [];
   }
@@ -102,6 +108,7 @@ function catalogProviderKey(p: TtsProviderExtended): string | null {
   if (p === "dashscope") return "dashscope";
   if (p === "cosyvoice") return "cosyvoice";
   if (p === "local_cosyvoice") return "local_cosyvoice";
+  if (p === "xiaomi_mimo") return "xiaomi_mimo";
   return null;
 }
 
@@ -124,8 +131,10 @@ function mergeVoiceCatalogIntoOptions(
   if (!cp) {
     return staticList.map((s) => ({ id: s.id, label: s.label }));
   }
-  const cloneModelIds = new Set(QWEN_VOICE_CLONE_TARGET_OPTIONS.map((o) => o.id));
-  const cloneOnly = ttsProvider === "dashscope" && cloneModelIds.has(activeModel ?? "");
+  const dashscopeCloneModelIds = new Set(QWEN_VOICE_CLONE_TARGET_OPTIONS.map((o) => o.id));
+  const cloneOnly =
+    (ttsProvider === "dashscope" && dashscopeCloneModelIds.has(activeModel ?? "")) ||
+    (ttsProvider === "xiaomi_mimo" && activeModel === "mimo-v2.5-tts-voiceclone");
   const baseList = cloneOnly ? [] : staticList;
   const staticIds = new Set(baseList.map((s) => s.id));
   const extras: VoiceOpt[] = [];
@@ -253,12 +262,14 @@ const BROKEN_VIDEO_CREATION_FASTLIVEPORTRAIT_DEFAULT_CONFIG: FasterLivePortraitC
 
 const STT_MODEL_BY_PROVIDER: Record<string, string> = {
   dashscope: "paraformer-realtime-v2",
+  xiaomi_mimo: "mimo-v2.5-asr",
+  openai_compatible: "OpenAI-compatible ASR",
   sensevoice: "iic/SenseVoiceSmall",
 };
 
 function normalizeAsrProvider(value: string | null | undefined, fallback = "dashscope"): string {
   const provider = (value ?? "").trim();
-  return ["dashscope", "sensevoice"].includes(provider) ? provider : fallback;
+  return ["dashscope", "xiaomi_mimo", "openai_compatible", "sensevoice"].includes(provider) ? provider : fallback;
 }
 
 function sttModelForProvider(provider: string): string {
@@ -266,11 +277,19 @@ function sttModelForProvider(provider: string): string {
 }
 
 function sttProviderNeedsApiKey(provider: string): boolean {
-  return normalizeAsrProvider(provider, "dashscope") === "dashscope";
+  return ["dashscope", "xiaomi_mimo", "openai_compatible"].includes(normalizeAsrProvider(provider, "dashscope"));
 }
 
 function ttsProviderNeedsApiKey(provider: TtsProviderExtended): boolean {
-  return provider === "dashscope" || provider === "cosyvoice" || provider === "sambert";
+  return provider === "dashscope" || provider === "cosyvoice" || provider === "sambert" || provider === "openai_compatible" || provider === "xiaomi_mimo";
+}
+
+function hasSelectableTtsVoice(provider: TtsProviderExtended): boolean {
+  return !isEdgeTts(provider) && provider !== "sambert" && provider !== "openai_compatible";
+}
+
+function ttsModelSelectable(provider: TtsProviderExtended): boolean {
+  return !isEdgeTts(provider) && provider !== "openai_compatible";
 }
 
 type StoredAvatarSelection = { id: string; source: string | null };
@@ -369,11 +388,21 @@ function validateAudioProviderConfigBeforeStart({
   const ttsStatus = runtimeStatus?.tts_providers?.[ttsProvider];
   const sttKeySet = sttStatus?.key_set ?? runtimeStatus?.stt_key_set;
   const ttsKeySet = ttsStatus?.key_set ?? runtimeStatus?.tts_key_set;
-  if (sttProviderNeedsApiKey(sttProvider) && sttKeySet !== true) {
-    missing.push("API 语音识别缺少 OPENTALKING_STT_DASHSCOPE_API_KEY");
+  const sttServiceUrlSet = sttStatus?.service_url_set;
+  const ttsServiceUrlSet = ttsStatus?.service_url_set ?? runtimeStatus?.tts_service_url_set;
+  if (sttProviderNeedsApiKey(sttProvider) && (sttKeySet !== true || ((sttProvider === "openai_compatible" || sttProvider === "xiaomi_mimo") && sttServiceUrlSet !== true))) {
+    missing.push(sttProvider === "openai_compatible"
+      ? "API 语音识别缺少 OPENTALKING_STT_OPENAI_API_KEY 或 OPENTALKING_STT_OPENAI_BASE_URL"
+      : sttProvider === "xiaomi_mimo"
+        ? "小米 MiMo 语音识别缺少 OPENTALKING_STT_XIAOMI_API_KEY 或 OPENTALKING_STT_XIAOMI_BASE_URL"
+        : "API 语音识别缺少 OPENTALKING_STT_DASHSCOPE_API_KEY");
   }
-  if (ttsProviderNeedsApiKey(ttsProvider) && ttsKeySet !== true) {
-    missing.push("当前 TTS API 缺少 OPENTALKING_TTS_DASHSCOPE_API_KEY");
+  if (ttsProviderNeedsApiKey(ttsProvider) && (ttsKeySet !== true || ((ttsProvider === "openai_compatible" || ttsProvider === "xiaomi_mimo") && ttsServiceUrlSet !== true))) {
+    missing.push(ttsProvider === "openai_compatible"
+      ? "当前 TTS API 缺少 OPENTALKING_TTS_OPENAI_API_KEY 或 OPENTALKING_TTS_OPENAI_BASE_URL"
+      : ttsProvider === "xiaomi_mimo"
+        ? "小米 MiMo TTS 缺少 OPENTALKING_TTS_XIAOMI_API_KEY 或 OPENTALKING_TTS_XIAOMI_BASE_URL"
+      : "当前 TTS API 缺少 OPENTALKING_TTS_DASHSCOPE_API_KEY");
   }
   if (missing.length === 0) return null;
   return `${missing.join("；")}。请在后端 .env 配置后重启服务。`;
@@ -404,7 +433,7 @@ type HealthResponse = {
   stt_device?: string;
   stt_default_provider?: string;
   stt_enabled_providers?: string[];
-  stt_providers?: Record<string, { key_set?: boolean; model?: string; model_dir?: string; device?: string }>;
+  stt_providers?: Record<string, { key_set?: boolean; model?: string; model_dir?: string; device?: string; service_url_set?: boolean }>;
 };
 
 function sanitizeFasterLivePortraitConfig(
@@ -860,7 +889,7 @@ export default function App() {
   const [ttsProvider, setTtsProvider] = useState<TtsProviderExtended>(() => {
     try {
       const s = window.localStorage.getItem(TTS_PROVIDER_STORAGE_KEY)?.trim();
-      if (s === "edge" || s === "dashscope" || s === "cosyvoice" || s === "sambert" || s === "local_cosyvoice") return s;
+      if (s === "edge" || s === "dashscope" || s === "cosyvoice" || s === "sambert" || s === "local_cosyvoice" || s === "xiaomi_mimo" || s === "openai_compatible") return s;
     } catch {
       /* ignore */
     }
@@ -1679,7 +1708,11 @@ export default function App() {
         llm_system_prompt: llmSystemPrompt.trim() || undefined,
         tts_provider: ttsProvider,
         stt_provider: lockedAsrProvider,
-        tts_voice: isEdgeTts(ttsProvider) ? edgeVoice : ttsProvider === "sambert" ? undefined : qwenVoice,
+        tts_voice: isEdgeTts(ttsProvider)
+          ? edgeVoice
+          : !hasSelectableTtsVoice(ttsProvider)
+            ? undefined
+            : qwenVoice,
         wav2lip_postprocess_mode:
           model === "wav2lip" && wav2lipPostprocessMode !== "auto" ? wav2lipPostprocessMode : undefined,
         fasterliveportrait_config:
@@ -1912,8 +1945,12 @@ export default function App() {
     }
     setTtsPreviewing(true);
     try {
-      const voice = isEdgeTts(ttsProvider) ? edgeVoice : ttsProvider === "sambert" ? "" : qwenVoice;
-      if (!isEdgeTts(ttsProvider) && ttsProvider !== "sambert" && !voice.trim()) {
+      const voice = isEdgeTts(ttsProvider)
+        ? edgeVoice
+        : !hasSelectableTtsVoice(ttsProvider)
+          ? ""
+          : qwenVoice;
+      if (hasSelectableTtsVoice(ttsProvider) && !voice.trim()) {
         notify("当前模型没有可用音色，请先复刻音色或切换模型。", "info");
         return;
       }
@@ -1965,11 +2002,11 @@ export default function App() {
         voice:
           isEdgeTts(ttsProvider)
             ? edgeVoice
-            : ttsProvider === "sambert"
+            : !hasSelectableTtsVoice(ttsProvider)
               ? undefined
               : qwenVoice,
         tts_provider: ttsProvider,
-        tts_model: !isEdgeTts(ttsProvider) ? qwenModel : undefined,
+        tts_model: ttsModelSelectable(ttsProvider) ? qwenModel : undefined,
       };
       void apiPost(`/sessions/${sessionId}/${endpoint}`, payload).catch((err) => {
         console.warn(`${endpoint} failed`, err);
@@ -2005,11 +2042,11 @@ export default function App() {
       fd.append("file", blob, "speech.webm");
       fd.append(
         "voice",
-        isEdgeTts(ttsProvider) ? edgeVoice : ttsProvider === "sambert" ? "" : qwenVoice,
+        isEdgeTts(ttsProvider) ? edgeVoice : hasSelectableTtsVoice(ttsProvider) ? qwenVoice : "",
       );
       fd.append("tts_provider", ttsProvider);
       fd.append("stt_provider", activeAsrProvider || normalizeAsrProvider(asrProvider, "dashscope"));
-      if (!isEdgeTts(ttsProvider)) {
+      if (ttsModelSelectable(ttsProvider)) {
         fd.append("tts_model", qwenModel);
       }
       try {
