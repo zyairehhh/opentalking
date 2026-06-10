@@ -6,6 +6,7 @@ import json
 import os
 import re
 import shutil
+import tempfile
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
@@ -143,6 +144,32 @@ async def _read_upload_image(upload: UploadFile) -> Image.Image:
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=400, detail="invalid image") from exc
     return image.convert("RGB")
+
+
+async def _read_upload_video(upload: UploadFile) -> tuple[Image.Image, bytes, str]:
+    raw = await upload.read()
+    if not raw:
+        raise HTTPException(status_code=400, detail="empty video")
+    if len(raw) > 200 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="video too large (max 200MB)")
+    suffix = Path(upload.filename or "source.mp4").suffix.lower() or ".mp4"
+    if suffix not in {".mp4", ".webm", ".mov", ".avi"}:
+        raise HTTPException(status_code=400, detail="unsupported video format")
+
+    import cv2
+
+    with tempfile.NamedTemporaryFile(suffix=suffix) as tmp:
+        tmp.write(raw)
+        tmp.flush()
+        cap = cv2.VideoCapture(tmp.name)
+        try:
+            ok, frame = cap.read()
+        finally:
+            cap.release()
+    if not ok or frame is None:
+        raise HTTPException(status_code=400, detail="invalid video")
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    return Image.fromarray(frame_rgb).convert("RGB"), raw, suffix
 
 
 def _normalize_custom_avatar_model(model: str | None, fallback: str) -> str:
@@ -335,6 +362,20 @@ def _settings_float(settings: Any, name: str, env_name: str, default: float) -> 
         raw = os.environ.get(env_name)
     try:
         return float(str(raw)) if raw not in (None, "") else default
+    except (TypeError, ValueError):
+        return default
+
+
+def _settings_optional_float(
+    settings: Any, name: str, env_name: str, default: float | None = None
+) -> float | None:
+    raw = getattr(settings, name, None)
+    if raw is None:
+        raw = os.environ.get(env_name)
+    if raw in (None, ""):
+        return default
+    try:
+        return float(str(raw))
     except (TypeError, ValueError):
         return default
 
@@ -802,11 +843,11 @@ def _prepare_quicktalk_prewarm(
             manifest=manifest,
             rebuild=_quicktalk_cache_builder(settings),
             max_long_edge=max_long_edge,
-            max_template_seconds=_settings_float(
+            max_template_seconds=_settings_optional_float(
                 settings,
                 "quicktalk_max_template_seconds",
                 "OPENTALKING_QUICKTALK_MAX_TEMPLATE_SECONDS",
-                1.0,
+                None,
             ),
             overwrite=overwrite,
             verify=True,
@@ -834,7 +875,8 @@ async def create_custom_avatar(
     base_avatar_id: str = Form(...),
     name: str = Form(...),
     model: str | None = Form(default=None),
-    image: UploadFile = File(...),
+    image: UploadFile | None = File(default=None),
+    video: UploadFile | None = File(default=None),
 ) -> AvatarSummary:
     display_name = name.strip()
     if not display_name:
@@ -851,7 +893,16 @@ async def create_custom_avatar(
 
     avatar_id = _unique_avatar_id(root, display_name)
     target_dir = root / avatar_id
-    image_rgb = await _read_upload_image(image)
+    if (image is None and video is None) or (image is not None and video is not None):
+        raise HTTPException(status_code=400, detail="provide exactly one image or video")
+    video_body: bytes | None = None
+    video_suffix = ".mp4"
+    if video is not None:
+        image_rgb, video_body, video_suffix = await _read_upload_video(video)
+    elif image is not None:
+        image_rgb = await _read_upload_image(image)
+    else:  # pragma: no cover - guarded above
+        raise HTTPException(status_code=400, detail="provide exactly one image or video")
 
     try:
         shutil.copytree(
@@ -875,13 +926,25 @@ async def create_custom_avatar(
         source_dir = target_dir / "source"
         source_dir.mkdir(parents=True, exist_ok=True)
         fitted_image.save(source_dir / "source.png", format="PNG")
+        if video_body is not None:
+            video_name = f"source_video{video_suffix}"
+            (source_dir / video_name).write_bytes(video_body)
+            raw = _read_manifest(target_dir / "manifest.json")
+            metadata = dict(raw.get("metadata") or {})
+            metadata["idle_mode"] = "loop"
+            metadata["reference_mode"] = "video"
+            metadata["source_image"] = "source/source.png"
+            metadata["source_video"] = f"source/{video_name}"
+            raw["metadata"] = metadata
+            _write_manifest(target_dir / "manifest.json", raw)
         mouth_metadata.update_manifest_mouth_metadata(
             target_dir / "manifest.json",
             target_dir / "reference.png",
             force=True,
         )
-        _prepare_quicktalk_custom_assets(target_dir / "manifest.json", fitted_image)
-        if _model_type_from_manifest(target_dir / "manifest.json") == "wav2lip":
+        if video_body is None:
+            _prepare_quicktalk_custom_assets(target_dir / "manifest.json", fitted_image)
+        if video_body is None and _model_type_from_manifest(target_dir / "manifest.json") == "wav2lip":
             frames_dir = target_dir / "frames"
             frames_dir.mkdir(parents=True, exist_ok=True)
             frame_path = frames_dir / "frame_00000.png"

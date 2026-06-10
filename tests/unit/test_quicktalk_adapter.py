@@ -60,6 +60,8 @@ def test_quicktalk_adapter_treats_empty_asset_root_env_as_unset(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("OPENTALKING_QUICKTALK_ASSET_ROOT", "")
+    monkeypatch.delenv("OPENTALKING_QUICKTALK_MODEL_ROOT", raising=False)
+    monkeypatch.delenv("OMNIRT_QUICKTALK_MODEL_ROOT", raising=False)
     adapter = QuickTalkAdapter()
     assert adapter._asset_root is None
 
@@ -229,6 +231,9 @@ def test_quicktalk_adapter_normalizes_hdmodule_asset_root(
     fake_runtime = types.ModuleType("opentalking.models.quicktalk.runtime")
     fake_runtime.RealtimeV3Worker = FakeWorker
     monkeypatch.setitem(sys.modules, "opentalking.models.quicktalk.runtime", fake_runtime)
+    monkeypatch.delenv("OPENTALKING_QUICKTALK_ASSET_ROOT", raising=False)
+    monkeypatch.delenv("OPENTALKING_QUICKTALK_MODEL_ROOT", raising=False)
+    monkeypatch.delenv("OMNIRT_QUICKTALK_MODEL_ROOT", raising=False)
 
     adapter = QuickTalkAdapter()
     adapter.load_avatar(str(avatar_dir))

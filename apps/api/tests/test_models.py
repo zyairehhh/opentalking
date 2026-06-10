@@ -16,6 +16,10 @@ from opentalking.providers.synthesis.availability import (
 
 
 def test_models_route_lists_all_models_with_connection_status_without_omnirt(monkeypatch) -> None:
+    monkeypatch.delenv("OPENTALKING_QUICKTALK_BACKEND", raising=False)
+    monkeypatch.delenv("OPENTALKING_CONFIG_FILE", raising=False)
+    monkeypatch.delenv("CONFIG_FILE", raising=False)
+    clear_model_config_cache()
     monkeypatch.setattr(
         "opentalking.models.wav2lip.adapter.Wav2LipAdapter.runtime_available",
         staticmethod(lambda: False),

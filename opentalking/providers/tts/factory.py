@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -10,13 +11,18 @@ from opentalking.providers.tts.edge.adapter import EdgeTTSAdapter
 from opentalking.providers.tts.providers import (
     CORE_TTS_PROVIDERS,
     COSYVOICE_TTS_PROVIDERS,
+    INDEXTTS_TTS_PROVIDERS,
     LOCAL_TTS_PROVIDERS,
+    OMNIRT_TTS_PROVIDERS,
     OPENAI_COMPATIBLE_TTS_PROVIDERS,
     QWEN_TTS_PROVIDERS,
     SAMBERT_TTS_PROVIDERS,
     XIAOMI_MIMO_TTS_PROVIDERS,
     normalize_tts_provider,
 )
+
+
+_INDEXTTS_CONCRETE_PROVIDERS = {"local_indextts", "omnirt_indextts"}
 
 
 def _settings_value(name: str, default: str = "") -> str:
@@ -36,17 +42,28 @@ def _provider_env(provider: str, field: str) -> str:
     return os.environ.get(f"OPENTALKING_TTS_{key_provider}_{field}", "").strip()
 
 
+def _configured_tts_provider_values() -> tuple[str, ...]:
+    return tuple(
+        value
+        for raw in (
+            os.environ.get("OPENTALKING_TTS_DEFAULT_PROVIDER", ""),
+            _settings_value("tts_default_provider", ""),
+            os.environ.get("OPENTALKING_TTS_PROVIDER", ""),
+            _settings_value("tts_provider", ""),
+        )
+        if (value := str(raw or "").strip())
+    )
+
+
+def _public_tts_provider(provider: str) -> str:
+    return "indextts" if provider in _INDEXTTS_CONCRETE_PROVIDERS else provider
+
+
 def _provider() -> str:
-    """Return the default TTS provider. This is routing only, not fallback."""
-    for raw in (
-        os.environ.get("OPENTALKING_TTS_DEFAULT_PROVIDER", ""),
-        _settings_value("tts_default_provider", ""),
-        os.environ.get("OPENTALKING_TTS_PROVIDER", ""),
-        _settings_value("tts_provider", ""),
-    ):
-        value = str(raw or "").strip()
-        if value:
-            return normalize_tts_provider(value, default="edge") or "edge"
+    """Return the default user-facing TTS provider. This is routing only, not fallback."""
+    for value in _configured_tts_provider_values():
+        provider = normalize_tts_provider(value, default="edge") or "edge"
+        return _public_tts_provider(provider)
     return "edge"
 
 
@@ -128,6 +145,177 @@ def _local_cosyvoice_device() -> str:
         or "auto"
     )
 
+
+def _local_audio_asset_dir(name: str, required_file: str, *fallback_names: str) -> str:
+    root = _local_audio_model_root()
+    for candidate_name in (name, *fallback_names):
+        candidate = root / candidate_name
+        if (candidate / required_file).is_file():
+            return str(candidate)
+    return str(root / name)
+
+
+def _local_audio_asset_file_dir(name: str, relative_file: str, *fallback_names: str) -> str:
+    return _local_audio_asset_dir(name, relative_file, *fallback_names)
+
+
+def _local_indextts_model() -> str:
+    return (
+        _provider_env("local_indextts", "MODEL")
+        or _settings_value("tts_local_indextts_model", "")
+        or "IndexTeam/IndexTTS-2"
+    )
+
+
+def _local_indextts_model_dir(model: str) -> str:
+    return (
+        _provider_env("local_indextts", "MODEL_DIR")
+        or _settings_value("tts_local_indextts_model_dir", "")
+        or str(_local_audio_model_root() / model.replace("/", "__"))
+    )
+
+
+def _local_indextts_cfg_path(model_dir: str) -> str:
+    return (
+        _provider_env("local_indextts", "CFG_PATH")
+        or _settings_value("tts_local_indextts_cfg_path", "")
+        or str(Path(model_dir) / "config.yaml")
+    )
+
+
+def _local_indextts_service_url() -> str:
+    return (
+        _provider_env("local_indextts", "SERVICE_URL")
+        or _settings_value("tts_local_indextts_service_url", "")
+    )
+
+
+def _local_indextts_prompt_audio() -> str:
+    return (
+        _provider_env("local_indextts", "PROMPT_AUDIO")
+        or _settings_value("tts_local_indextts_prompt_audio", "")
+    )
+
+
+def _local_indextts_w2v_bert_dir() -> str:
+    return (
+        _provider_env("local_indextts", "W2V_BERT_DIR")
+        or _settings_value("tts_local_indextts_w2v_bert_dir", "")
+        or str(_local_audio_model_root() / "facebook__w2v-bert-2.0")
+    )
+
+
+def _local_indextts_maskgct_dir() -> str:
+    return (
+        _provider_env("local_indextts", "MASKGCT_DIR")
+        or _settings_value("tts_local_indextts_maskgct_dir", "")
+        or _local_audio_asset_file_dir("amphion__MaskGCT", "semantic_codec/model.safetensors", "amphion__MaskGCT-ms")
+    )
+
+
+def _local_indextts_campplus_dir() -> str:
+    return (
+        _provider_env("local_indextts", "CAMPPLUS_DIR")
+        or _settings_value("tts_local_indextts_campplus_dir", "")
+        or str(_local_audio_model_root() / "funasr__campplus")
+    )
+
+
+def _local_indextts_bigvgan_dir() -> str:
+    return (
+        _provider_env("local_indextts", "BIGVGAN_DIR")
+        or _settings_value("tts_local_indextts_bigvgan_dir", "")
+        or str(_local_audio_model_root() / "nvidia__bigvgan_v2_22khz_80band_256x")
+    )
+
+
+def _local_indextts_device() -> str:
+    return (
+        _provider_env("local_indextts", "DEVICE")
+        or _settings_value("tts_local_indextts_device", "")
+        or os.environ.get("OPENTALKING_LOCAL_TTS_DEVICE", "").strip()
+        or os.environ.get("OPENTALKING_LOCAL_AUDIO_DEVICE", "").strip()
+        or _settings_value("local_audio_device", "")
+        or "auto"
+    )
+
+
+def _local_indextts_bool(field: str, settings_name: str, default: bool) -> bool:
+    raw = _provider_env("local_indextts", field) or _settings_value(settings_name, "")
+    if not raw:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _omnirt_indextts_model() -> str:
+    return (
+        _provider_env("omnirt_indextts", "MODEL")
+        or _settings_value("tts_omnirt_indextts_model", "")
+        or "IndexTeam/IndexTTS-2"
+    )
+
+
+def _omnirt_indextts_service_url() -> str:
+    return (
+        _provider_env("omnirt_indextts", "SERVICE_URL")
+        or _settings_value("tts_omnirt_indextts_service_url", "")
+        or "http://127.0.0.1:9012/v1/text2audio/indextts"
+    ).rstrip("/")
+
+
+def _omnirt_indextts_bool(field: str, settings_name: str, default: bool) -> bool:
+    raw = _provider_env("omnirt_indextts", field) or _settings_value(settings_name, "")
+    if not raw:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _omnirt_indextts_int(field: str, settings_name: str, default: int) -> int:
+    raw = _provider_env("omnirt_indextts", field) or _settings_value(settings_name, "")
+    if not raw:
+        return default
+    try:
+        return int(str(raw).strip())
+    except ValueError:
+        return default
+
+
+def _omnirt_indextts_streaming_mode() -> str:
+    return (
+        _provider_env("omnirt_indextts", "STREAMING_MODE")
+        or _settings_value("tts_omnirt_indextts_streaming_mode", "")
+        or "token_window"
+    )
+
+
+
+def _indextts_backend() -> str:
+    raw = (
+        os.environ.get("OPENTALKING_TTS_INDEXTTS_BACKEND", "").strip()
+        or _settings_value("tts_indextts_backend", "")
+    )
+    backend = raw.lower().replace("-", "_")
+    if backend in {"omnirt", "omnirt_indextts"}:
+        return "omnirt"
+    if backend in {"local", "local_indextts", "in_process", "inprocess"}:
+        return "local"
+
+    for value in _configured_tts_provider_values():
+        try:
+            provider = normalize_tts_provider(value, default=None)
+        except ValueError:
+            continue
+        if provider == "omnirt_indextts":
+            return "omnirt"
+        if provider == "local_indextts":
+            return "local"
+    return "local"
+
+
+def _resolve_indextts_provider(provider: str) -> str:
+    if provider != "indextts":
+        return provider
+    return "omnirt_indextts" if _indextts_backend() == "omnirt" else "local_indextts"
 
 def _dashscope_api_key() -> str:
     return (
@@ -288,6 +476,7 @@ def tts_enabled_providers() -> list[str]:
     out: list[str] = []
     for item in raw.replace(";", ",").split(","):
         provider = normalize_tts_provider(item, default=None)
+        provider = _public_tts_provider(provider) if provider else None
         if provider and provider not in out:
             out.append(provider)
     return out or [_provider()]
@@ -295,6 +484,13 @@ def tts_enabled_providers() -> list[str]:
 
 def tts_provider_config(provider: str) -> dict[str, str | bool]:
     p = normalize_tts_provider(provider, default=None) or _provider()
+    if p == "indextts":
+        resolved = _resolve_indextts_provider(p)
+        config = dict(tts_provider_config(resolved))
+        config["provider"] = "indextts"
+        config["backend"] = _indextts_backend()
+        config["resolved_provider"] = resolved
+        return config
     if p in _QWEN_RT:
         service_url = _dashscope_service_url()
         return {
@@ -373,6 +569,75 @@ def tts_provider_config(provider: str) -> dict[str, str | bool]:
             "key_set": False,
             "service_url_set": bool(service_url),
         }
+    if p == "local_indextts":
+        model = _local_indextts_model()
+        model_dir = _local_indextts_model_dir(model)
+        service_url = _local_indextts_service_url()
+        return {
+            "provider": p,
+            "model": model,
+            "model_dir": model_dir,
+            "voice": "local-default",
+            "device": _local_indextts_device(),
+            "key_set": False,
+            "service_url": service_url,
+            "service_url_set": bool(service_url),
+            "cfg_path": _local_indextts_cfg_path(model_dir),
+            "prompt_audio_set": bool(_local_indextts_prompt_audio()),
+            "w2v_bert_dir": _local_indextts_w2v_bert_dir(),
+            "maskgct_dir": _local_indextts_maskgct_dir(),
+            "campplus_dir": _local_indextts_campplus_dir(),
+            "bigvgan_dir": _local_indextts_bigvgan_dir(),
+        }
+    if p == "omnirt_indextts":
+        service_url = _omnirt_indextts_service_url()
+        return {
+            "provider": p,
+            "model": _omnirt_indextts_model(),
+            "model_dir": "",
+            "voice": "local-default",
+            "device": "",
+            "key_set": False,
+            "service_url": service_url,
+            "service_url_set": bool(service_url),
+            "streaming": _omnirt_indextts_bool("STREAMING", "tts_omnirt_indextts_streaming", True),
+            "streaming_mode": _omnirt_indextts_streaming_mode(),
+            "max_text_tokens_per_segment": _omnirt_indextts_int(
+                "MAX_TEXT_TOKENS_PER_SEGMENT",
+                "tts_omnirt_indextts_max_text_tokens_per_segment",
+                80,
+            ),
+            "quick_streaming_tokens": _omnirt_indextts_int(
+                "QUICK_STREAMING_TOKENS",
+                "tts_omnirt_indextts_quick_streaming_tokens",
+                4,
+            ),
+            "interval_silence_ms": _omnirt_indextts_int(
+                "INTERVAL_SILENCE_MS",
+                "tts_omnirt_indextts_interval_silence_ms",
+                0,
+            ),
+            "token_window_size": _omnirt_indextts_int(
+                "TOKEN_WINDOW_SIZE",
+                "tts_omnirt_indextts_token_window_size",
+                40,
+            ),
+            "token_window_hop": _omnirt_indextts_int(
+                "TOKEN_WINDOW_HOP",
+                "tts_omnirt_indextts_token_window_hop",
+                96,
+            ),
+            "token_window_context": _omnirt_indextts_int(
+                "TOKEN_WINDOW_CONTEXT",
+                "tts_omnirt_indextts_token_window_context",
+                8,
+            ),
+            "token_window_overlap_ms": _omnirt_indextts_int(
+                "TOKEN_WINDOW_OVERLAP_MS",
+                "tts_omnirt_indextts_token_window_overlap_ms",
+                60,
+            ),
+        }
     if p in _OPENAI_COMPATIBLE:
         return {
             "provider": p,
@@ -413,6 +678,8 @@ _QWEN_RT = QWEN_TTS_PROVIDERS
 _COSY_WS = COSYVOICE_TTS_PROVIDERS
 _SAMBERT = SAMBERT_TTS_PROVIDERS
 _LOCAL = LOCAL_TTS_PROVIDERS
+_OMNIRT = OMNIRT_TTS_PROVIDERS
+_INDEXTTS = INDEXTTS_TTS_PROVIDERS
 _OPENAI_COMPATIBLE = OPENAI_COMPATIBLE_TTS_PROVIDERS
 _XIAOMI_MIMO = XIAOMI_MIMO_TTS_PROVIDERS
 _CORE = CORE_TTS_PROVIDERS
@@ -433,7 +700,9 @@ def tts_provider_log_label() -> str:
         return "openai_compatible"
     if p in _XIAOMI_MIMO:
         return "xiaomi_mimo"
-    if p in _LOCAL:
+    if p in _INDEXTTS:
+        return _resolve_indextts_provider(p)
+    if p in _LOCAL or p in _OMNIRT:
         return p
     return "edge"
 
@@ -453,6 +722,8 @@ def tts_log_profile(
         raw_cfg = os.environ.get("OPENTALKING_TTS_PROVIDER", "")
     raw_display = repr(raw_cfg.strip()) if str(raw_cfg).strip() else "(unset → code default edge)"
     p = normalize_tts_provider(tts_provider_override, default=None) or _provider()
+    if p in _INDEXTTS:
+        p = _resolve_indextts_provider(p)
     req = (request_voice or "").strip()
     req_part = f"speak_voice_arg={req!r}" if req else "speak_voice_arg=(none)"
 
@@ -531,6 +802,21 @@ def tts_log_profile(
         service = os.environ.get("OPENTALKING_LOCAL_QWEN3_TTS_SERVICE_URL", "").strip() or "(unset)"
         return f"TTS_API=local_qwen3_tts | model={model!r} service={service!r} | {req_part}"
 
+    if p == "local_indextts":
+        model = (tts_model_override or "").strip() or _local_indextts_model()
+        return (
+            f"TTS_API=local_indextts | model={model!r} "
+            f"device={_local_indextts_device()!r} prompt_audio_set={bool(_local_indextts_prompt_audio())} | {req_part}"
+        )
+
+    if p == "omnirt_indextts":
+        model = (tts_model_override or "").strip() or _omnirt_indextts_model()
+        return (
+            f"TTS_API=omnirt_indextts | model={model!r} "
+            f"service_url_set={bool(_omnirt_indextts_service_url())} "
+            f"streaming_mode={_omnirt_indextts_streaming_mode()!r} | {req_part}"
+        )
+
     if p in _OPENAI_COMPATIBLE:
         model = (tts_model_override or "").strip() or _openai_tts_model()
         voice = req or _openai_tts_voice()
@@ -584,9 +870,12 @@ def create_tts_adapter(
     default_voice: str | None = None,
     tts_provider: str | None = None,
     tts_model: str | None = None,
+    indextts_config: Mapping[str, object] | None = None,
 ):
     """返回与 EdgeTTSAdapter 相同接口的 TTS 适配器实例。"""
     p = normalize_tts_provider(tts_provider, default=None) or _provider()
+    if p in _INDEXTTS:
+        p = _resolve_indextts_provider(p)
     if p in _QWEN_RT:
         from opentalking.providers.tts.dashscope_qwen.adapter import DashScopeQwenTTSAdapter
 
@@ -646,6 +935,90 @@ def create_tts_adapter(
             sample_rate=sample_rate,
             chunk_ms=chunk_ms,
             model=tts_model,
+        )
+    if p == "local_indextts":
+        from opentalking.providers.tts.local_indextts.adapter import LocalIndexTTSAdapter
+
+        model = (tts_model or "").strip() or _local_indextts_model()
+        model_dir = _local_indextts_model_dir(model)
+        return LocalIndexTTSAdapter(
+            default_voice=default_voice,
+            sample_rate=sample_rate,
+            chunk_ms=chunk_ms,
+            model=model,
+            model_dir=model_dir,
+            cfg_path=_local_indextts_cfg_path(model_dir),
+            service_url=_local_indextts_service_url(),
+            prompt_audio=_local_indextts_prompt_audio(),
+            w2v_bert_dir=_local_indextts_w2v_bert_dir(),
+            maskgct_dir=_local_indextts_maskgct_dir(),
+            campplus_dir=_local_indextts_campplus_dir(),
+            bigvgan_dir=_local_indextts_bigvgan_dir(),
+            device=_local_indextts_device(),
+            use_fp16=_local_indextts_bool(
+                "USE_FP16",
+                "tts_local_indextts_use_fp16",
+                _local_indextts_device().startswith("cuda"),
+            ),
+            use_cuda_kernel=_local_indextts_bool(
+                "USE_CUDA_KERNEL",
+                "tts_local_indextts_use_cuda_kernel",
+                False,
+            ),
+            use_deepspeed=_local_indextts_bool(
+                "USE_DEEPSPEED",
+                "tts_local_indextts_use_deepspeed",
+                False,
+            ),
+            indextts_config=indextts_config,
+        )
+    if p == "omnirt_indextts":
+        from opentalking.providers.tts.omnirt_indextts.adapter import OmniRTIndexTTSAdapter
+
+        return OmniRTIndexTTSAdapter(
+            service_url=_omnirt_indextts_service_url(),
+            default_voice=default_voice,
+            sample_rate=sample_rate,
+            chunk_ms=chunk_ms,
+            model=(tts_model or "").strip() or _omnirt_indextts_model(),
+            streaming=_omnirt_indextts_bool("STREAMING", "tts_omnirt_indextts_streaming", True),
+            streaming_mode=_omnirt_indextts_streaming_mode(),
+            max_text_tokens_per_segment=_omnirt_indextts_int(
+                "MAX_TEXT_TOKENS_PER_SEGMENT",
+                "tts_omnirt_indextts_max_text_tokens_per_segment",
+                80,
+            ),
+            quick_streaming_tokens=_omnirt_indextts_int(
+                "QUICK_STREAMING_TOKENS",
+                "tts_omnirt_indextts_quick_streaming_tokens",
+                4,
+            ),
+            interval_silence_ms=_omnirt_indextts_int(
+                "INTERVAL_SILENCE_MS",
+                "tts_omnirt_indextts_interval_silence_ms",
+                0,
+            ),
+            token_window_size=_omnirt_indextts_int(
+                "TOKEN_WINDOW_SIZE",
+                "tts_omnirt_indextts_token_window_size",
+                40,
+            ),
+            token_window_hop=_omnirt_indextts_int(
+                "TOKEN_WINDOW_HOP",
+                "tts_omnirt_indextts_token_window_hop",
+                96,
+            ),
+            token_window_context=_omnirt_indextts_int(
+                "TOKEN_WINDOW_CONTEXT",
+                "tts_omnirt_indextts_token_window_context",
+                8,
+            ),
+            token_window_overlap_ms=_omnirt_indextts_int(
+                "TOKEN_WINDOW_OVERLAP_MS",
+                "tts_omnirt_indextts_token_window_overlap_ms",
+                60,
+            ),
+            indextts_config=indextts_config,
         )
     if p in _OPENAI_COMPATIBLE or p in _XIAOMI_MIMO:
         from opentalking.providers.tts.openai_compatible.adapter import OpenAICompatibleTTSAdapter
@@ -763,6 +1136,7 @@ def build_tts_adapter(
     default_voice: str | None = None,
     tts_provider: str | None = None,
     tts_model: str | None = None,
+    indextts_config: Mapping[str, object] | None = None,
 ):
     """Settings-based entry point with optional per-request TTS overrides."""
     from opentalking.core.config import get_settings
@@ -776,9 +1150,9 @@ def build_tts_adapter(
     )
     provider = (
         explicit_provider
-        or env_provider
         or getattr(settings, "normalized_tts_default_provider", None)
         or getattr(settings, "normalized_tts_provider", None)
+        or env_provider
         or _provider()
     )
     request_tts_model = (tts_model or "").strip() or None
@@ -803,13 +1177,14 @@ def build_tts_adapter(
         )
 
     # For dashscope/bailian/etc., delegate to create_tts_adapter
-    if provider in _QWEN_RT or provider in _COSY_WS or provider in _SAMBERT or provider in _LOCAL:
+    if provider in _QWEN_RT or provider in _COSY_WS or provider in _SAMBERT or provider in _LOCAL or provider in _OMNIRT or provider in _INDEXTTS:
         return create_tts_adapter(
             sample_rate=sample_rate,
             chunk_ms=chunk_ms,
             default_voice=default_voice or getattr(settings, "tts_voice", None),
             tts_provider=provider,
             tts_model=effective_tts_model,
+            indextts_config=indextts_config,
         )
 
     if provider in _CORE:

@@ -107,12 +107,37 @@ def _flatten_config(raw: dict[str, Any] | None) -> dict[str, Any]:
             "cosyvoice_service_url": "tts_cosyvoice_service_url",
             "sambert_model": "tts_sambert_model",
             "edge_voice": "tts_edge_voice",
+            "indextts_backend": "tts_indextts_backend",
             "local_cosyvoice_model": "tts_local_cosyvoice_model",
             "local_cosyvoice_model_dir": "tts_local_cosyvoice_model_dir",
             "local_cosyvoice_runtime_dir": "tts_local_cosyvoice_runtime_dir",
             "local_cosyvoice_service_url": "tts_local_cosyvoice_service_url",
             "local_cosyvoice_service_urls": "tts_local_cosyvoice_service_urls",
             "local_cosyvoice_device": "tts_local_cosyvoice_device",
+            "local_indextts_model": "tts_local_indextts_model",
+            "local_indextts_model_dir": "tts_local_indextts_model_dir",
+            "local_indextts_cfg_path": "tts_local_indextts_cfg_path",
+            "local_indextts_service_url": "tts_local_indextts_service_url",
+            "local_indextts_prompt_audio": "tts_local_indextts_prompt_audio",
+            "local_indextts_w2v_bert_dir": "tts_local_indextts_w2v_bert_dir",
+            "local_indextts_maskgct_dir": "tts_local_indextts_maskgct_dir",
+            "local_indextts_campplus_dir": "tts_local_indextts_campplus_dir",
+            "local_indextts_bigvgan_dir": "tts_local_indextts_bigvgan_dir",
+            "local_indextts_device": "tts_local_indextts_device",
+            "local_indextts_use_fp16": "tts_local_indextts_use_fp16",
+            "local_indextts_use_cuda_kernel": "tts_local_indextts_use_cuda_kernel",
+            "local_indextts_use_deepspeed": "tts_local_indextts_use_deepspeed",
+            "omnirt_indextts_model": "tts_omnirt_indextts_model",
+            "omnirt_indextts_service_url": "tts_omnirt_indextts_service_url",
+            "omnirt_indextts_streaming": "tts_omnirt_indextts_streaming",
+            "omnirt_indextts_streaming_mode": "tts_omnirt_indextts_streaming_mode",
+            "omnirt_indextts_max_text_tokens_per_segment": "tts_omnirt_indextts_max_text_tokens_per_segment",
+            "omnirt_indextts_quick_streaming_tokens": "tts_omnirt_indextts_quick_streaming_tokens",
+            "omnirt_indextts_interval_silence_ms": "tts_omnirt_indextts_interval_silence_ms",
+            "omnirt_indextts_token_window_size": "tts_omnirt_indextts_token_window_size",
+            "omnirt_indextts_token_window_hop": "tts_omnirt_indextts_token_window_hop",
+            "omnirt_indextts_token_window_context": "tts_omnirt_indextts_token_window_context",
+            "omnirt_indextts_token_window_overlap_ms": "tts_omnirt_indextts_token_window_overlap_ms",
             "openai_base_url": "tts_openai_base_url",
             "openai_api_key": "tts_openai_api_key",
             "openai_model": "tts_openai_model",
@@ -402,12 +427,26 @@ class Settings(BaseSettings):
     tts_cosyvoice_service_url: str = ""
     tts_sambert_model: str = "sambert-zhichu-v1"
     tts_edge_voice: str = "zh-CN-XiaoxiaoNeural"
+    tts_indextts_backend: str = ""
     tts_local_cosyvoice_model: str = "FunAudioLLM/Fun-CosyVoice3-0.5B-2512"
     tts_local_cosyvoice_model_dir: str = ""
     tts_local_cosyvoice_runtime_dir: str = ""
     tts_local_cosyvoice_service_url: str = ""
     tts_local_cosyvoice_service_urls: str = ""
     tts_local_cosyvoice_device: str = "auto"
+    tts_local_indextts_model: str = "IndexTeam/IndexTTS-2"
+    tts_local_indextts_model_dir: str = ""
+    tts_local_indextts_cfg_path: str = ""
+    tts_local_indextts_service_url: str = ""
+    tts_local_indextts_prompt_audio: str = ""
+    tts_local_indextts_w2v_bert_dir: str = ""
+    tts_local_indextts_maskgct_dir: str = ""
+    tts_local_indextts_campplus_dir: str = ""
+    tts_local_indextts_bigvgan_dir: str = ""
+    tts_local_indextts_device: str = "auto"
+    tts_local_indextts_use_fp16: bool = True
+    tts_local_indextts_use_cuda_kernel: bool = False
+    tts_local_indextts_use_deepspeed: bool = False
     tts_sample_rate: int = 16000
     tts_streaming_decode: bool = True
     tts_elevenlabs_api_key: str = ""

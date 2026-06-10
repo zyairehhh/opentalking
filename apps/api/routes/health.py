@@ -48,7 +48,16 @@ def _runtime_status_payload(request: Request) -> dict[str, Any]:
     if tts_provider not in tts_provider_list:
         tts_provider_list = [tts_provider, *tts_provider_list]
     tts_status_providers = [*tts_provider_list]
-    for provider in ("local_cosyvoice", "dashscope", "xiaomi_mimo", "openai_compatible", "edge", "cosyvoice", "sambert"):
+    for provider in (
+        "local_cosyvoice",
+        "indextts",
+        "dashscope",
+        "xiaomi_mimo",
+        "openai_compatible",
+        "edge",
+        "cosyvoice",
+        "sambert",
+    ):
         if provider not in tts_status_providers:
             tts_status_providers.append(provider)
     tts_provider_map = {provider: tts_provider_config(provider) for provider in tts_status_providers}
@@ -76,7 +85,7 @@ def _runtime_status_payload(request: Request) -> dict[str, Any]:
         "tts_voice": tts_effective.get("voice", ""),
         "tts_model_dir": tts_effective.get("model_dir", ""),
         "tts_mode": os.environ.get("OPENTALKING_TTS_MODE", "").strip().lower()
-        or ("local" if tts_provider.startswith("local_") else "api"),
+        or str(tts_effective.get("backend") or ("local" if tts_provider.startswith("local_") else "omnirt" if tts_provider.startswith("omnirt_") else "api")),
         "stt_provider": stt_provider,
         "stt_default_provider": stt_provider,
         "stt_enabled_providers": stt_provider_list,

@@ -95,7 +95,7 @@ bash scripts/start_unified.sh --backend local --model quicktalk
 
 ```bash title="终端"
 curl -fsS http://127.0.0.1:19090/health
-curl -fsS http://127.0.0.1:8000/api/runtime/status
+curl -fsS http://127.0.0.1:8000/runtime/status
 curl -s http://127.0.0.1:8000/models | python3 -m json.tool
 ```
 

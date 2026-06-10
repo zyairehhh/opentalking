@@ -104,7 +104,12 @@ def test_sensevoice_ignores_dashscope_default_stt_model(monkeypatch):
 
     monkeypatch.setenv("OPENTALKING_STT_PROVIDER", "sensevoice")
     monkeypatch.setenv("OPENTALKING_STT_MODEL", "paraformer-realtime-v2")
-    monkeypatch.delenv("OPENTALKING_SENSEVOICE_MODEL", raising=False)
+    monkeypatch.delenv("OPENTALKING_STT_DEFAULT_PROVIDER", raising=False)
+    monkeypatch.delenv("OPENTALKING_STT_SENSEVOICE_MODEL", raising=False)
+    monkeypatch.setattr(
+        "opentalking.core.config.get_settings",
+        lambda: SimpleNamespace(stt_default_provider="", stt_provider="sensevoice", stt_model=""),
+    )
 
     assert factory.stt_status()["model"] == "iic/SenseVoiceSmall"
 
@@ -126,6 +131,9 @@ def test_runtime_status_reports_module_key_state_and_ignored_legacy_env(monkeypa
     assert payload["llm_key_set"] is True
     assert payload["stt_providers"]["dashscope"]["key_set"] is True
     assert payload["tts_providers"]["dashscope"]["key_set"] is True
+    assert payload["tts_providers"]["indextts"]["model"] == "IndexTeam/IndexTTS-2"
+    assert payload["tts_providers"]["indextts"]["backend"] in {"local", "omnirt"}
+    assert payload["tts_providers"]["indextts"]["resolved_provider"] in {"local_indextts", "omnirt_indextts"}
     assert "DASHSCOPE_API_KEY" in payload["ignored_legacy_env"]
     assert payload["stt_providers"]["dashscope"]["service_url_set"] is False
 

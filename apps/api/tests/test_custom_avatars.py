@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from PIL import Image
 
+from apps.cli import prepare_cache
 from apps.api.routes import avatars, sessions
 
 
@@ -84,6 +85,109 @@ def test_quicktalk_model_root_falls_back_to_omnirt_model_root(tmp_path, monkeypa
         tmp_path / "shared-models" / "quicktalk"
     ).resolve()
 
+
+def test_quicktalk_avatar_prewarm_uses_full_video_by_default(
+    tmp_path,
+    monkeypatch,
+):
+    avatar = tmp_path / "video-singer"
+    avatar.mkdir()
+    source_dir = avatar / "source"
+    source_dir.mkdir()
+    (source_dir / "idle.mp4").write_bytes(b"fake-video")
+    (avatar / "manifest.json").write_text(
+        json.dumps(
+            {
+                "id": "video-singer",
+                "name": "Video Singer",
+                "model_type": "quicktalk",
+                "fps": 25,
+                "sample_rate": 16000,
+                "width": 16,
+                "height": 24,
+                "version": "1.0",
+                "metadata": {"source_video": "source/idle.mp4"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    max_seconds_seen: list[float | None] = []
+
+    class FakeRebuild:
+        def read_frames(self, template_video, max_seconds=None):
+            del template_video
+            max_seconds_seen.append(max_seconds)
+            return [object() for _ in range(75)], 25
+
+        def face_detect_frames(self, frames):
+            return list(frames)
+
+        def save_face_cache(self, cache_path, face_det_results):
+            import numpy as np
+
+            frame_count = len(face_det_results)
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            np.savez(
+                cache_path,
+                faces=np.zeros((frame_count, 256, 256, 3), dtype=np.uint8),
+                boxes=np.zeros((frame_count, 4), dtype=np.float32),
+                affines=np.zeros((frame_count, 2, 3), dtype=np.float32),
+            )
+
+    writes: list[dict[str, object]] = []
+
+    def fake_write_video_template(**kwargs):
+        writes.append(kwargs)
+        output_path = Path(kwargs["output_path"])
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_bytes(b"template")
+        return 75
+
+    monkeypatch.delenv("OPENTALKING_QUICKTALK_MAX_TEMPLATE_SECONDS", raising=False)
+    monkeypatch.setattr(avatars, "_quicktalk_cache_builder", lambda settings: FakeRebuild())
+    monkeypatch.setattr(prepare_cache, "_read_video_fps", lambda path: 25.0)
+    monkeypatch.setattr(prepare_cache, "_write_video_template", fake_write_video_template)
+
+    calls: list[tuple[str, dict]] = []
+
+    async def fake_post_omnirt(settings, path, payload):
+        del settings
+        calls.append((path, payload))
+        return {"type": "preload_ok", "warmed": True, "cache_hit": False}
+
+    monkeypatch.setattr(avatars, "_post_omnirt_json", fake_post_omnirt)
+    monkeypatch.setattr(
+        avatars,
+        "resolve_model_backend",
+        lambda model, settings: SimpleNamespace(backend="omnirt"),
+    )
+
+    app = FastAPI()
+    app.state.settings = SimpleNamespace(
+        avatars_dir=str(tmp_path),
+        omnirt_endpoint="http://127.0.0.1:9000",
+        omnirt_audio2video_path_template="/v1/audio2video/{model}",
+        omnirt_api_key="",
+        quicktalk_model_root=str(tmp_path / "models" / "quicktalk"),
+        quicktalk_device="cuda:0",
+        quicktalk_hubert_device="cuda:0",
+        quicktalk_model_backend="pth",
+        quicktalk_max_long_edge=900,
+    )
+    app.include_router(avatars.router)
+    client = TestClient(app)
+
+    response = client.post("/avatars/video-singer/prewarm", json={"model": "quicktalk"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ready"
+    assert payload["cache"]["status"] == "generated"
+    assert payload["cache"]["frames"] == 75
+    assert writes[0]["max_seconds"] is None
+    assert max_seconds_seen == [None]
+    assert calls
 
 def test_quicktalk_avatar_prewarm_generates_cache_and_calls_omnirt(
     tmp_path,
@@ -1062,6 +1166,65 @@ def test_create_custom_avatar_generates_quicktalk_template_from_upload(tmp_path,
     assert not (custom_dir / "source" / "idle.mp4").exists()
     assert Image.open(custom_dir / "source" / "source.png").size == (640, 900)
     assert client.get(f"/avatars/{created['id']}/preview-video").status_code == 404
+
+
+def test_create_custom_avatar_accepts_uploaded_source_video(tmp_path, monkeypatch):
+    base = tmp_path / "base-quicktalk"
+    base.mkdir()
+    (base / "preview.png").write_bytes(_png_bytes((416, 704)))
+    (base / "reference.png").write_bytes(_png_bytes((416, 704)))
+    source_dir = base / "source"
+    source_dir.mkdir()
+    (source_dir / "source.png").write_bytes(_png_bytes((416, 704)))
+    (base / "manifest.json").write_text(
+        json.dumps(
+            {
+                "id": "base-quicktalk",
+                "name": "Base QuickTalk",
+                "model_type": "quicktalk",
+                "fps": 25,
+                "sample_rate": 16000,
+                "width": 416,
+                "height": 704,
+                "version": "1.0",
+                "metadata": {"source_image": "source/source.png"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    async def fake_read_upload_video(upload):
+        return Image.open(BytesIO(_png_bytes((640, 900)))).convert("RGB"), b"fake-video", ".mp4"
+
+    monkeypatch.setattr(avatars, "_read_upload_video", fake_read_upload_video)
+    monkeypatch.setattr(avatars.mouth_metadata, "detect_mouth_landmarks", lambda frame: None)
+
+    app = FastAPI()
+    app.state.settings = SimpleNamespace(avatars_dir=str(tmp_path))
+    app.include_router(avatars.router)
+    client = TestClient(app)
+
+    response = client.post(
+        "/avatars/custom",
+        data={"base_avatar_id": "base-quicktalk", "name": "视频源形象", "model": "quicktalk"},
+        files={"video": ("source.mp4", b"fake-video", "video/mp4")},
+    )
+
+    assert response.status_code == 200
+    created = response.json()
+    assert created["has_preview_video"] is True
+    custom_dir = tmp_path / created["id"]
+    manifest = json.loads((custom_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["metadata"]["reference_mode"] == "video"
+    assert manifest["metadata"]["idle_mode"] == "loop"
+    assert manifest["metadata"]["source_video"] == "source/source_video.mp4"
+    assert manifest["metadata"]["source_image"] == "source/source.png"
+    assert (custom_dir / "source" / "source_video.mp4").read_bytes() == b"fake-video"
+    assert Image.open(custom_dir / "preview.png").size == (640, 900)
+    preview_video = client.get(f"/avatars/{created['id']}/preview-video")
+    assert preview_video.status_code == 200
+    assert preview_video.headers["content-type"] == "video/mp4"
+    assert preview_video.content == b"fake-video"
 
 
 def test_create_custom_avatar_resizes_large_upload_to_realtime_max(tmp_path, monkeypatch):

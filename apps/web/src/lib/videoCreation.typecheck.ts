@@ -25,3 +25,59 @@ void videoCreationDefaultMouthOpen;
 void videoCreationDefaultAnimationRegion;
 void videoCreationDefaultNormalizeLip;
 void fasterLivePortraitVoiceCloneJob;
+
+
+const indexttsVideoCreationJob: CreateVideoCreationJobInput = {
+  model: "quicktalk",
+  avatarId: "anchor",
+  audioSource: "tts_text",
+  text: "这是一个 IndexTTS 情绪控制测试。",
+  ttsProvider: "indextts",
+  ttsModel: "IndexTeam/IndexTTS-2",
+  voice: "indextts-clear-cn",
+  indexttsConfig: {
+    emotion_mode: "text",
+    emo_alpha: 0.6,
+    emo_text: "开心、自然",
+    use_random: false,
+    interval_silence_ms: 0,
+  },
+};
+
+void indexttsVideoCreationJob;
+
+const indexttsVideoCreationWithEmotionAudio: CreateVideoCreationJobInput = {
+  model: "quicktalk",
+  avatarId: "anchor",
+  audioSource: "tts_text",
+  text: "这是一个 IndexTTS 情绪参考音频测试。",
+  ttsProvider: "indextts",
+  ttsModel: "IndexTeam/IndexTTS-2",
+  voice: "indextts-clear-cn",
+  indexttsConfig: {
+    emotion_mode: "audio",
+    emo_alpha: 0.9,
+  },
+  indexttsEmotionAudioFile: new File(["RIFF"], "emotion.wav", { type: "audio/wav" }),
+};
+
+void indexttsVideoCreationWithEmotionAudio;
+
+const indexTtsVideoCreationVoiceClone: CreateVideoCreationJobInput = {
+  model: "quicktalk",
+  avatarId: "anchor",
+  audioSource: "voice_clone",
+  text: "这是一个 IndexTTS 复刻音色驱动测试。",
+  ttsProvider: "indextts",
+  ttsModel: "IndexTeam/IndexTTS-2",
+  voice: "indextts-local-voice",
+  indexttsConfig: {
+    emotion_mode: "vector",
+    emo_alpha: 1,
+    emo_vector: [0, 1, 0, 0, 0, 0, 0, 0],
+    use_random: true,
+    interval_silence_ms: 40,
+  },
+};
+
+void indexTtsVideoCreationVoiceClone;

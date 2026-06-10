@@ -55,3 +55,31 @@ xiaomiMimoApplication satisfies {
   voice: "data:audio/wav;base64,AAAA";
   message: "已使用复刻音色：小米复刻测试";
 };
+
+const localIndexTtsApplication = resolveVoiceCloneApplication({
+  provider: "indextts",
+  targetModel: "IndexTeam/IndexTTS-2",
+  displayLabel: "IndexTTS 复刻",
+  voiceId: "indextts-local-test",
+});
+
+localIndexTtsApplication satisfies {
+  provider: "indextts";
+  model: "IndexTeam/IndexTTS-2";
+  voice: "indextts-local-test";
+  message: "已使用复刻音色：IndexTTS 复刻";
+};
+
+const omniRtIndexTtsApplication = resolveVoiceCloneApplication({
+  provider: "indextts",
+  targetModel: "IndexTeam/IndexTTS-2",
+  displayLabel: "IndexTTS 复刻",
+  voiceId: "indextts-omnirt-test",
+});
+
+omniRtIndexTtsApplication satisfies {
+  provider: "indextts";
+  model: "IndexTeam/IndexTTS-2";
+  voice: "indextts-omnirt-test";
+  message: "已使用复刻音色：IndexTTS 复刻";
+};

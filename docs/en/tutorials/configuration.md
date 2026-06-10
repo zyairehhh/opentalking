@@ -54,10 +54,11 @@ and does not require an API key.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `OPENTALKING_TTS_DEFAULT_PROVIDER` | `edge` | One of `edge`, `dashscope`, `local_cosyvoice`, `cosyvoice`, `elevenlabs`. |
-| `OPENTALKING_TTS_ENABLED_PROVIDERS` | _empty_ | TTS providers shown in the frontend and status page, for example `edge,dashscope,local_cosyvoice`. |
+| `OPENTALKING_TTS_DEFAULT_PROVIDER` | `edge` | One of `edge`, `dashscope`, `local_cosyvoice`, `indextts`, `cosyvoice`, `elevenlabs`, `openai_compatible`, `xiaomi_mimo`. |
+| `OPENTALKING_TTS_ENABLED_PROVIDERS` | _empty_ | TTS providers shown in the frontend and status page, for example `edge,dashscope,local_cosyvoice,indextts`. |
 | `OPENTALKING_TTS_DASHSCOPE_MODEL` | _empty_ | TTS model id; DashScope Qwen realtime TTS commonly uses `qwen3-tts-flash-realtime`. |
 | `OPENTALKING_TTS_DASHSCOPE_API_KEY` | _empty_ | TTS module API key. It is not populated from LLM or STT fallback keys. |
+| `OPENTALKING_TTS_INDEXTTS_BACKEND` | `local` | Backend used by `indextts`: `local` connects to a same-host IndexTTS HTTP sidecar; `omnirt` connects to an OmniRT resident service. |
 | `OPENTALKING_TTS_EDGE_VOICE` | `zh-CN-XiaoxiaoNeural` | Edge TTS voice. |
 | `OPENTALKING_TTS_DASHSCOPE_VOICE` | `Cherry` | DashScope Qwen realtime TTS voice. |
 | `OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URL` | _empty_ | Local CosyVoice service HTTP URL, for example `http://127.0.0.1:19090/synthesize`. |

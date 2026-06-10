@@ -310,18 +310,21 @@ def _prepared_quicktalk_path(settings: object, avatar_path: Path, prefix: str, s
     return path if path.is_file() else None
 
 
-def _quicktalk_template_video(settings: object, avatar_path: Path) -> Path | None:
-    prepared = _prepared_quicktalk_path(settings, avatar_path, "template", "mp4")
-    if prepared is not None:
-        return prepared
-
+def _quicktalk_declared_video_source(avatar_path: Path) -> Path | None:
     metadata = _avatar_manifest_metadata(avatar_path)
     quicktalk = _quicktalk_manifest_section(avatar_path)
-    for source in (quicktalk, metadata):
-        for key in ("template_video", "source_video"):
+    for source in (metadata, quicktalk):
+        for key in ("source_video", "template_video"):
             path = _resolve_avatar_relative_path(avatar_path, source.get(key))
             if path is not None and path.is_file():
                 return path
+    return None
+
+
+def _quicktalk_prepared_template_video(settings: object, avatar_path: Path) -> Path | None:
+    prepared = _prepared_quicktalk_path(settings, avatar_path, "template", "mp4")
+    if prepared is not None:
+        return prepared
 
     quicktalk_dir = avatar_path / "quicktalk"
     preferred = quicktalk_dir / "template_900.mp4"
@@ -342,6 +345,13 @@ def _quicktalk_template_video(settings: object, avatar_path: Path) -> Path | Non
         if path.is_file():
             return path.resolve()
     return None
+
+
+def _quicktalk_template_video(settings: object, avatar_path: Path) -> Path | None:
+    declared = _quicktalk_declared_video_source(avatar_path)
+    if declared is not None:
+        return declared
+    return _quicktalk_prepared_template_video(settings, avatar_path)
 
 
 def _quicktalk_template_frame_dir(avatar_path: Path) -> Path | None:
@@ -384,7 +394,8 @@ def _quicktalk_face_cache(settings: object, avatar_path: Path) -> Path | None:
 
 def _quicktalk_init_session_kwargs(settings: object, avatar_path: Path) -> dict[str, object]:
     kwargs: dict[str, object] = {"video_config": _quicktalk_video_config(avatar_path)}
-    template_video = _quicktalk_template_video(settings, avatar_path)
+    declared_video = _quicktalk_declared_video_source(avatar_path)
+    template_video = declared_video or _quicktalk_prepared_template_video(settings, avatar_path)
     template_frame_dir = _quicktalk_template_frame_dir(avatar_path)
     if template_video is not None:
         kwargs["template_mode"] = "video"
@@ -394,9 +405,10 @@ def _quicktalk_init_session_kwargs(settings: object, avatar_path: Path) -> dict[
         kwargs["template_frame_dir"] = template_frame_dir
     else:
         kwargs["template_mode"] = "image"
-    face_cache = _quicktalk_face_cache(settings, avatar_path)
-    if face_cache is not None:
-        kwargs["quicktalk_face_cache"] = face_cache
+    if declared_video is None:
+        face_cache = _quicktalk_face_cache(settings, avatar_path)
+        if face_cache is not None:
+            kwargs["quicktalk_face_cache"] = face_cache
     return kwargs
 
 
@@ -552,6 +564,7 @@ class VideoCreationService:
         voice: str | None,
         source: str = "tts_text",
         fasterliveportrait_config: Mapping[str, object] | None = None,
+        indextts_config: Mapping[str, object] | None = None,
     ) -> dict[str, Any]:
         text_value = text.strip()
         if not text_value:
@@ -564,6 +577,7 @@ class VideoCreationService:
             default_voice=voice,
             tts_provider=tts_provider,
             tts_model=tts_model,
+            indextts_config=indextts_config,
         )
         chunks: list[np.ndarray] = []
         try:

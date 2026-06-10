@@ -48,6 +48,7 @@ export const DEFAULT_FASTLIVEPORTRAIT_CONFIG: FasterLivePortraitConfig = {
 };
 
 export const SETTINGS_DOCK_EXPANDED_KEY = "opentalking-settings-dock-expanded";
+const TTS_PREVIEW_TEXT_MAX_CHARS = 1000;
 
 const MODEL_LABELS: Record<string, string> = {
   flashhead: "FlashHead",
@@ -65,6 +66,7 @@ const TTS_PROVIDER_LABELS: Record<TtsProviderExtended, string> = {
   cosyvoice: "Cosy",
   sambert: "Sambert",
   local_cosyvoice: "Local CosyVoice",
+  indextts: "Local IndexTTS",
   xiaomi_mimo: "小米 MiMo",
   openai_compatible: "OpenAI API",
 };
@@ -75,6 +77,7 @@ const TTS_PROVIDER_SUBTITLES: Record<TtsProviderExtended, string> = {
   cosyvoice: "Bailian",
   sambert: "Bailian",
   local_cosyvoice: "本地模型",
+  indextts: "本地部署",
   xiaomi_mimo: "OpenAI 兼容",
   openai_compatible: "OpenAI-compatible",
 };
@@ -496,11 +499,11 @@ export function SettingsPanel({
     subtitle: option.id,
     hasChildren: true,
   }));
-  const providerOptions: ColumnOption[] = (["edge", "dashscope", "cosyvoice", "sambert", "local_cosyvoice", "xiaomi_mimo", "openai_compatible"] as TtsProviderExtended[]).map((p) => ({
+  const providerOptions: ColumnOption[] = (["edge", "dashscope", "cosyvoice", "sambert", "local_cosyvoice", "indextts", "xiaomi_mimo", "openai_compatible"] as TtsProviderExtended[]).map((p) => ({
     id: p,
     label: TTS_PROVIDER_LABELS[p],
     subtitle: TTS_PROVIDER_SUBTITLES[p],
-    hasChildren: p !== ttsProvider || qwenModelColumnOptions.length > 1,
+    hasChildren: true,
   }));
   const selectedProvider = providerOptions.find((option) => option.id === ttsProvider) ?? providerOptions[0];
   const asrProviderOptions: ColumnOption[] = ["sensevoice", "dashscope", "xiaomi_mimo", "openai_compatible"].map((p) => ({
@@ -1061,12 +1064,12 @@ export function SettingsPanel({
                   value={ttsPreviewText}
                   onChange={(e) => onTtsPreviewTextChange(e.target.value)}
                   rows={2}
-                  maxLength={240}
+                  maxLength={TTS_PREVIEW_TEXT_MAX_CHARS}
                   className="w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-cyan-300"
                 />
               </label>
               <div className="mt-2 flex items-center justify-between gap-2">
-                <span className="text-xs text-slate-400">{ttsPreviewText.trim().length}/240</span>
+                <span className="text-xs text-slate-400">{ttsPreviewText.trim().length}/{TTS_PREVIEW_TEXT_MAX_CHARS}</span>
                 <button
                   type="button"
                   onClick={onPreviewTts}

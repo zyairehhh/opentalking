@@ -77,6 +77,8 @@ def test_quickstart_source_env_keeps_new_env_file_assignments(tmp_path: Path) ->
     script = f"""
 set -euo pipefail
 export OPENTALKING_TORCH_DEVICE=cuda:6
+unset OPENTALKING_QUICKTALK_MODEL_ROOT
+unset OPENTALKING_WAV2LIP_DEVICE
 source scripts/quickstart/_helpers.sh
 quickstart_source_env {env_file}
 bash -c 'test "$OPENTALKING_TORCH_DEVICE" = cuda:6'

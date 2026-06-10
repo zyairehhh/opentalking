@@ -8,11 +8,14 @@ from typing import Any
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 
 from opentalking.avatar.fasterliveportrait_config import normalize_fasterliveportrait_runtime_config
+from opentalking.providers.tts.indextts_config import normalize_indextts_config
+from opentalking.providers.tts.providers import normalize_tts_provider
 from opentalking.video_creation import VideoCreationService
 
 router = APIRouter(prefix="/video-creation", tags=["video-creation"])
 
 _AUDIO_SOURCES = {"upload", "tts_text", "voice_clone"}
+_INDEXTTS_PROVIDERS = {"indextts", "local_indextts", "omnirt_indextts"}
 
 
 def _audio_max_bytes(settings: object) -> int:
@@ -43,6 +46,42 @@ def _parse_fasterliveportrait_config(model: str, raw: str | None) -> dict[str, o
     return dict(config) or None
 
 
+def _parse_indextts_config(tts_provider: str | None, raw: str | None, *, emotion_audio_path: Path | None = None) -> dict[str, object] | None:
+    if not raw and emotion_audio_path is None:
+        return None
+    provider = normalize_tts_provider(tts_provider, default=None)
+    if provider not in _INDEXTTS_PROVIDERS:
+        return None
+    if raw:
+        try:
+            decoded = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise HTTPException(status_code=400, detail="indextts_config must be valid JSON") from exc
+    else:
+        decoded = {}
+    if not isinstance(decoded, dict):
+        raise HTTPException(status_code=400, detail="indextts_config must be a JSON object")
+    if emotion_audio_path is not None:
+        decoded = {**decoded, "emotion_mode": "audio", "emo_audio_prompt": str(emotion_audio_path)}
+    try:
+        config = normalize_indextts_config(decoded)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return dict(config) or None
+
+
+async def _save_indextts_emotion_audio(upload: UploadFile | None) -> Path | None:
+    if upload is None:
+        return None
+    body = await upload.read()
+    if not body:
+        raise HTTPException(status_code=400, detail="empty IndexTTS emotion audio")
+    suffix = Path(upload.filename or "emotion.wav").suffix or ".wav"
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp.write(body)
+        return Path(tmp.name)
+
+
 @router.post("/jobs", response_model=None)
 async def create_video_creation_job(
     request: Request,
@@ -56,12 +95,21 @@ async def create_video_creation_job(
     tts_model: str | None = Form(default=None),
     voice: str | None = Form(default=None),
     fasterliveportrait_config: str | None = Form(default=None),
+    indextts_config: str | None = Form(default=None),
+    indextts_emotion_audio_file: UploadFile | None = File(default=None),
 ) -> dict[str, Any]:
     source = audio_source.strip().lower()
     if source not in _AUDIO_SOURCES:
         raise HTTPException(status_code=400, detail="audio_source must be upload, tts_text, or voice_clone")
     settings = request.app.state.settings
     flp_config = _parse_fasterliveportrait_config(model, fasterliveportrait_config)
+    emotion_audio_path = await _save_indextts_emotion_audio(indextts_emotion_audio_file)
+    try:
+        index_config = _parse_indextts_config(tts_provider, indextts_config, emotion_audio_path=emotion_audio_path)
+    except Exception:
+        if emotion_audio_path is not None:
+            emotion_audio_path.unlink(missing_ok=True)
+        raise
     service = VideoCreationService(settings)
     try:
         if source == "upload":
@@ -100,6 +148,7 @@ async def create_video_creation_job(
             voice=voice,
             source=source,
             fasterliveportrait_config=flp_config,
+            indextts_config=index_config,
         )
         return _with_download_url(result)
     except HTTPException:
@@ -110,3 +159,6 @@ async def create_video_creation_job(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=502, detail=f"video creation failed: {exc}") from exc
+    finally:
+        if emotion_audio_path is not None:
+            emotion_audio_path.unlink(missing_ok=True)

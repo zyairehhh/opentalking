@@ -36,6 +36,19 @@ def test_normalize_voice_for_speak_accepts_elevenlabs_voice_id() -> None:
     assert model is None
 
 
+@pytest.mark.parametrize("tts_provider", ["indextts", "local_indextts", "omnirt_indextts"])
+def test_normalize_voice_for_speak_keeps_indextts_voice_ids(tts_provider: str) -> None:
+    voice, provider, model = sessions_routes._normalize_voice_for_speak(
+        voice="indextts-clear-cn",
+        tts_provider=tts_provider,
+        tts_model="IndexTeam/IndexTTS-2",
+    )
+
+    assert voice == "indextts-clear-cn"
+    assert provider == tts_provider
+    assert model == "IndexTeam/IndexTTS-2"
+
+
 @pytest.mark.parametrize(
     "model",
     ["fasterliveportrait", "quicktalk", "musetalk", "wav2lip"],
@@ -47,7 +60,6 @@ def test_audio_renderer_models_are_flashtalk_compatible_for_audio_upload(model: 
 @pytest.mark.parametrize("model", ["flashtalk", "flashhead"])
 def test_only_flashtalk_slot_models_use_flashtalk_slot(model: str) -> None:
     assert sessions_routes._uses_flashtalk_slot_model(model) is True
-
 
 @pytest.mark.parametrize("model", ["fasterliveportrait", "quicktalk", "musetalk", "wav2lip"])
 def test_other_audio_renderers_do_not_use_flashtalk_slot(model: str) -> None:
@@ -842,6 +854,70 @@ def test_create_session_allows_explicit_fields_to_override_persona(
     assert calls[0]["llm_system_prompt"] == "显式提示词"
     assert calls[0]["knowledge_base_ids"] == ["kb_override"]
     assert calls[0]["memory_enabled"] is False
+
+
+def test_create_session_passes_indextts_voice_and_model_to_service(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    calls: list[dict[str, object]] = []
+
+    async def fake_create_session(*args: object, **kwargs: object) -> str:
+        calls.append(kwargs)
+        sid = "sess_indextts_voice"
+        redis = args[0]
+        await redis.hset(
+            session_key(sid),
+            mapping={
+                "session_id": sid,
+                "avatar_id": kwargs["avatar_id"],
+                "model": kwargs["model"],
+                "state": "worker_ready",
+            },
+        )
+        return sid
+
+    async def fake_connected_model_ids(_settings: object) -> set[str]:
+        return {"flashtalk"}
+
+    monkeypatch.setattr(sessions_routes.session_service, "create_session", fake_create_session)
+    monkeypatch.setattr(
+        "opentalking.providers.synthesis.availability.connected_model_ids",
+        fake_connected_model_ids,
+    )
+
+    avatars_dir = Path(__file__).resolve().parents[3] / "examples" / "avatars"
+    app = FastAPI()
+    app.state.redis = InMemoryRedis()
+    app.state.settings = SimpleNamespace(
+        avatars_dir=str(avatars_dir),
+        normalized_stt_default_provider="sensevoice",
+        normalized_stt_provider="sensevoice",
+        normalized_tts_default_provider="indextts",
+        normalized_tts_provider="indextts",
+        omnirt_endpoint="",
+    )
+    request = Request({"type": "http", "app": app})
+
+    response = asyncio.run(
+        sessions_routes.create_session(
+            CreateSessionRequest(
+                avatar_id="anchor",
+                model="flashtalk",
+                tts_provider="indextts",
+                tts_voice="indextts-clone-cn",
+                tts_model="IndexTeam/IndexTTS-2",
+                stt_provider="sensevoice",
+            ),
+            request,
+        )
+    )
+
+    assert response.status == "created"
+    assert calls[0]["tts_provider"] == "indextts"
+    assert calls[0]["tts_voice"] == "indextts-clone-cn"
+    assert calls[0]["tts_model"] == "IndexTeam/IndexTTS-2"
+
 
 
 def test_speak_audio_passes_request_level_stt_provider(
