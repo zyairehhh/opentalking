@@ -33,6 +33,9 @@ LOCAL_COSYVOICE_MIN_ACTIVE_SEC = 2.0
 LOCAL_COSYVOICE_MIN_RMS_DBFS = -45.0
 LOCAL_COSYVOICE_MIN_RECOGNIZED_CHARS = 4
 LOCAL_COSYVOICE_MIN_TEXT_OVERLAP = 0.45
+INDEXTTS_PROVIDER = "indextts"
+INDEXTTS_LEGACY_PROVIDERS = {"local_indextts", "omnirt_indextts"}
+INDEXTTS_PROVIDERS = {INDEXTTS_PROVIDER, *INDEXTTS_LEGACY_PROVIDERS}
 
 
 class VoiceItem(TypedDict):
@@ -112,6 +115,47 @@ def _write_local_cosyvoice_prompt(
     return voice_dir
 
 
+def _write_local_indextts_prompt(
+    *,
+    provider: str,
+    voice_id: str,
+    wav: bytes,
+    prompt_text: str,
+    display_label: str,
+    target_model: str,
+    validation: dict[str, Any] | None = None,
+) -> Path:
+    if provider not in INDEXTTS_PROVIDERS:
+        raise ValueError("invalid IndexTTS provider")
+    if not re.fullmatch(r"[A-Za-z0-9_-]{3,80}", voice_id):
+        raise ValueError("invalid local voice id")
+    voice_dir = _local_audio_model_root() / "voices" / "clones" / voice_id
+    voice_dir.mkdir(parents=True, exist_ok=True)
+    clean_prompt_text = prompt_text.strip()
+    (voice_dir / "prompt.wav").write_bytes(wav)
+    if clean_prompt_text:
+        (voice_dir / "prompt.txt").write_text(clean_prompt_text, encoding="utf-8")
+    (voice_dir / "meta.json").write_text(
+        json.dumps(
+            {
+                "voice_id": voice_id,
+                "display_label": display_label,
+                "provider": provider,
+                "target_model": target_model,
+                "prompt_audio": str(voice_dir / "prompt.wav"),
+                "prompt_text": clean_prompt_text,
+                "validation": validation or {},
+                "source": "clone",
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return voice_dir
+
+
 def _wav_audio_stats(wav: bytes) -> dict[str, float]:
     with wave.open(io.BytesIO(wav), "rb") as wf:
         sample_rate = int(wf.getframerate())
@@ -139,6 +183,15 @@ def _wav_audio_stats(wav: bytes) -> dict[str, float]:
         "active_sec": float(active_sec),
         "rms_dbfs": float(rms_dbfs),
     }
+
+
+def _validate_local_indextts_prompt(wav: bytes) -> dict[str, Any]:
+    stats = _wav_audio_stats(wav)
+    if stats["duration_sec"] < 1.0:
+        raise HTTPException(status_code=400, detail="IndexTTS 参考音频过短，请录制 3-15 秒清晰人声。")
+    if stats["active_sec"] < 0.5 or stats["rms_dbfs"] < LOCAL_COSYVOICE_MIN_RMS_DBFS:
+        raise HTTPException(status_code=400, detail="IndexTTS 参考音频声音太小或静音太多，请靠近麦克风重录。")
+    return stats
 
 
 def _text_overlap_ratio(left: str, right: str) -> float:
@@ -190,7 +243,7 @@ async def _validate_local_cosyvoice_prompt(wav: bytes, prompt_text: str) -> dict
     return {**stats, "recognized_text": recognized, "stt_ms": float(stt_ms), "expected_text": text, "text_overlap": overlap}
 
 
-def _remove_local_cosyvoice_prompt(voice_id: str) -> None:
+def _remove_local_prompt(voice_id: str) -> None:
     if not re.fullmatch(r"[A-Za-z0-9_-]{3,80}", voice_id):
         return
     voice_dir = _local_audio_model_root() / "voices" / "clones" / voice_id
@@ -199,6 +252,30 @@ def _remove_local_cosyvoice_prompt(voice_id: str) -> None:
     if root not in target.parents:
         return
     shutil.rmtree(target, ignore_errors=True)
+
+
+def _remove_local_cosyvoice_prompt(voice_id: str) -> None:
+    _remove_local_prompt(voice_id)
+
+
+def _bundled_system_voice_root() -> Path:
+    return Path(__file__).resolve().parents[3] / "opentalking" / "assets" / "voices" / "system"
+
+
+def _system_voice_roots() -> list[Path]:
+    roots = [_local_audio_model_root() / "voices" / "system", _bundled_system_voice_root()]
+    out: list[Path] = []
+    seen: set[Path] = set()
+    for root in roots:
+        try:
+            resolved = root.resolve()
+        except OSError:
+            resolved = root
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        out.append(root)
+    return out
 
 
 def _local_cosyvoice_system_voice_items() -> list[VoiceItem]:
@@ -237,6 +314,57 @@ def _local_cosyvoice_system_voice_items() -> list[VoiceItem]:
     return items
 
 
+def _local_indextts_voice_items(provider: str, source: str) -> list[VoiceItem]:
+    if provider not in INDEXTTS_PROVIDERS or source not in {"system", "clones"}:
+        return []
+    roots = [_local_audio_model_root() / "voices" / source]
+    if source == "system":
+        roots = _system_voice_roots()
+    items: list[VoiceItem] = []
+    idx = 0
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for voice_dir in sorted(p for p in root.iterdir() if p.is_dir()):
+            idx += 1
+            voice_id = voice_dir.name
+            if not re.fullmatch(r"[A-Za-z0-9_-]{3,80}", voice_id):
+                continue
+            if not (voice_dir / "prompt.wav").is_file():
+                continue
+            label = voice_id
+            target_model: str | None = None
+            meta_path = voice_dir / "meta.json"
+            if meta_path.is_file():
+                try:
+                    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+                    raw_providers = meta.get("providers")
+                    requested = {provider, *INDEXTTS_LEGACY_PROVIDERS} if provider == INDEXTTS_PROVIDER else {provider}
+                    if isinstance(raw_providers, list):
+                        allowed = {str(item).strip().lower() for item in raw_providers}
+                        if allowed and not (allowed & requested):
+                            continue
+                    elif str(meta.get("provider") or "").strip().lower() not in {"", *INDEXTTS_PROVIDERS}:
+                        continue
+                    label = str(meta.get("display_label") or meta.get("label") or label)
+                    tm = str(meta.get("target_model") or "").strip()
+                    target_model = tm or None
+                except Exception:
+                    pass
+            items.append(
+                {
+                    "id": -idx,
+                    "user_id": 1,
+                    "provider": provider,
+                    "voice_id": voice_id,
+                    "display_label": label,
+                    "target_model": target_model,
+                    "source": "clone" if source == "clones" else "system",
+                }
+            )
+    return items
+
+
 def _public_base(request: Request) -> str:
     try:
         from opentalking.core.config import get_settings
@@ -266,13 +394,25 @@ def _dedupe_display_label(label: str, *, provider: str, target_model: str | None
 async def get_voices(provider: str | None = None) -> JSONResponse:
     init_voice_store()
     p = provider.strip().lower() if provider else None
-    rows = list_voices(provider=p)
+    public_p = INDEXTTS_PROVIDER if p in INDEXTTS_PROVIDERS else p
+    row_provider = None if public_p is None else public_p
+    rows = list_voices(provider=row_provider)
+    if public_p == INDEXTTS_PROVIDER:
+        rows = [*rows, *list_voices(provider="local_indextts"), *list_voices(provider="omnirt_indextts")]
+    elif public_p is None:
+        rows = [*rows, *list_voices(provider="local_indextts"), *list_voices(provider="omnirt_indextts")]
     items: list[VoiceItem] = []
+    existing = set()
     for r in rows:
+        item_provider = INDEXTTS_PROVIDER if r.provider in INDEXTTS_PROVIDERS else r.provider
+        key = (item_provider, r.voice_id)
+        if key in existing:
+            continue
+        existing.add(key)
         item: VoiceItem = {
             "id": r.id,
             "user_id": r.user_id,
-            "provider": r.provider,
+            "provider": item_provider,
             "voice_id": r.voice_id,
             "display_label": r.display_label,
             "target_model": r.target_model,
@@ -282,13 +422,19 @@ async def get_voices(provider: str | None = None) -> JSONResponse:
         if profile:
             item["profile"] = profile  # type: ignore[typeddict-unknown-key]
         items.append(item)
-    if p in {None, "local_cosyvoice"}:
-        existing = {(item["provider"], item["voice_id"]) for item in items}
+    if public_p in {None, "local_cosyvoice"}:
         for item in _local_cosyvoice_system_voice_items():
             key = (item["provider"], item["voice_id"])
             if key not in existing:
                 items.append(item)
                 existing.add(key)
+    if public_p is None or public_p == INDEXTTS_PROVIDER:
+        for source in ("system", "clones"):
+            for item in _local_indextts_voice_items(INDEXTTS_PROVIDER, source):
+                key = (item["provider"], item["voice_id"])
+                if key not in existing:
+                    items.append(item)
+                    existing.add(key)
     return JSONResponse({"items": items})
 
 
@@ -308,7 +454,7 @@ async def serve_voice_upload(token: str) -> FileResponse:
 async def post_voice_clone(
     request: Request,
     background_tasks: BackgroundTasks,
-    provider: str = Form(..., description="local_cosyvoice、cosyvoice、dashscope 或 xiaomi_mimo"),
+    provider: str = Form(..., description="local_cosyvoice、indextts、cosyvoice、dashscope 或 xiaomi_mimo"),
     target_model: str = Form(...),
     display_label: str = Form(...),
     audio: UploadFile = File(...),
@@ -319,6 +465,7 @@ async def post_voice_clone(
     """
     上传一段朗读音频完成复刻。
     - 本地 CosyVoice：保存为本地 prompt 音频和文本，不调用云端。
+    - IndexTTS：保存为本地 prompt 音频，可供 IndexTTS local / OmniRT 后端共同使用。
     - 云端 CosyVoice：需要本服务地址对公网可达（或配置 OPENTALKING_PUBLIC_BASE_URL）。
     - 千问（dashscope）：使用 base64，无需公网 URL。
     - 小米 MiMo：保存参考音频 data URI，合成时传给 mimo-v2.5-tts-voiceclone。
@@ -327,8 +474,11 @@ async def post_voice_clone(
     prov = provider.strip().lower()
     if prov in {"xiaomi", "mimo"}:
         prov = "xiaomi_mimo"
-    if prov not in {"local_cosyvoice", "cosyvoice", "dashscope", "xiaomi_mimo"}:
-        raise HTTPException(status_code=400, detail="provider 须为 local_cosyvoice、cosyvoice、dashscope 或 xiaomi_mimo")
+    if prov not in {"local_cosyvoice", "cosyvoice", "dashscope", "xiaomi_mimo", *INDEXTTS_PROVIDERS}:
+        raise HTTPException(
+            status_code=400,
+            detail="provider 须为 local_cosyvoice、indextts、cosyvoice、dashscope 或 xiaomi_mimo",
+        )
 
     raw = await audio.read()
     if len(raw) < 256:
@@ -345,11 +495,42 @@ async def post_voice_clone(
     tm = (target_model or "").strip()
     label = _dedupe_display_label(
         (display_label or "").strip() or "我的复刻音色",
-        provider=prov,
+        provider=INDEXTTS_PROVIDER if prov in INDEXTTS_PROVIDERS else prov,
         target_model=tm,
     )
 
     try:
+        if prov in INDEXTTS_PROVIDERS:
+            voice_id = _safe_local_voice_id(label)
+            effective_model = tm or "IndexTeam/IndexTTS-2"
+            validation = _validate_local_indextts_prompt(wav)
+            _write_local_indextts_prompt(
+                provider=INDEXTTS_PROVIDER,
+                voice_id=voice_id,
+                wav=wav,
+                prompt_text=(prompt_text or "").strip(),
+                display_label=label,
+                target_model=effective_model,
+                validation=validation,
+            )
+            eid = insert_clone(
+                provider=INDEXTTS_PROVIDER,
+                voice_id=voice_id,
+                display_label=label,
+                target_model=effective_model,
+            )
+            return JSONResponse(
+                {
+                    "ok": True,
+                    "entry_id": eid,
+                    "voice_id": voice_id,
+                    "display_label": label,
+                    "provider": INDEXTTS_PROVIDER,
+                    "target_model": effective_model,
+                    "message": "IndexTTS 复刻音色已保存，可用于 IndexTTS 合成。",
+                }
+            )
+
         if prov == "local_cosyvoice":
             voice_id = _safe_local_voice_id(label)
             clean_prompt_text = (prompt_text or "").strip() or LOCAL_COSYVOICE_SAMPLE_TEXT
@@ -489,7 +670,7 @@ async def delete_voice_entry(entry_id: int) -> JSONResponse:
     if row.get("source") != "clone":
         raise HTTPException(status_code=400, detail="不能删除系统预设音色")
     if delete_entry(entry_id):
-        if row.get("provider") == "local_cosyvoice":
-            _remove_local_cosyvoice_prompt(str(row.get("voice_id") or ""))
+        if row.get("provider") in {"local_cosyvoice", *INDEXTTS_PROVIDERS}:
+            _remove_local_prompt(str(row.get("voice_id") or ""))
         return JSONResponse({"ok": True})
     raise HTTPException(status_code=404, detail="not found")

@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { apiPostForm } from "../lib/api";
-import { COSYVOICE_MODEL_OPTIONS, LOCAL_COSYVOICE_MODEL_OPTIONS, XIAOMI_MIMO_MODEL_OPTIONS } from "../constants/ttsBailian";
+import {
+  COSYVOICE_MODEL_OPTIONS,
+  LOCAL_COSYVOICE_MODEL_OPTIONS,
+  LOCAL_INDEXTTS_MODEL_OPTIONS,
+  XIAOMI_MIMO_MODEL_OPTIONS,
+} from "../constants/ttsBailian";
 import { QWEN_VOICE_CLONE_TARGET_OPTIONS } from "../constants/ttsQwen";
 import { resolveVoiceCloneApplication, type VoiceCloneApplication } from "../lib/voiceCloneApply";
 
@@ -41,8 +46,23 @@ function fileExtFromBlob(blob: Blob): string {
   return "webm";
 }
 
-type CloneProvider = "dashscope" | "cosyvoice" | "local_cosyvoice" | "xiaomi_mimo";
+type CloneProvider =
+  | "dashscope"
+  | "cosyvoice"
+  | "local_cosyvoice"
+  | "indextts"
+  | "xiaomi_mimo";
 type RecorderPhase = "idle" | "recording" | "paused" | "recorded";
+
+function defaultTargetModelForProvider(provider: CloneProvider): string {
+  if (provider === "dashscope") return QWEN_VOICE_CLONE_TARGET_OPTIONS[0]?.id ?? "";
+  if (provider === "xiaomi_mimo") return "mimo-v2.5-tts-voiceclone";
+  if (provider === "local_cosyvoice") return LOCAL_COSYVOICE_MODEL_OPTIONS[0]?.id ?? "";
+  if (provider === "indextts") {
+    return LOCAL_INDEXTTS_MODEL_OPTIONS[0]?.id ?? "";
+  }
+  return COSYVOICE_MODEL_OPTIONS[0]?.id ?? "";
+}
 
 function formatDuration(ms: number): string {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -58,16 +78,7 @@ interface BailianVoiceCloneProps {
 
 export function BailianVoiceClone({ onSuccess, onClose }: BailianVoiceCloneProps) {
   const [provider, setProvider] = useState<CloneProvider>("dashscope");
-  const [targetModel, setTargetModel] = useState(
-    () =>
-      (provider === "dashscope"
-        ? QWEN_VOICE_CLONE_TARGET_OPTIONS[0]?.id
-        : provider === "xiaomi_mimo"
-          ? "mimo-v2.5-tts-voiceclone"
-        : provider === "local_cosyvoice"
-          ? LOCAL_COSYVOICE_MODEL_OPTIONS[0]?.id
-          : COSYVOICE_MODEL_OPTIONS[0]?.id) ?? "",
-  );
+  const [targetModel, setTargetModel] = useState(() => defaultTargetModelForProvider("dashscope"));
   const [promptText, setPromptText] = useState(BAILIAN_CLONE_SAMPLE_TEXT);
   const [displayLabel, setDisplayLabel] = useState("我的复刻音色");
   const [prefix, setPrefix] = useState("");
@@ -110,15 +121,7 @@ export function BailianVoiceClone({ onSuccess, onClose }: BailianVoiceCloneProps
 
   const onProviderChange = (p: CloneProvider) => {
     setProvider(p);
-    if (p === "dashscope") {
-      setTargetModel(QWEN_VOICE_CLONE_TARGET_OPTIONS[0]?.id ?? "");
-    } else if (p === "xiaomi_mimo") {
-      setTargetModel("mimo-v2.5-tts-voiceclone");
-    } else if (p === "local_cosyvoice") {
-      setTargetModel(LOCAL_COSYVOICE_MODEL_OPTIONS[0]?.id ?? "");
-    } else {
-      setTargetModel(COSYVOICE_MODEL_OPTIONS[0]?.id ?? "");
-    }
+    setTargetModel(defaultTargetModelForProvider(p));
   };
 
   useEffect(() => {
@@ -348,7 +351,7 @@ export function BailianVoiceClone({ onSuccess, onClose }: BailianVoiceCloneProps
       <div className="space-y-4 p-4">
         <div>
           <p className="text-xs leading-relaxed text-slate-500">
-            请朗读下方固定文案并录音。本地 CosyVoice 会保存到本机模型目录；千问和小米 MiMo 复刻走 base64，内网可用；云端 CosyVoice 需本服务对公网可访问或配置{" "}
+            请朗读下方固定文案并录音。本地 CosyVoice 和 IndexTTS 会保存到本机模型目录；千问和小米 MiMo 复刻走 base64，内网可用；云端 CosyVoice 需本服务对公网可访问或配置{" "}
             <code className="rounded bg-slate-100 px-1 py-0.5 text-slate-700">OPENTALKING_PUBLIC_BASE_URL</code>。
           </p>
           <div className="mt-3 rounded-lg border border-cyan-300 bg-cyan-50 shadow-sm shadow-cyan-100/70">
@@ -388,6 +391,7 @@ export function BailianVoiceClone({ onSuccess, onClose }: BailianVoiceCloneProps
               <option value="dashscope">千问（DashScope 复刻）</option>
               <option value="xiaomi_mimo">小米 MiMo VoiceClone</option>
               <option value="local_cosyvoice">本地 CosyVoice</option>
+              <option value="indextts">Local IndexTTS</option>
               <option value="cosyvoice">云端 CosyVoice</option>
             </select>
           </label>
@@ -405,6 +409,8 @@ export function BailianVoiceClone({ onSuccess, onClose }: BailianVoiceCloneProps
                   ? XIAOMI_MIMO_MODEL_OPTIONS.filter((option) => option.id === "mimo-v2.5-tts-voiceclone")
                 : provider === "local_cosyvoice"
                   ? LOCAL_COSYVOICE_MODEL_OPTIONS
+                : provider === "indextts"
+                  ? LOCAL_INDEXTTS_MODEL_OPTIONS
                   : COSYVOICE_MODEL_OPTIONS
               ).map((o) => (
                 <option key={o.id} value={o.id}>

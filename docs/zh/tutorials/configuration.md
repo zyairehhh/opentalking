@@ -50,10 +50,11 @@ OpenTalking 从两个来源加载配置，按优先级从高到低：
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `OPENTALKING_TTS_DEFAULT_PROVIDER` | `edge` | 取值范围：`edge`、`dashscope`、`local_cosyvoice`、`cosyvoice`、`elevenlabs`。 |
-| `OPENTALKING_TTS_ENABLED_PROVIDERS` | _空_ | 前端和状态页可展示的 TTS provider 列表，例如 `edge,dashscope,local_cosyvoice`。 |
+| `OPENTALKING_TTS_DEFAULT_PROVIDER` | `edge` | 取值范围：`edge`、`dashscope`、`local_cosyvoice`、`indextts`、`cosyvoice`、`elevenlabs`、`openai_compatible`、`xiaomi_mimo`。 |
+| `OPENTALKING_TTS_ENABLED_PROVIDERS` | _空_ | 前端和状态页可展示的 TTS provider 列表，例如 `edge,dashscope,local_cosyvoice,indextts`。 |
 | `OPENTALKING_TTS_DASHSCOPE_MODEL` | _空_ | TTS 模型名；DashScope Qwen 实时 TTS 常用 `qwen3-tts-flash-realtime`。 |
 | `OPENTALKING_TTS_DASHSCOPE_API_KEY` | _空_ | TTS 模块鉴权 key。不会从 LLM 或 STT key 自动 fallback。 |
+| `OPENTALKING_TTS_INDEXTTS_BACKEND` | `local` | `indextts` 的部署后端：`local` 表示连接同机 IndexTTS HTTP sidecar，`omnirt` 表示连接 OmniRT 常驻服务。 |
 | `OPENTALKING_TTS_EDGE_VOICE` | `zh-CN-XiaoxiaoNeural` | Edge TTS 音色。 |
 | `OPENTALKING_TTS_DASHSCOPE_VOICE` | `Cherry` | DashScope Qwen realtime TTS 音色。 |
 | `OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URL` | _空_ | 本地 CosyVoice service 的 HTTP 地址，例如 `http://127.0.0.1:19090/synthesize`。 |

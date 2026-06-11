@@ -59,6 +59,7 @@ async def create_session(
     tts_provider: str | None = None,
     stt_provider: str | None = None,
     tts_voice: str | None = None,
+    tts_model: str | None = None,
     llm_system_prompt: str | None = None,
     custom_ref_image_path: str | None = None,
     wav2lip_postprocess_mode: str | None = None,
@@ -93,6 +94,8 @@ async def create_session(
         data["stt_provider"] = stt_provider
     if tts_voice:
         data["tts_voice"] = tts_voice
+    if tts_model:
+        data["tts_model"] = tts_model
     if llm_system_prompt:
         data["llm_system_prompt"] = llm_system_prompt
     if custom_ref_image_path:
@@ -131,6 +134,8 @@ async def create_session(
         init_task["stt_provider"] = stt_provider
     if tts_voice:
         init_task["tts_voice"] = tts_voice
+    if tts_model:
+        init_task["tts_model"] = tts_model
     if llm_system_prompt:
         init_task["llm_system_prompt"] = llm_system_prompt
     if custom_ref_image_path:

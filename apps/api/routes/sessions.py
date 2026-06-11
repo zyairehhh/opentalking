@@ -52,7 +52,9 @@ from opentalking.providers.stt.factory import normalize_stt_provider, stt_provid
 from opentalking.providers.tts.edge_zh_voices import normalize_optional_edge_voice
 from opentalking.providers.tts.providers import (
     BAILIAN_TTS_PROVIDERS,
+    INDEXTTS_TTS_PROVIDERS,
     LOCAL_TTS_PROVIDERS,
+    OMNIRT_TTS_PROVIDERS,
     XIAOMI_MIMO_TTS_PROVIDERS,
     normalize_tts_provider,
 )
@@ -79,6 +81,8 @@ def _effective_tts_provider(requested: str | None) -> str:
 
 _BAILIAN_TTS = BAILIAN_TTS_PROVIDERS
 _LOCAL_TTS = LOCAL_TTS_PROVIDERS
+_OMNIRT_TTS = OMNIRT_TTS_PROVIDERS
+_INDEXTTS_TTS = INDEXTTS_TTS_PROVIDERS
 _XIAOMI_MIMO_TTS = XIAOMI_MIMO_TTS_PROVIDERS
 _AUDIO_RENDERER_MODELS = frozenset(
     {"flashtalk", "flashhead", "fasterliveportrait", "quicktalk", "musetalk", "wav2lip"}
@@ -196,7 +200,7 @@ def _normalize_voice_for_speak(
             vn = str(voice).strip() if voice else None
             tm = str(tts_model).strip() if tts_model and str(tts_model).strip() else None
             return vn, eff, tm
-        if eff in _BAILIAN_TTS or eff in _LOCAL_TTS:
+        if eff in _BAILIAN_TTS or eff in _LOCAL_TTS or eff in _OMNIRT_TTS or eff in _INDEXTTS_TTS:
             vn = normalize_optional_qwen_voice(voice)
             tm = sanitize_qwen_model(tts_model)
             return vn, eff, tm
@@ -561,6 +565,7 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
     tts_provider_request = (body.tts_provider or "").strip() or persona_tts_provider
     stt_provider_request = (body.stt_provider or "").strip() or persona_stt_provider
     tts_voice_request = (body.tts_voice or "").strip() or persona_tts_voice
+    tts_model_request = (body.tts_model or "").strip() or (persona_defaults.tts_model if persona_defaults is not None else None)
 
     _, avatar_dir = _resolve_avatar_dir(settings, avatar_id)
     if not avatar_dir.is_dir():
@@ -608,6 +613,7 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
     tts_voice = tts_voice_request or None
+    tts_model = tts_model_request or None
 
     agent_user_id = _normalize_agent_user_id(body.user_id)
     if persona_defaults is not None and "memory_enabled" not in explicit_fields:
@@ -657,6 +663,7 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
         tts_provider=tts_provider,
         stt_provider=stt_provider,
         tts_voice=tts_voice,
+        tts_model=tts_model,
         llm_system_prompt=llm_system_prompt,
         custom_ref_image_path=custom_ref_image_path,
         wav2lip_postprocess_mode=body.wav2lip_postprocess_mode,

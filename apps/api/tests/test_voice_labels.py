@@ -218,6 +218,53 @@ def test_get_voices_includes_local_cosyvoice_system_voice_dirs(tmp_path, monkeyp
     ]
 
 
+@pytest.mark.parametrize("provider", ["indextts", "local_indextts", "omnirt_indextts"])
+def test_get_voices_includes_indextts_system_voice_dirs(provider: str, tmp_path, monkeypatch):
+    monkeypatch.setenv("OPENTALKING_LOCAL_AUDIO_MODEL_ROOT", str(tmp_path / "models"))
+    voice_dir = tmp_path / "models" / "voices" / "system" / "indextts-clear-cn"
+    voice_dir.mkdir(parents=True)
+    (voice_dir / "prompt.wav").write_bytes(b"RIFFtest")
+    (voice_dir / "prompt.txt").write_text("这是一段清晰自然的中文参考音色。", encoding="utf-8")
+    (voice_dir / "meta.json").write_text(
+        '{"display_label":"IndexTTS 清晰中文","target_model":"IndexTeam/IndexTTS-2"}',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(voices_routes, "init_voice_store", lambda: None)
+    monkeypatch.setattr(voices_routes, "list_voices", lambda provider=None: [])
+
+    app = FastAPI()
+    app.include_router(voices_routes.router)
+    response = TestClient(app).get(f"/voices?provider={provider}")
+
+    assert response.status_code == 200
+    assert {
+        "id": -1,
+        "user_id": 1,
+        "provider": "indextts",
+        "voice_id": "indextts-clear-cn",
+        "display_label": "IndexTTS 清晰中文",
+        "target_model": "IndexTeam/IndexTTS-2",
+        "source": "system",
+    } in response.json()["items"]
+
+
+def test_get_voices_all_includes_single_indextts_provider(tmp_path, monkeypatch):
+    monkeypatch.setenv("OPENTALKING_LOCAL_AUDIO_MODEL_ROOT", str(tmp_path / "models"))
+    voice_dir = tmp_path / "models" / "voices" / "system" / "indextts-warm-cn"
+    voice_dir.mkdir(parents=True)
+    (voice_dir / "prompt.wav").write_bytes(b"RIFFtest")
+    (voice_dir / "meta.json").write_text('{"display_label":"IndexTTS 温和中文"}', encoding="utf-8")
+    monkeypatch.setattr(voices_routes, "init_voice_store", lambda: None)
+    monkeypatch.setattr(voices_routes, "list_voices", lambda provider=None: [])
+
+    app = FastAPI()
+    app.include_router(voices_routes.router)
+    response = TestClient(app).get("/voices")
+
+    providers = [(item["provider"], item["voice_id"]) for item in response.json()["items"]]
+    assert providers.count(("indextts", "indextts-warm-cn")) == 1
+
+
 def test_get_voices_includes_xiaomi_mimo_system_voices(tmp_path, monkeypatch):
     monkeypatch.setenv("OPENTALKING_SQLITE_PATH", str(tmp_path / "voices.sqlite3"))
 
@@ -289,3 +336,102 @@ def test_xiaomi_mimo_clone_stores_reference_audio_data_uri(tmp_path, monkeypatch
         "display_label": "小米复刻",
         "target_model": "mimo-v2.5-tts-voiceclone",
     }
+
+
+def test_indextts_clone_stores_prompt_locally(tmp_path, monkeypatch):
+    inserted: dict[str, object] = {}
+
+    monkeypatch.setenv("OPENTALKING_LOCAL_AUDIO_MODEL_ROOT", str(tmp_path / "models"))
+    monkeypatch.setattr(
+        voices_routes.bailian_clone,
+        "convert_audio_to_wav_24k_mono",
+        lambda raw, suffix: _wav_bytes(),
+    )
+
+    def fake_insert_clone(**kwargs):
+        inserted.update(kwargs)
+        return 789
+
+    monkeypatch.setattr(voices_routes, "insert_clone", fake_insert_clone)
+    app = FastAPI()
+    app.include_router(voices_routes.router)
+
+    response = TestClient(app).post(
+        "/voices/clone",
+        data={
+            "provider": "indextts",
+            "target_model": "IndexTeam/IndexTTS-2",
+            "display_label": "IndexTTS 复刻",
+            "prompt_text": "你好，今天阳光很好，我正在用自然清晰的声音，记录这一段音色。",
+        },
+        files={"audio": ("sample.wav", _wav_bytes(), "audio/wav")},
+    )
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    voice_id = body["voice_id"]
+    voice_dir = tmp_path / "models" / "voices" / "clones" / voice_id
+    assert body["provider"] == "indextts"
+    assert body["target_model"] == "IndexTeam/IndexTTS-2"
+    assert body["display_label"] == "IndexTTS 复刻"
+    assert body["entry_id"] == 789
+    assert (voice_dir / "prompt.wav").is_file()
+    meta = (voice_dir / "meta.json").read_text(encoding="utf-8")
+    assert '"provider": "indextts"' in meta
+    assert '"providers"' not in meta
+    assert '"local_indextts"' not in meta
+    assert '"omnirt_indextts"' not in meta
+    assert inserted == {
+        "provider": "indextts",
+        "voice_id": voice_id,
+        "display_label": "IndexTTS 复刻",
+        "target_model": "IndexTeam/IndexTTS-2",
+    }
+
+
+def test_get_voices_includes_bundled_indextts_system_voices(tmp_path, monkeypatch):
+    monkeypatch.setenv("OPENTALKING_LOCAL_AUDIO_MODEL_ROOT", str(tmp_path / "models"))
+    monkeypatch.setattr(voices_routes, "init_voice_store", lambda: None)
+    monkeypatch.setattr(voices_routes, "list_voices", lambda provider=None: [])
+
+    app = FastAPI()
+    app.include_router(voices_routes.router)
+    response = TestClient(app).get("/voices?provider=indextts")
+
+    assert response.status_code == 200
+    items = response.json()["items"]
+    assert any(
+        item["provider"] == "indextts"
+        and item["voice_id"] == "indextts-xiaoxiao-cn"
+        and item["source"] == "system"
+        for item in items
+    )
+
+
+@pytest.mark.parametrize("provider", ["indextts", "local_indextts", "omnirt_indextts"])
+def test_get_voices_includes_indextts_clone_voice_dirs(provider: str, tmp_path, monkeypatch):
+    monkeypatch.setenv("OPENTALKING_LOCAL_AUDIO_MODEL_ROOT", str(tmp_path / "models"))
+    voice_dir = tmp_path / "models" / "voices" / "clones" / "indextts-cloned-cn"
+    voice_dir.mkdir(parents=True)
+    (voice_dir / "prompt.wav").write_bytes(b"RIFFtest")
+    (voice_dir / "meta.json").write_text(
+        '{"display_label":"IndexTTS 复刻中文","target_model":"IndexTeam/IndexTTS-2","providers":["local_indextts","omnirt_indextts"]}',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(voices_routes, "init_voice_store", lambda: None)
+    monkeypatch.setattr(voices_routes, "list_voices", lambda provider=None: [])
+
+    app = FastAPI()
+    app.include_router(voices_routes.router)
+    response = TestClient(app).get(f"/voices?provider={provider}")
+
+    assert response.status_code == 200
+    assert {
+        "id": -1,
+        "user_id": 1,
+        "provider": "indextts",
+        "voice_id": "indextts-cloned-cn",
+        "display_label": "IndexTTS 复刻中文",
+        "target_model": "IndexTeam/IndexTTS-2",
+        "source": "clone",
+    } in response.json()["items"]

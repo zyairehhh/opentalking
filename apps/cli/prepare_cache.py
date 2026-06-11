@@ -523,7 +523,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--hubert-device", default=None)
     parser.add_argument("--model-backend", default="auto", choices=["auto", "pth", "onnx"])
     parser.add_argument("--max-long-edge", type=int, default=900)
-    parser.add_argument("--max-template-seconds", type=float, default=1.0)
+    parser.add_argument(
+        "--max-template-seconds",
+        type=float,
+        default=None,
+        help="Limit QuickTalk video template duration. Defaults to the full source video.",
+    )
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--verify", action="store_true")
     return parser.parse_args(argv)

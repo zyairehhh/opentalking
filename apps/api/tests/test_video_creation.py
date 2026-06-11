@@ -63,7 +63,11 @@ class FakeVideoCreator:
         }
 
     async def create_from_tts_text(self, **kwargs: object) -> dict[str, object]:
-        self.calls.append(("tts", kwargs))
+        stored_kwargs = dict(kwargs)
+        config = stored_kwargs.get("indextts_config")
+        if isinstance(config, dict) and config.get("emo_audio_prompt"):
+            stored_kwargs["emotion_audio_bytes"] = Path(str(config["emo_audio_prompt"])).read_bytes()
+        self.calls.append(("tts", stored_kwargs))
         return {
             "job_id": "job-tts",
             "status": "done",
@@ -229,6 +233,129 @@ def test_video_creation_tts_text_passes_voice_model_without_audio_preview(tmp_pa
     assert response.json()["export_video"]["model"] == "quicktalk"
 
 
+
+def test_video_creation_tts_text_passes_indextts_config(tmp_path: Path, monkeypatch) -> None:
+    client, creators = _client(tmp_path, monkeypatch)
+    with client:
+        response = client.post(
+            "/video-creation/jobs",
+            data={
+                "model": "quicktalk",
+                "avatar_id": "anchor",
+                "audio_source": "tts_text",
+                "title": "IndexTTS emotion take",
+                "text": "你好，欢迎来到 OpenTalking。",
+                "tts_provider": "indextts",
+                "tts_model": "IndexTeam/IndexTTS-2",
+                "voice": "indextts-default",
+                "indextts_config": json.dumps(
+                    {
+                        "emotion_mode": "text",
+                        "emo_alpha": 0.6,
+                        "emo_text": "开心、自然、像直播介绍一样。",
+                        "use_random": False,
+                        "interval_silence_ms": 80,
+                        "streaming_mode": "segment",
+                        "max_text_tokens_per_segment": 80,
+                        "quick_streaming_tokens": 4,
+                    }
+                ),
+            },
+        )
+
+    assert response.status_code == 200, response.text
+    call_type, kwargs = creators[0].calls[0]
+    assert call_type == "tts"
+    assert kwargs["indextts_config"] == {
+        "emo_alpha": 0.6,
+        "use_emo_text": True,
+        "emo_text": "开心、自然、像直播介绍一样。",
+        "use_random": False,
+        "interval_silence_ms": 80,
+        "streaming_mode": "segment",
+        "max_text_tokens_per_segment": 80,
+        "quick_streaming_tokens": 4,
+    }
+
+
+@pytest.mark.parametrize("provider", ["indextts", "local_indextts", "omnirt_indextts"])
+@pytest.mark.parametrize("audio_source", ["tts_text", "voice_clone"])
+def test_video_creation_indextts_config_supports_local_and_omnirt_sources(
+    tmp_path: Path,
+    monkeypatch,
+    provider: str,
+    audio_source: str,
+) -> None:
+    client, creators = _client(tmp_path, monkeypatch)
+    with client:
+        response = client.post(
+            "/video-creation/jobs",
+            data={
+                "model": "quicktalk",
+                "avatar_id": "anchor",
+                "audio_source": audio_source,
+                "title": "IndexTTS dual backend take",
+                "text": "这是 IndexTTS 双后端的视频创作测试。",
+                "tts_provider": provider,
+                "tts_model": "IndexTeam/IndexTTS-2",
+                "voice": "indextts-default",
+                "indextts_config": json.dumps(
+                    {
+                        "emotion_mode": "vector",
+                        "emo_alpha": 0.8,
+                        "emo_vector": [0, 1, 0, 0, 0, 0, 0, 0],
+                        "use_random": True,
+                        "interval_silence_ms": 40,
+                        "streaming_mode": "segment",
+                        "max_text_tokens_per_segment": 80,
+                        "quick_streaming_tokens": 4,
+                    }
+                ),
+            },
+        )
+
+    assert response.status_code == 200, response.text
+    call_type, kwargs = creators[0].calls[0]
+    assert call_type == "tts"
+    assert kwargs["source"] == audio_source
+    assert kwargs["tts_provider"] == provider
+    assert kwargs["indextts_config"] == {
+        "emo_alpha": 0.8,
+        "use_random": True,
+        "emo_vector": [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        "interval_silence_ms": 40,
+        "streaming_mode": "segment",
+        "max_text_tokens_per_segment": 80,
+        "quick_streaming_tokens": 4,
+    }
+
+
+def test_video_creation_tts_text_passes_indextts_emotion_audio_file(tmp_path: Path, monkeypatch) -> None:
+    client, creators = _client(tmp_path, monkeypatch)
+    with client:
+        response = client.post(
+            "/video-creation/jobs",
+            data={
+                "model": "quicktalk",
+                "avatar_id": "anchor",
+                "audio_source": "tts_text",
+                "title": "IndexTTS emotion reference take",
+                "text": "你好，欢迎来到 OpenTalking。",
+                "tts_provider": "indextts",
+                "tts_model": "IndexTeam/IndexTTS-2",
+                "voice": "indextts-default",
+                "indextts_config": json.dumps({"emotion_mode": "audio", "emo_alpha": 0.85}),
+            },
+            files={"indextts_emotion_audio_file": ("emotion.wav", b"RIFFemotion", "audio/wav")},
+        )
+
+    assert response.status_code == 200, response.text
+    call_type, kwargs = creators[0].calls[0]
+    assert call_type == "tts"
+    assert kwargs["indextts_config"]["emo_alpha"] == 0.85
+    assert kwargs["emotion_audio_bytes"] == b"RIFFemotion"
+
+
 def test_video_creation_audio_upload_passes_fasterliveportrait_config(tmp_path: Path, monkeypatch) -> None:
     client, creators = _client(tmp_path, monkeypatch)
     with client:
@@ -300,6 +427,149 @@ def test_video_creation_tts_sources_pass_fasterliveportrait_config(
         "flag_pasteback": False,
     }
     assert response.json()["export_video"]["model"] == "fasterliveportrait"
+
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("audio_source", ["upload", "tts_text", "voice_clone"])
+async def test_video_creation_driving_sources_use_uploaded_source_video_template(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    audio_source: str,
+) -> None:
+    from opentalking import video_creation as video_creation_module
+    from opentalking.core.types.frames import AudioChunk
+
+    avatars = tmp_path / "avatars"
+    exports = tmp_path / "exports"
+    avatar = _write_avatar(avatars)
+    manifest = json.loads((avatar / "manifest.json").read_text(encoding="utf-8"))
+    manifest["model_type"] = "quicktalk"
+    source_dir = avatar / "source"
+    source_dir.mkdir()
+    source_video = source_dir / "source_video.mp4"
+    source_video.write_bytes(b"uploaded-video")
+    manifest["metadata"] = {"reference_mode": "video", "source_video": "source/source_video.mp4"}
+    (avatar / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    uploaded = tmp_path / "speech.wav"
+    uploaded.write_bytes(b"RIFFaudio")
+
+    class FakeTTS:
+        async def synthesize_stream(self, text: str, *, voice: str | None = None):
+            del text, voice
+            yield AudioChunk(data=np.arange(8, dtype=np.int16), sample_rate=16000, duration_ms=0.5)
+
+        async def aclose(self) -> None:
+            pass
+
+    class FakeWSClient:
+        def __init__(self, ws_url: str, *, extra_headers: dict[str, str] | None = None) -> None:
+            self.ws_url = ws_url
+            self.extra_headers = extra_headers or {}
+
+    class FakeOmniRTClient:
+        instances: list["FakeOmniRTClient"] = []
+
+        def __init__(self, ws_client: FakeWSClient) -> None:
+            self.ws_client = ws_client
+            self.init_kwargs: dict[str, object] | None = None
+            self.fps = 4
+            self.audio_chunk_samples = 4
+            FakeOmniRTClient.instances.append(self)
+
+        async def init_session(self, **kwargs: object) -> dict[str, object]:
+            self.init_kwargs = kwargs
+            return {"type": "init_ok"}
+
+        async def prewarm(self) -> dict[str, object]:
+            return {"type": "prewarm_skipped"}
+
+        async def generate(self, audio_pcm: np.ndarray) -> list[VideoFrameData]:
+            del audio_pcm
+            return [
+                VideoFrameData(
+                    data=np.zeros((48, 64, 3), dtype=np.uint8),
+                    width=64,
+                    height=48,
+                    timestamp_ms=0.0,
+                )
+            ]
+
+        async def close(self, send_close_msg: bool = True) -> None:
+            del send_close_msg
+
+    async def fake_mux(_ffmpeg_bin: str, _video_in: Path, _audio_in: Path, out_mp4: Path) -> None:
+        out_mp4.write_bytes(b"mp4")
+
+    async def fake_decode(_path: Path) -> np.ndarray:
+        return np.arange(8, dtype=np.int16)
+
+    def fake_create_video_export(root: Path, **kwargs: object) -> dict[str, object]:
+        return {
+            "id": f"export-{audio_source}",
+            "kind": "video_creation",
+            "title": kwargs["title"],
+            "duration_sec": kwargs["duration_sec"],
+            "size_bytes": len(kwargs["content"]),
+            "mime_type": "video/mp4",
+            "created_at": "2026-06-04T00:00:00Z",
+            "path": str(root / f"export-{audio_source}.mp4"),
+            "session_id": kwargs["session_id"],
+            "avatar_id": kwargs["avatar_id"],
+            "model": kwargs["model"],
+        }
+
+    monkeypatch.setattr(video_creation_module, "FlashTalkWSClient", FakeWSClient, raising=False)
+    monkeypatch.setattr(video_creation_module, "OmniRTAudio2VideoClient", FakeOmniRTClient, raising=False)
+    monkeypatch.setattr(video_creation_module, "build_tts_adapter", lambda **_kwargs: FakeTTS())
+    monkeypatch.setattr(video_creation_module, "decode_audio_file_to_pcm_i16", fake_decode)
+    monkeypatch.setattr(video_creation_module, "_write_video_only", lambda path, _frames, _fps: path.write_bytes(b"video"))
+    monkeypatch.setattr(video_creation_module, "_ffmpeg_mux", fake_mux)
+    monkeypatch.setattr(
+        video_creation_module,
+        "resolve_model_backend",
+        lambda model, _settings: SimpleNamespace(model=model, backend="omnirt", ws_url=""),
+    )
+    monkeypatch.setattr(video_creation_module, "create_video_export", fake_create_video_export)
+
+    service = VideoCreationService(
+        SimpleNamespace(
+            avatars_dir=str(avatars),
+            exports_dir=str(exports),
+            export_max_bytes=1024 * 1024,
+            ffmpeg_bin="ffmpeg",
+            omnirt_endpoint="http://127.0.0.1:9000",
+            omnirt_audio2video_path_template="/v1/audio2video/{model}",
+            omnirt_api_key="",
+            tts_sample_rate=16000,
+        )
+    )
+
+    if audio_source == "upload":
+        result = await service.create_from_audio_file(
+            model="quicktalk",
+            avatar_id="anchor",
+            upload_path=uploaded,
+            title="upload source video take",
+        )
+    else:
+        result = await service.create_from_tts_text(
+            model="quicktalk",
+            avatar_id="anchor",
+            text="这是用文本或复刻音色驱动上传视频源的测试。",
+            title=f"{audio_source} source video take",
+            tts_provider="edge",
+            tts_model=None,
+            voice="zh-CN-XiaoxiaoNeural",
+            source=audio_source,
+        )
+
+    client = FakeOmniRTClient.instances[0]
+    assert client.init_kwargs is not None
+    assert client.init_kwargs["template_mode"] == "video"
+    assert client.init_kwargs["template_video"] == source_video.resolve()
+    assert result["source"] == audio_source
+    assert result["export_video"]["model"] == "quicktalk"
 
 
 @pytest.mark.asyncio
@@ -748,6 +1018,204 @@ def test_video_creation_fasterliveportrait_uses_video_creation_defaults(monkeypa
     assert config["driving_multiplier"] == 1.0
     assert config["cfg_scale"] == 3.0
     assert config["flag_normalize_lip"] is False
+
+
+def test_quicktalk_init_session_prefers_uploaded_source_video_over_realtime_cache(
+    tmp_path: Path,
+) -> None:
+    from opentalking import video_creation as video_creation_module
+
+    avatar = _write_avatar(tmp_path, "video-avatar")
+    source_dir = avatar / "source"
+    source_dir.mkdir()
+    source_video = source_dir / "source_video.mp4"
+    source_video.write_bytes(b"uploaded-video")
+    quicktalk_dir = avatar / "quicktalk"
+    quicktalk_dir.mkdir()
+    realtime_template = quicktalk_dir / "template_320x242.mp4"
+    realtime_cache = quicktalk_dir / "face_cache_v3_320x242.npz"
+    realtime_template.write_bytes(b"short-realtime-template")
+    realtime_cache.write_bytes(b"realtime-cache")
+    manifest = json.loads((avatar / "manifest.json").read_text(encoding="utf-8"))
+    manifest["model_type"] = "quicktalk"
+    manifest["width"] = 320
+    manifest["height"] = 241
+    manifest["metadata"] = {
+        "custom_avatar": True,
+        "reference_mode": "video",
+        "source_image": "source/source.png",
+        "source_video": "source/source_video.mp4",
+    }
+    (avatar / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    kwargs = video_creation_module._quicktalk_init_session_kwargs(
+        SimpleNamespace(quicktalk_max_long_edge=900),
+        avatar,
+    )
+
+    assert kwargs["template_mode"] == "video"
+    assert kwargs["template_video"] == source_video.resolve()
+    assert "quicktalk_face_cache" not in kwargs
+    assert kwargs["video_config"] == {"width": 320, "height": 241, "fps": 25}
+
+
+def test_quicktalk_init_session_uses_uploaded_source_video_without_prepared_cache(
+    tmp_path: Path,
+) -> None:
+    from opentalking import video_creation as video_creation_module
+
+    avatar = _write_avatar(tmp_path, "video-avatar")
+    source_dir = avatar / "source"
+    source_dir.mkdir()
+    source_video = source_dir / "source_video.mp4"
+    source_video.write_bytes(b"uploaded-video")
+    manifest = json.loads((avatar / "manifest.json").read_text(encoding="utf-8"))
+    manifest["model_type"] = "quicktalk"
+    manifest["width"] = 320
+    manifest["height"] = 241
+    manifest["metadata"] = {
+        "custom_avatar": True,
+        "reference_mode": "video",
+        "source_image": "source/source.png",
+        "source_video": "source/source_video.mp4",
+    }
+    (avatar / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    kwargs = video_creation_module._quicktalk_init_session_kwargs(
+        SimpleNamespace(quicktalk_max_long_edge=900),
+        avatar,
+    )
+
+    assert kwargs["template_mode"] == "video"
+    assert kwargs["template_video"] == source_video.resolve()
+    assert "quicktalk_face_cache" not in kwargs
+    assert kwargs["video_config"] == {"width": 320, "height": 241, "fps": 25}
+
+
+@pytest.mark.asyncio
+async def test_video_creation_trims_generated_frames_to_audio_duration(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from opentalking import video_creation as video_creation_module
+
+    avatars = tmp_path / "avatars"
+    exports = tmp_path / "exports"
+    avatar = _write_avatar(avatars)
+    manifest = json.loads((avatar / "manifest.json").read_text(encoding="utf-8"))
+    manifest["model_type"] = "quicktalk"
+    manifest["width"] = 64
+    manifest["height"] = 48
+    source_dir = avatar / "source"
+    source_dir.mkdir()
+    source_video = source_dir / "source_video.mp4"
+    source_video.write_bytes(b"uploaded-video")
+    manifest["metadata"] = {"reference_mode": "video", "source_video": "source/source_video.mp4"}
+    (avatar / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    uploaded = tmp_path / "speech.wav"
+    uploaded.write_bytes(b"RIFFaudio")
+    written_frame_counts: list[int] = []
+
+    class FakeWSClient:
+        def __init__(self, ws_url: str, *, extra_headers: dict[str, str] | None = None) -> None:
+            self.ws_url = ws_url
+            self.extra_headers = extra_headers or {}
+
+    class FakeOmniRTClient:
+        instances: list["FakeOmniRTClient"] = []
+
+        def __init__(self, ws_client: FakeWSClient) -> None:
+            self.ws_client = ws_client
+            self.init_kwargs: dict[str, object] | None = None
+            self.fps = 4
+            self.audio_chunk_samples = 4
+            FakeOmniRTClient.instances.append(self)
+
+        async def init_session(self, **kwargs: object) -> dict[str, object]:
+            self.init_kwargs = kwargs
+            return {"type": "init_ok"}
+
+        async def prewarm(self) -> dict[str, object]:
+            return {"type": "prewarm_skipped"}
+
+        async def generate(self, audio_pcm: np.ndarray) -> list[VideoFrameData]:
+            del audio_pcm
+            return [
+                VideoFrameData(
+                    data=np.full((48, 64, 3), fill_value=index, dtype=np.uint8),
+                    width=64,
+                    height=48,
+                    timestamp_ms=float(index),
+                )
+                for index in range(3)
+            ]
+
+        async def close(self, send_close_msg: bool = True) -> None:
+            del send_close_msg
+
+    async def fake_decode(_path: Path) -> np.ndarray:
+        return np.arange(8, dtype=np.int16)
+
+    async def fake_mux(_ffmpeg_bin: str, _video_in: Path, _audio_in: Path, out_mp4: Path) -> None:
+        out_mp4.write_bytes(b"mp4")
+
+    def fake_write_video_only(path: Path, frames: list[np.ndarray], fps: float) -> None:
+        del fps
+        written_frame_counts.append(len(frames))
+        path.write_bytes(b"video")
+
+    def fake_create_video_export(root: Path, **kwargs: object) -> dict[str, object]:
+        return {
+            "id": "export-trimmed",
+            "kind": "video_creation",
+            "title": kwargs["title"],
+            "duration_sec": kwargs["duration_sec"],
+            "size_bytes": len(kwargs["content"]),
+            "mime_type": "video/mp4",
+            "created_at": "2026-06-04T00:00:00Z",
+            "path": str(root / "export-trimmed.mp4"),
+            "session_id": kwargs["session_id"],
+            "avatar_id": kwargs["avatar_id"],
+            "model": kwargs["model"],
+        }
+
+    monkeypatch.setattr(video_creation_module, "FlashTalkWSClient", FakeWSClient, raising=False)
+    monkeypatch.setattr(video_creation_module, "OmniRTAudio2VideoClient", FakeOmniRTClient, raising=False)
+    monkeypatch.setattr(video_creation_module, "decode_audio_file_to_pcm_i16", fake_decode)
+    monkeypatch.setattr(video_creation_module, "_write_video_only", fake_write_video_only)
+    monkeypatch.setattr(video_creation_module, "_ffmpeg_mux", fake_mux)
+    monkeypatch.setattr(
+        video_creation_module,
+        "resolve_model_backend",
+        lambda model, _settings: SimpleNamespace(model=model, backend="omnirt", ws_url=""),
+    )
+    monkeypatch.setattr(video_creation_module, "create_video_export", fake_create_video_export)
+
+    service = VideoCreationService(
+        SimpleNamespace(
+            avatars_dir=str(avatars),
+            exports_dir=str(exports),
+            export_max_bytes=1024 * 1024,
+            ffmpeg_bin="ffmpeg",
+            omnirt_endpoint="http://127.0.0.1:9000",
+            omnirt_audio2video_path_template="/v1/audio2video/{model}",
+            omnirt_api_key="",
+        )
+    )
+
+    result = await service.create_from_audio_file(
+        model="quicktalk",
+        avatar_id="anchor",
+        upload_path=uploaded,
+        title="Trimmed source video take",
+    )
+
+    client = FakeOmniRTClient.instances[0]
+    assert client.init_kwargs is not None
+    assert client.init_kwargs["template_mode"] == "video"
+    assert client.init_kwargs["template_video"] == source_video.resolve()
+    assert written_frame_counts == [1]
+    assert result["export_video"]["duration_sec"] == 0.0005
 
 
 def test_video_creation_rejects_oversized_uploaded_audio(tmp_path: Path, monkeypatch) -> None:

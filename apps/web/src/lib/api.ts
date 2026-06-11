@@ -98,6 +98,12 @@ export async function apiPostBlob(path: string, body?: unknown): Promise<Blob> {
   return r.blob();
 }
 
+export async function apiPostFormBlob(path: string, form: FormData, init?: RequestInit): Promise<Blob> {
+  const r = await fetch(buildApiUrl(path), { method: "POST", body: form, ...init });
+  await throwIfNotOk(r);
+  return r.blob();
+}
+
 /** multipart/form-data（语音识别 speak_audio / transcribe） */
 export async function apiPostForm<T>(path: string, form: FormData, init?: RequestInit): Promise<T> {
   const r = await fetch(buildApiUrl(path), { method: "POST", body: form, ...init });
@@ -160,6 +166,21 @@ export async function uploadExportVideo(input: UploadExportVideoInput): Promise<
 
 export type VideoCreationAudioSource = "upload" | "tts_text" | "voice_clone";
 
+export type IndexTTSEmotionMode = "voice" | "text" | "vector" | "audio";
+
+export type IndexTTSConfig = {
+  emotion_mode: IndexTTSEmotionMode;
+  emo_alpha?: number;
+  emo_audio_prompt?: string;
+  emo_text?: string;
+  emo_vector?: number[];
+  use_random?: boolean;
+  interval_silence_ms?: number;
+  streaming_mode?: "segment" | "token_window";
+  max_text_tokens_per_segment?: number;
+  quick_streaming_tokens?: number;
+};
+
 export type VideoCreationJobResponse = {
   job_id: string;
   status: "done" | "error" | string;
@@ -178,6 +199,8 @@ export type CreateVideoCreationJobInput = {
   ttsModel?: string;
   voice?: string;
   fasterliveportraitConfig?: Record<string, unknown>;
+  indexttsConfig?: IndexTTSConfig;
+  indexttsEmotionAudioFile?: File | null;
 };
 
 export async function createVideoCreationJob(input: CreateVideoCreationJobInput): Promise<VideoCreationJobResponse> {
@@ -195,6 +218,12 @@ export async function createVideoCreationJob(input: CreateVideoCreationJobInput)
   if (input.voice) form.set("voice", input.voice);
   if (input.fasterliveportraitConfig) {
     form.set("fasterliveportrait_config", JSON.stringify(input.fasterliveportraitConfig));
+  }
+  if (input.indexttsConfig) {
+    form.set("indextts_config", JSON.stringify(input.indexttsConfig));
+  }
+  if (input.indexttsEmotionAudioFile) {
+    form.set("indextts_emotion_audio_file", input.indexttsEmotionAudioFile);
   }
   return apiPostForm<VideoCreationJobResponse>("/video-creation/jobs", form);
 }
@@ -265,6 +294,7 @@ export type CreateSessionRequest = {
   tts_provider: string;
   stt_provider: string;
   tts_voice?: string;
+  tts_model?: string;
   wav2lip_postprocess_mode?: string;
   fasterliveportrait_config?: Record<string, unknown>;
   user_id: string;

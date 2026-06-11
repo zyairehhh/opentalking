@@ -71,7 +71,7 @@ WebUI 上传自定义图片时，OpenTalking 可以为 QuickTalk 生成静态模
 | `OPENTALKING_QUICKTALK_SCALE_H` | `1.6` | 人脸区域高度缩放 |
 | `OPENTALKING_QUICKTALK_SCALE_W` | `3.6` | 人脸区域宽度缩放 |
 | `OPENTALKING_QUICKTALK_RESOLUTION` | `256` | 模型输入分辨率 |
-| `OPENTALKING_QUICKTALK_MAX_TEMPLATE_SECONDS` | 空 | 限制模板视频读取时长 |
+| `OPENTALKING_QUICKTALK_MAX_TEMPLATE_SECONDS` | 空 | 默认使用完整模板视频；显式填秒数时限制模板视频读取时长 |
 | `OPENTALKING_QUICKTALK_NECK_FADE_START` | `0.72` | 颈部融合开始位置 |
 | `OPENTALKING_QUICKTALK_NECK_FADE_END` | `0.88` | 颈部融合结束位置 |
 

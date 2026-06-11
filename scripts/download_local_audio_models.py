@@ -13,6 +13,49 @@ DEFAULT_ROOT = Path(os.environ.get("OPENTALKING_LOCAL_AUDIO_MODEL_ROOT", "./mode
 MODELS: dict[str, tuple[str, str]] = {
     "sensevoice-small": ("modelscope", "iic/SenseVoiceSmall"),
     "fun-cosyvoice3-0.5b-2512": ("modelscope", "FunAudioLLM/Fun-CosyVoice3-0.5B-2512"),
+    "indextts2": ("modelscope", "IndexTeam/IndexTTS-2"),
+    "indextts2-w2v-bert": ("hf", "facebook/w2v-bert-2.0"),
+    "indextts2-maskgct": ("hf", "amphion/MaskGCT"),
+    "indextts2-campplus": ("hf", "funasr/campplus"),
+    "indextts2-bigvgan": ("hf", "nvidia/bigvgan_v2_22khz_80band_256x"),
+}
+
+HF_ALLOW_PATTERNS: dict[str, list[str]] = {
+    # IndexTTS2 only needs the feature extractor, model weights, and conformer shim.
+    "indextts2-w2v-bert": [
+        "README.md",
+        "config.json",
+        "configuration.json",
+        "conformer_shaw.pt",
+        "model.safetensors",
+        "preprocessor_config.json",
+    ],
+    # The sidecar maps hf_hub_download("amphion/MaskGCT", "semantic_codec/model.safetensors") here.
+    "indextts2-maskgct": [
+        "README.md",
+        "config.json",
+        "semantic_codec/model.safetensors",
+        "acoustic_codec/model.safetensors",
+        "acoustic_codec/model_1.safetensors",
+        "s2a_model/s2a_model_full/model.safetensors",
+        "t2s_model/model.safetensors",
+    ],
+    "indextts2-campplus": [
+        "README.md",
+        "config.yaml",
+        "configuration.json",
+        "campplus_cn_common.bin",
+        "quickstart.md",
+    ],
+    # Avoid training and optimizer checkpoints; IndexTTS2 inference loads only the generator and code files.
+    "indextts2-bigvgan": [
+        "*.py",
+        "LICENSE",
+        "README.md",
+        "config.json",
+        "bigvgan_generator.pt",
+        "alias_free_activation/**",
+    ],
 }
 
 
@@ -36,13 +79,15 @@ def _download_modelscope(model_id: str, target: Path) -> None:
         shutil.copytree(cached, target)
 
 
-def _download_hf(model_id: str, target: Path) -> None:
+def _download_hf(model_id: str, target: Path, *, model_key: str) -> None:
     from huggingface_hub import snapshot_download
 
     endpoint = os.environ.get("HF_ENDPOINT", "").strip()
     kwargs = {"repo_id": model_id, "local_dir": str(target)}
     if endpoint:
         kwargs["endpoint"] = endpoint
+    if patterns := HF_ALLOW_PATTERNS.get(model_key):
+        kwargs["allow_patterns"] = patterns
     snapshot_download(**kwargs)
 
 
@@ -76,7 +121,7 @@ def main() -> None:
             if source == "modelscope":
                 _download_modelscope(model_id, target)
             else:
-                _download_hf(model_id, target)
+                _download_hf(model_id, target, model_key=key)
             _git_lfs_pull_if_needed(target)
         except Exception as exc:
             message = f"{type(exc).__name__}: {exc}"

@@ -1,30 +1,30 @@
 # Text-to-Speech
 
-TTS converts LLM output into audio that drives the talking-head backend. Start with
-Edge TTS for the lightest local evaluation, then switch providers when you need
-production voices, cloning, or provider-specific voice quality.
+TTS converts LLM output into audio that drives the talking-head backend. Start with Edge TTS for the lightest evaluation, then switch providers when you need production voices, cloning, or higher quality.
 
-## Provider options
+## Provider Options
 
 | Provider | Best for | Required configuration |
-|----------|----------|------------------------|
+|----------|----------|----------|
 | `edge` | First run, CPU evaluation, no API key | `OPENTALKING_TTS_DEFAULT_PROVIDER=edge` |
-| `dashscope` | Chinese realtime TTS and voice cloning | `OPENTALKING_TTS_DASHSCOPE_API_KEY` plus DashScope TTS settings |
-| `local_cosyvoice` | Local Chinese TTS, built-in voices, and cloned voices | CosyVoice3 weights and a local service URL |
-| `cosyvoice` | Custom voice service or CosyVoice deployment | CosyVoice WebSocket URL/settings |
+| `dashscope` | Chinese realtime TTS and voice cloning | `OPENTALKING_TTS_DASHSCOPE_API_KEY` and DashScope TTS settings |
+| `local_cosyvoice` | Local Chinese TTS, built-in voices, and cloned voices | CosyVoice3 weights and local service URL |
+| `indextts` | IndexTTS2 controllable voice, emotion control, and cloned voices | `OPENTALKING_TTS_INDEXTTS_BACKEND=local` or `omnirt` |
+| `cosyvoice` | Custom CosyVoice service | CosyVoice WebSocket URL/settings |
 | `elevenlabs` | Hosted multilingual voices | ElevenLabs API key and voice id |
 
-## Edge TTS default
+`indextts` is the only provider name exposed by OpenTalking. Deployment can route it to a same-host HTTP sidecar through the `local` backend or to an OmniRT resident backend. This is similar to avatar video model backend selection: OpenTalking always selects `IndexTTS`, while operators switch the runtime backend through environment variables.
+
+## Edge TTS Default
 
 ```env title=".env"
 OPENTALKING_TTS_DEFAULT_PROVIDER=edge
 OPENTALKING_TTS_EDGE_VOICE=zh-CN-XiaoxiaoNeural
 ```
 
-Edge TTS still needs `ffmpeg` because OpenTalking decodes provider audio into PCM for
-the synthesis backend.
+Edge TTS still needs `ffmpeg` because OpenTalking decodes provider audio into PCM before feeding the avatar backend.
 
-## DashScope Qwen realtime TTS
+## DashScope Qwen Realtime TTS
 
 ```env title=".env"
 OPENTALKING_TTS_DEFAULT_PROVIDER=dashscope
@@ -33,11 +33,11 @@ OPENTALKING_TTS_DASHSCOPE_MODEL=qwen3-tts-flash-realtime
 OPENTALKING_QWEN_TTS_REUSE_WS=1
 ```
 
-DashScope TTS does not read `OPENTALKING_LLM_API_KEY` or `DASHSCOPE_API_KEY`. If LLM and TTS use the same actual key, write it explicitly to `OPENTALKING_TTS_DASHSCOPE_API_KEY` too.
+DashScope TTS does not read `OPENTALKING_LLM_API_KEY` or `DASHSCOPE_API_KEY`; even if you reuse the same actual key, write it explicitly to `OPENTALKING_TTS_DASHSCOPE_API_KEY`.
 
 ## Local CosyVoice3 0.5B
 
-The recommended shape is a standalone local CosyVoice service. OpenTalking's `local_cosyvoice` provider calls that service and consumes the returned PCM audio stream.
+The recommended shape is a standalone local CosyVoice service. OpenTalking uses the `local_cosyvoice` provider to consume its PCM stream over HTTP.
 
 ```env title=".env"
 OPENTALKING_TTS_DEFAULT_PROVIDER=local_cosyvoice
@@ -49,18 +49,22 @@ OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URL=http://127.0.0.1:19090/synthesize
 OPENTALKING_TTS_LOCAL_COSYVOICE_DEVICE=cuda:0
 ```
 
-Download the local audio weights:
+Download local audio weights:
 
-```bash title="terminal"
+```bash title="Terminal"
+export UV_DEFAULT_INDEX="${UV_DEFAULT_INDEX:-https://pypi.tuna.tsinghua.edu.cn/simple}"
+export UV_INDEX_URL="${UV_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}"
+export PIP_INDEX_URL="${PIP_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}"
+export UV_LINK_MODE=copy
 uv sync --extra dev --extra models --extra local-audio --extra local-cosyvoice-service --python 3.11
-python scripts/download_local_audio_models.py \
+.venv/bin/python scripts/download_local_audio_models.py \
   --root ./models/local-audio \
   --model fun-cosyvoice3-0.5b-2512
 ```
 
 Prepare the CosyVoice runtime:
 
-```bash title="terminal"
+```bash title="Terminal"
 mkdir -p ./models/local-audio/runtime
 git clone https://github.com/FunAudioLLM/CosyVoice.git ./models/local-audio/runtime/CosyVoice
 cd ./models/local-audio/runtime/CosyVoice
@@ -69,12 +73,199 @@ git submodule update --init --recursive
 
 Start the local TTS service:
 
-```bash title="terminal"
+```bash title="Terminal"
 OPENTALKING_TTS_LOCAL_COSYVOICE_PRELOAD=1 \
 python scripts/local_cosyvoice_service.py --host 127.0.0.1 --port 19090
 ```
 
-CosyVoice3 first-chunk latency still depends on model inference. OpenTalking splits service audio into `AudioChunk` streams and keeps driving QuickTalk / WebRTC. For the full local speech input, speech synthesis, and QuickTalk video chain, see [Local STT/TTS + QuickTalk](recipes/local-quicktalk-audio.md).
+For the full local speech input, speech synthesis, and QuickTalk video chain, see [Local STT/TTS + QuickTalk](recipes/local-quicktalk-audio.md).
+
+## IndexTTS Deployment (provider = indextts)
+
+OpenTalking always uses `provider=indextts` for IndexTTS. `OPENTALKING_TTS_INDEXTTS_BACKEND` only selects the runtime topology: `local` means a same-host HTTP sidecar, and `omnirt` means an OmniRT resident service. The frontend, API payloads, and cloned voice metadata do not split this into two providers.
+
+### Option A: Same-host HTTP sidecar (backend = local)
+
+The local backend runs IndexTTS2 in a separate same-host HTTP sidecar. The OpenTalking API process only consumes the sidecar's `audio/L16` PCM stream through `OPENTALKING_TTS_LOCAL_INDEXTTS_SERVICE_URL`. Do not install `index-tts` directly into the OpenTalking `.venv`; the upstream package pins `torch`, `transformers`, `protobuf`, and related dependencies and can break QuickTalk / STT dependencies in the main environment.
+
+Install the OpenTalking main environment and local-audio download dependencies first. Do not install `index-tts` into this environment:
+
+```bash title="Terminal"
+cd "$OPENTALKING_HOME"
+export UV_DEFAULT_INDEX="${UV_DEFAULT_INDEX:-https://pypi.tuna.tsinghua.edu.cn/simple}"
+export UV_INDEX_URL="${UV_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}"
+export PIP_INDEX_URL="${PIP_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}"
+export UV_LINK_MODE=copy
+export HF_ENDPOINT="${HF_ENDPOINT:-https://hf-mirror.com}"
+
+uv sync --extra dev --extra models --extra local-audio --python 3.11
+.venv/bin/python scripts/download_local_audio_models.py \
+  --root ./models/local-audio \
+  --model indextts2 \
+  --model indextts2-w2v-bert \
+  --model indextts2-maskgct \
+  --model indextts2-campplus \
+  --model indextts2-bigvgan
+```
+Large Hugging Face/Xet files may print `Read timed out` or `SSL record layer failure` while resuming. Continue if the command exits with status 0. If it fails, keep the partial model directory and rerun the same command; the downloader reuses the existing cache and resumes the remaining files.
+
+
+If the machine already has a compatible model root, you can skip the download and set `OPENTALKING_LOCAL_AUDIO_MODEL_ROOT` to that directory. The root must contain at least `IndexTeam__IndexTTS-2/config.yaml`, `facebook__w2v-bert-2.0`, `funasr__campplus`, and `nvidia__bigvgan_v2_22khz_80band_256x`. MaskGCT prefers `amphion__MaskGCT`; an existing `amphion__MaskGCT-ms` directory is also supported as long as it contains `semantic_codec/model.safetensors`.
+
+Create the IndexTTS sidecar runtime next. The upstream repository includes LFS example audio files and some environments may hit LFS quota, so skip smudge; use your own clear 3-15 second prompt audio instead.
+
+```bash title="Terminal"
+cd "$OPENTALKING_HOME"
+mkdir -p ./models/local-audio/runtime
+INDEXTTS_RUNTIME_REPO="${INDEXTTS_RUNTIME_REPO:-https://github.com/index-tts/index-tts.git}"
+if [ ! -d ./models/local-audio/runtime/index-tts/.git ]; then
+  for i in 1 2 3; do
+    GIT_LFS_SKIP_SMUDGE=1 git clone "$INDEXTTS_RUNTIME_REPO" ./models/local-audio/runtime/index-tts && break
+    rm -rf ./models/local-audio/runtime/index-tts
+    sleep 3
+  done
+fi
+test -d ./models/local-audio/runtime/index-tts/.git
+cd ./models/local-audio/runtime/index-tts
+export UV_DEFAULT_INDEX="${UV_DEFAULT_INDEX:-https://pypi.tuna.tsinghua.edu.cn/simple}"
+export UV_INDEX_URL="${UV_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}"
+export PIP_INDEX_URL="${PIP_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}"
+export UV_LINK_MODE=copy
+uv sync --python 3.11
+uv pip install fastapi "uvicorn[standard]" soundfile
+```
+
+IndexTTS needs a clear 3-15 second human voice prompt. Prepare a default system voice first, or upload a reference audio file in the WebUI voice clone flow.
+
+```bash title="Terminal"
+cd "$OPENTALKING_HOME"
+mkdir -p ./models/local-audio/voices/system/indextts-default
+cp /path/to/reference.wav ./models/local-audio/voices/system/indextts-default/prompt.wav
+cat > ./models/local-audio/voices/system/indextts-default/meta.json <<'JSON'
+{"voice_id":"indextts-default","display_label":"IndexTTS Default Voice","provider":"indextts","target_model":"IndexTeam/IndexTTS-2","source":"system"}
+JSON
+```
+
+Start the sidecar service:
+
+```bash title="Terminal"
+cd "$OPENTALKING_HOME"
+OPENTALKING_LOCAL_AUDIO_MODEL_ROOT=./models/local-audio \
+OPENTALKING_TTS_LOCAL_INDEXTTS_MODEL_DIR=./models/local-audio/IndexTeam__IndexTTS-2 \
+OPENTALKING_TTS_LOCAL_INDEXTTS_CFG_PATH=./models/local-audio/IndexTeam__IndexTTS-2/config.yaml \
+OPENTALKING_TTS_LOCAL_INDEXTTS_PROMPT_AUDIO=./models/local-audio/voices/system/indextts-default/prompt.wav \
+OPENTALKING_TTS_LOCAL_INDEXTTS_W2V_BERT_DIR=./models/local-audio/facebook__w2v-bert-2.0 \
+OPENTALKING_TTS_LOCAL_INDEXTTS_MASKGCT_DIR=./models/local-audio/amphion__MaskGCT \
+OPENTALKING_TTS_LOCAL_INDEXTTS_CAMPPLUS_DIR=./models/local-audio/funasr__campplus \
+OPENTALKING_TTS_LOCAL_INDEXTTS_BIGVGAN_DIR=./models/local-audio/nvidia__bigvgan_v2_22khz_80band_256x \
+OPENTALKING_TTS_LOCAL_INDEXTTS_DEVICE=cuda:0 \
+./models/local-audio/runtime/index-tts/.venv/bin/python scripts/local_indextts_service.py --host 127.0.0.1 --port 19092
+```
+
+Select `indextts` in OpenTalking `.env` and set the backend to `local`:
+
+```env title=".env"
+OPENTALKING_TTS_DEFAULT_PROVIDER=indextts
+OPENTALKING_TTS_ENABLED_PROVIDERS=edge,dashscope,local_cosyvoice,indextts
+OPENTALKING_TTS_INDEXTTS_BACKEND=local
+OPENTALKING_LOCAL_AUDIO_MODEL_ROOT=./models/local-audio
+OPENTALKING_TTS_LOCAL_INDEXTTS_MODEL=IndexTeam/IndexTTS-2
+OPENTALKING_TTS_LOCAL_INDEXTTS_MODEL_DIR=./models/local-audio/IndexTeam__IndexTTS-2
+OPENTALKING_TTS_LOCAL_INDEXTTS_CFG_PATH=./models/local-audio/IndexTeam__IndexTTS-2/config.yaml
+OPENTALKING_TTS_LOCAL_INDEXTTS_SERVICE_URL=http://127.0.0.1:19092/synthesize
+OPENTALKING_TTS_LOCAL_INDEXTTS_PROMPT_AUDIO=./models/local-audio/voices/system/indextts-default/prompt.wav
+OPENTALKING_TTS_LOCAL_INDEXTTS_W2V_BERT_DIR=./models/local-audio/facebook__w2v-bert-2.0
+OPENTALKING_TTS_LOCAL_INDEXTTS_MASKGCT_DIR=./models/local-audio/amphion__MaskGCT
+OPENTALKING_TTS_LOCAL_INDEXTTS_CAMPPLUS_DIR=./models/local-audio/funasr__campplus
+OPENTALKING_TTS_LOCAL_INDEXTTS_BIGVGAN_DIR=./models/local-audio/nvidia__bigvgan_v2_22khz_80band_256x
+OPENTALKING_TTS_LOCAL_INDEXTTS_DEVICE=auto
+```
+
+These `LOCAL_INDEXTTS_*_DIR` variables can be written in the OpenTalking `.env` or passed to the sidecar process. The OpenTalking main process needs the `SERVICE_URL` and voice prompt path; the sidecar needs the model directory, prompt, and local w2v / MaskGCT / campplus / BigVGAN asset directories so it does not reach Hugging Face at runtime.
+
+Start the OpenTalking API and WebUI. This example uses QuickTalk local as the video backend; use `--mock` instead if you only want to validate TTS preview first.
+
+```bash title="Terminal"
+cd "$OPENTALKING_HOME"
+bash scripts/start_unified.sh --backend local --model quicktalk --api-port 8000 --web-port 5173
+```
+
+If `8000` or `5173` is already occupied, choose free values for `--api-port` / `--web-port`; update the API port in the following `curl` commands accordingly.
+
+Verify the sidecar first, then verify the OpenTalking API:
+
+```bash title="Terminal"
+curl -fsS http://127.0.0.1:19092/health
+curl -fsS -X POST http://127.0.0.1:19092/synthesize \
+  -H 'content-type: application/json' \
+  -d '{"text":"Hello, this is a local IndexTTS service test.","sample_rate":16000}' \
+  --output /tmp/indextts-local.pcm
+
+.venv/bin/python - <<'PY'
+from pathlib import Path
+pcm = Path("/tmp/indextts-local.pcm").read_bytes()
+assert len(pcm) > 0 and len(pcm) % 2 == 0, len(pcm)
+print("pcm_bytes", len(pcm), "sample_rate", 16000, "channels", 1)
+PY
+
+curl -fsS -X POST http://127.0.0.1:8000/tts/preview \
+  --max-time 300 \
+  -H 'content-type: application/json' \
+  -d '{"text":"Hello, this is an OpenTalking IndexTTS test.","tts_provider":"indextts","tts_voice":"indextts-default","tts_model":"IndexTeam/IndexTTS-2"}' \
+  --output /tmp/opentalking-indextts-preview.wav
+
+.venv/bin/python - <<'PY'
+import wave
+with wave.open("/tmp/opentalking-indextts-preview.wav", "rb") as wf:
+    print("wav", wf.getframerate(), wf.getnchannels(), wf.getsampwidth(), wf.getnframes())
+PY
+```
+
+You can also inspect runtime status to confirm OpenTalking still exposes `indextts` while routing it to the local backend:
+
+```bash title="Terminal"
+curl -fsS http://127.0.0.1:8000/runtime/status | python3 -m json.tool
+```
+
+Expected: `tts_provider` is `indextts`, `tts_providers.indextts.backend` is `local`, `tts_providers.indextts.resolved_provider` is `local_indextts`, and `service_url_set=true`.
+
+
+### Option B: OmniRT resident service (backend = omnirt)
+
+The OmniRT backend keeps IndexTTS resident in a separate service. OpenTalking only consumes the HTTP `audio/L16` PCM stream. The OpenTalking provider is still `indextts`; only the backend changes to `omnirt`.
+
+Start the OmniRT text2audio service first:
+
+```bash title="Terminal"
+cd "$OMNIRT_HOME"
+OMNIRT_INDEXTTS_RUNTIME=1 \
+OMNIRT_INDEXTTS_MODEL_DIR=/data2/zhongyi/model/local-audio/IndexTeam__IndexTTS-2 \
+OMNIRT_INDEXTTS_CFG_PATH=/data2/zhongyi/model/local-audio/IndexTeam__IndexTTS-2/config.yaml \
+OMNIRT_INDEXTTS_PROMPT_AUDIO=/data2/zhongyi/model/local-audio/voices/system/indextts-default/prompt.wav \
+OMNIRT_INDEXTTS_DEVICE=cuda:0 \
+uv run omnirt serve-text2audio --host 127.0.0.1 --port 9012
+```
+
+Then select the provider and backend in OpenTalking `.env`:
+
+```env title=".env"
+OPENTALKING_TTS_DEFAULT_PROVIDER=indextts
+OPENTALKING_TTS_ENABLED_PROVIDERS=edge,dashscope,local_cosyvoice,indextts
+OPENTALKING_TTS_INDEXTTS_BACKEND=omnirt
+OPENTALKING_TTS_OMNIRT_INDEXTTS_SERVICE_URL=http://127.0.0.1:9012/v1/text2audio/indextts
+OPENTALKING_TTS_OMNIRT_INDEXTTS_MODEL=IndexTeam/IndexTTS-2
+OPENTALKING_TTS_OMNIRT_INDEXTTS_STREAMING=1
+OPENTALKING_TTS_OMNIRT_INDEXTTS_STREAMING_MODE=token_window
+OPENTALKING_TTS_OMNIRT_INDEXTTS_MAX_TEXT_TOKENS_PER_SEGMENT=80
+OPENTALKING_TTS_OMNIRT_INDEXTTS_QUICK_STREAMING_TOKENS=4
+OPENTALKING_TTS_OMNIRT_INDEXTTS_INTERVAL_SILENCE_MS=0
+OPENTALKING_TTS_OMNIRT_INDEXTTS_TOKEN_WINDOW_SIZE=40
+OPENTALKING_TTS_OMNIRT_INDEXTTS_TOKEN_WINDOW_HOP=96
+OPENTALKING_TTS_OMNIRT_INDEXTTS_TOKEN_WINDOW_CONTEXT=8
+OPENTALKING_TTS_OMNIRT_INDEXTTS_TOKEN_WINDOW_OVERLAP_MS=60
+```
+
+`token_window` is token-window streaming at the model-token level: OmniRT decodes and emits PCM once enough speech tokens are available, without waiting for the full text segment. It is not 20 ms waveform-level streaming; short-utterance first-byte latency still depends on IndexTTS GPT token generation and vocoder decoding.
 
 ## ElevenLabs
 
@@ -87,14 +278,13 @@ OPENTALKING_TTS_ELEVENLABS_MODEL_ID=eleven_flash_v2_5
 
 ## Verification
 
-Create a `mock` session first, then call `/speak` with fixed text. This verifies TTS
-without depending on a real talking-head model.
+Create a `mock` session first, then call `/speak`. This verifies TTS without depending on a real talking-head model.
 
-```bash title="terminal"
+```bash title="Terminal"
 SID=<session-id>
 curl -s -X POST "http://127.0.0.1:8000/sessions/$SID/speak" \
   -H 'content-type: application/json' \
-  -d '{"text":"Hello, this is an OpenTalking TTS test."}'
+  -d '{"text":"你好，这是一次 OpenTalking 语音合成测试。","tts_provider":"indextts","tts_voice":"indextts-default","tts_model":"IndexTeam/IndexTTS-2"}'
 ```
 
 ## Frontend Entry
@@ -106,4 +296,4 @@ cd "$OPENTALKING_HOME"
 bash scripts/quickstart/start_frontend.sh --api-port 8000 --web-port 5173 --host 0.0.0.0
 ```
 
-For a remote server, forward your local browser port to the server `5173`, then open `http://127.0.0.1:5173`.
+For a remote server, forward your local browser port to server `5173`, then open `http://127.0.0.1:5173`.

@@ -114,6 +114,11 @@ def test_parse_args_rejects_unsupported_model() -> None:
         parse_args(["--model", "flashhead", "--avatars-root", "examples/avatars"])
 
 
+def test_parse_args_uses_full_quicktalk_template_by_default() -> None:
+    args = parse_args(["--model", "quicktalk", "--avatars-root", "examples/avatars"])
+
+    assert args.max_template_seconds is None
+
 def test_prepare_quicktalk_asset_generates_template_and_cache_from_image(tmp_path: Path) -> None:
     avatar_dir = tmp_path / "avatars" / "anchor"
     source = avatar_dir / "reference.png"

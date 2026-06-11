@@ -9,16 +9,27 @@ WEB = Path("apps/web/src")
 def test_frontend_lists_local_tts_models_and_labels():
     constants = (WEB / "constants" / "ttsBailian.ts").read_text(encoding="utf-8")
     settings = (WEB / "components" / "SettingsPanel.tsx").read_text(encoding="utf-8")
+    workspace = (WEB / "components" / "VideoCreationWorkspace.tsx").read_text(encoding="utf-8")
+    clone = (WEB / "components" / "BailianVoiceClone.tsx").read_text(encoding="utf-8")
     app = (WEB / "App.tsx").read_text(encoding="utf-8")
 
     assert "local_cosyvoice" in constants
+    assert "indextts" in constants
     assert "Local CosyVoice" in settings
+    assert "IndexTTS" in settings
+    assert "Local IndexTTS" in settings
+    assert "OmniRT IndexTTS" not in settings
+    assert "Local IndexTTS" in workspace
+    assert "OmniRT IndexTTS" not in workspace
+    assert "Local IndexTTS" in clone
+    assert "OmniRT IndexTTS" not in clone
     assert "本地模型" in constants
     assert "local_cosyvoice" in app
+    assert "indextts" in app
     assert "FunAudioLLM/Fun-CosyVoice3-0.5B-2512" in constants
+    assert "IndexTeam/IndexTTS-2" in constants
     assert "iic/CosyVoice-300M" not in constants
     assert "local_qwen3_tts" not in settings
-
 
 def test_single_model_tts_provider_opens_voice_picker_first():
     settings = (WEB / "components" / "SettingsPanel.tsx").read_text(encoding="utf-8")
@@ -32,6 +43,8 @@ def test_single_model_tts_provider_opens_voice_picker_first():
     assert "选择音色 ·" in settings
     assert "const qwenModelColumnOptions" in settings
     assert "const providerOptions" in settings
+    assert "hasChildren: true," in settings[settings.index("const providerOptions"):settings.index("const selectedProvider")]
+    assert "hasChildren: p !== ttsProvider" not in settings
     assert settings.index("const qwenModelColumnOptions") < settings.index("const providerOptions")
 
 
@@ -58,6 +71,34 @@ def test_frontend_exposes_api_stt_provider_selection():
     assert "onAsrProviderChange" in settings
     assert "stt_provider" in chat_input
     assert "fd.append(\"stt_provider\"" in app
+
+
+def test_realtime_indextts_clone_voice_and_model_are_sent_to_session_and_speak():
+    app = (WEB / "App.tsx").read_text(encoding="utf-8")
+    chat_input = (WEB / "components" / "ChatInput.tsx").read_text(encoding="utf-8")
+
+    apply_block = app[app.index("const applyClonedVoice"):app.index("const bailianModels")]
+    assert "setTtsProvider(application.provider)" in apply_block
+    assert "setQwenModel(application.model)" in apply_block
+    assert "setQwenVoice(application.voice)" in apply_block
+
+    create_start = app.index("const created = await apiPost<CreateSessionResponse>")
+    create_block = app[create_start:app.index("wav2lip_postprocess_mode", create_start)]
+    assert "tts_provider: ttsProvider" in create_block
+    assert "tts_voice: isEdgeTts(ttsProvider)" in create_block
+    assert "qwenVoice" in create_block
+    assert "tts_model: ttsModelSelectable(ttsProvider) ? qwenModel : undefined" in create_block
+
+    speak_start = app.index("const payload = {")
+    speak_block = app[speak_start:app.index("void apiPost(`/sessions/${sessionId}/${endpoint}`", speak_start)]
+    assert "voice:" in speak_block
+    assert "qwenVoice" in speak_block
+    assert "tts_model: ttsModelSelectable(ttsProvider) ? qwenModel : undefined" in speak_block
+
+    stream_start = chat_input.index("ws.send(")
+    stream_meta = chat_input[stream_start:chat_input.index("stt_provider: sttProvider", stream_start)]
+    assert 'qwenVoice ?? ""' in stream_meta
+    assert 'tts_model: !isEdgeTts(ttsProvider) ? qwenModel ?? "" : ""' in stream_meta
 
 
 def test_voice_clone_recorder_has_error_copy_and_upload_fallback():
@@ -477,6 +518,34 @@ def test_video_creation_source_cards_hide_model_type():
     assert "{avatar.model_type} · {avatar.width}x{avatar.height}" not in workspace
 
 
+def test_video_creation_script_text_allows_longer_narration():
+    workspace = (WEB / "components" / "VideoCreationWorkspace.tsx").read_text(encoding="utf-8")
+
+    script_block = workspace[
+        workspace.index("<span>口播文本</span>"):
+        workspace.index("<div className=\"grid gap-3 md:grid-cols-3\">")
+    ]
+    assert "const VIDEO_CREATION_SCRIPT_MAX_CHARS = 1000" in workspace
+    assert "{text.trim().length}/{VIDEO_CREATION_SCRIPT_MAX_CHARS}" in script_block
+    assert "maxLength={VIDEO_CREATION_SCRIPT_MAX_CHARS}" in script_block
+
+
+def test_tts_preview_text_allows_longer_narration():
+    settings = (WEB / "components" / "SettingsPanel.tsx").read_text(encoding="utf-8")
+    zh = Path("docs/zh/usage/webui/voice-and-tts.md").read_text(encoding="utf-8")
+    en = Path("docs/en/usage/webui/voice-and-tts.md").read_text(encoding="utf-8")
+
+    preview_block = settings[
+        settings.index("<span className=\"mb-1.5 block text-xs text-slate-500\">音色试听</span>"):
+        settings.index("{ttsPreviewing ? \"试听中...\" : \"试听一句\"}")
+    ]
+    assert "const TTS_PREVIEW_TEXT_MAX_CHARS = 1000" in settings
+    assert "maxLength={TTS_PREVIEW_TEXT_MAX_CHARS}" in preview_block
+    assert "{ttsPreviewText.trim().length}/{TTS_PREVIEW_TEXT_MAX_CHARS}" in preview_block
+    assert "最多处理 1000 个字符" in zh
+    assert "accepts up to 1000 characters" in en
+
+
 def test_video_creation_workspace_previews_synthesized_voice_audio():
     workspace = (WEB / "components" / "VideoCreationWorkspace.tsx").read_text(encoding="utf-8")
 
@@ -489,6 +558,89 @@ def test_video_creation_workspace_previews_synthesized_voice_audio():
     preview_block = workspace[workspace.index("const handlePreviewTts"):workspace.index("const handleGenerate")]
     assert "audio.play()" in preview_block
     assert "audioSource !== \"upload\"" in workspace
+
+
+def test_video_creation_indextts_emotion_modes_default_to_full_strength():
+    workspace = (WEB / "components" / "VideoCreationWorkspace.tsx").read_text(encoding="utf-8")
+
+    assert "indexTTSEmotionModeConfig" in workspace
+    mode_helper = workspace[
+        workspace.index("export function indexTTSEmotionModeConfig"):
+        workspace.index("function numberOr", workspace.index("export function indexTTSEmotionModeConfig"))
+    ]
+    assert "mode === \"voice\"" in mode_helper
+    assert "emo_alpha: 0.6" in mode_helper
+    assert "emo_alpha: 1" in mode_helper
+    assert "indexTTSEmotionModeConfig(current, option.id)" in workspace
+
+
+def test_video_creation_indextts_default_follows_voice_timbre():
+    workspace = (WEB / "components" / "VideoCreationWorkspace.tsx").read_text(encoding="utf-8")
+
+    default_block = workspace[
+        workspace.index("const DEFAULT_INDEXTTS_CONFIG"):
+        workspace.index("function buildIndexTTSQualityConfig")
+    ]
+
+    assert 'emotion_mode: "voice"' in default_block
+    assert "emo_alpha: 0.6" in default_block
+    assert "emo_vector: [0, 0, 0, 0, 0, 0, 0, 0]" in default_block
+
+
+def test_video_creation_indextts_presets_use_explicit_vectors_for_clearer_emotion():
+    workspace = (WEB / "components" / "VideoCreationWorkspace.tsx").read_text(encoding="utf-8")
+
+    assert "config:" in workspace
+    assert "emo_vector: [1, 0, 0, 0, 0, 0, 0, 0]" in workspace
+    preset_helper = workspace[
+        workspace.index("export function indexTTSEmotionPresetConfig"):
+        workspace.index("export function indexTTSEmotionModeConfig")
+    ]
+    assert 'emotion_mode: "vector"' in preset_helper
+    assert "emo_vector: [...vector]" in workspace
+    assert "applyIndexTTSEmotionPreset(preset)" in workspace
+    assert "applyIndexTTSEmotionPreset(preset.index)" not in workspace
+
+
+def test_video_creation_indextts_presets_have_clear_active_state():
+    workspace = (WEB / "components" / "VideoCreationWorkspace.tsx").read_text(encoding="utf-8")
+
+    assert "IndexTTS 语音情绪" in workspace
+    assert "语气、韵律" in workspace
+    assert "表达增强" in workspace
+    assert "activeIndexTTSPresetLabel" in workspace
+    assert "setActiveIndexTTSPresetLabel(preset.label)" in workspace
+    assert "preset.label === activeIndexTTSPresetLabel" in workspace
+    assert "border-cyan-300 bg-cyan-50 text-cyan-700" in workspace
+    assert workspace.count("setActiveIndexTTSPresetLabel(null)") >= 5
+
+
+def test_video_creation_indextts_uses_quality_streaming_for_preview_and_generation():
+    api = (WEB / "lib" / "api.ts").read_text(encoding="utf-8")
+    preview = (WEB / "lib" / "ttsPreview.ts").read_text(encoding="utf-8")
+    workspace = (WEB / "components" / "VideoCreationWorkspace.tsx").read_text(encoding="utf-8")
+
+    assert "streaming_mode?: \"segment\" | \"token_window\"" in api
+    assert "max_text_tokens_per_segment?: number" in api
+    assert "quick_streaming_tokens?: number" in api
+    assert 'streaming_mode: "segment"' in workspace
+    assert "max_text_tokens_per_segment: 80" in workspace
+    assert "quick_streaming_tokens: 4" in workspace
+    assert "buildIndexTTSQualityConfig" in workspace
+    assert "payload.indextts_config = indexttsConfig" in preview
+
+
+def test_video_creation_workspace_allows_source_video_uploads():
+    workspace = (WEB / "components" / "VideoCreationWorkspace.tsx").read_text(encoding="utf-8")
+
+    assert "handleSourceAsset" in workspace
+    assert "sourceAssetBusy" in workspace
+    assert 'accept="image/*,video/*"' in workspace
+    assert 'form.set("video", file)' in workspace
+    assert "file.type.startsWith(\"video/\")" in workspace
+    assert "avatar.has_preview_video" in workspace
+    assert "preview-video" in workspace
+    assert "上传图片/视频" in workspace
 
 
 def test_asset_library_labels_video_creation_exports():
@@ -514,3 +666,59 @@ def test_avatar_grid_does_not_render_global_prewarm_failure_on_every_card():
     grid_block = stage[stage.index("{avatars.map((avatar) =>"):stage.index("</section>")]
     assert "资产准备失败" not in grid_block
     assert 'prewarmState === "failed"' in stage
+
+
+
+def test_tts_docs_include_indextts_omnirt_backend_env():
+    env = Path(".env.example").read_text(encoding="utf-8")
+    zh = Path("docs/zh/model-deployment/tts.md").read_text(encoding="utf-8")
+    en = Path("docs/en/model-deployment/tts.md").read_text(encoding="utf-8")
+
+    for doc in (env, zh, en):
+        assert "OPENTALKING_TTS_DEFAULT_PROVIDER=indextts" in doc
+        assert "OPENTALKING_TTS_INDEXTTS_BACKEND=omnirt" in doc
+        assert "OPENTALKING_TTS_OMNIRT_INDEXTTS_SERVICE_URL" in doc
+        assert "OPENTALKING_TTS_OMNIRT_INDEXTTS_STREAMING_MODE=token_window" in doc
+        assert "OPENTALKING_TTS_OMNIRT_INDEXTTS_TOKEN_WINDOW_SIZE=40" in doc
+    assert "token-window streaming" in en
+    assert "分窗流式" in zh
+
+
+def test_indextts_local_deployment_docs_start_sidecar_from_opentalking_root():
+    zh = Path("docs/zh/model-deployment/tts.md").read_text(encoding="utf-8")
+    en = Path("docs/en/model-deployment/tts.md").read_text(encoding="utf-8")
+
+    for doc in (zh, en):
+        assert "cd \"$OPENTALKING_HOME\"" in doc
+        assert (
+            "./models/local-audio/runtime/index-tts/.venv/bin/python "
+            "scripts/local_indextts_service.py --host 127.0.0.1 --port 19092"
+        ) in doc
+        assert "cd ./models/local-audio/runtime/index-tts" in doc
+        start_pos = doc.index("scripts/local_indextts_service.py --host 127.0.0.1 --port 19092")
+        runtime_cd_pos = doc.index("cd ./models/local-audio/runtime/index-tts")
+        assert runtime_cd_pos < start_pos
+
+
+def test_local_audio_docs_use_public_runtime_status_route():
+    zh = Path("docs/zh/model-deployment/recipes/local-quicktalk-audio.md").read_text(encoding="utf-8")
+    en = Path("docs/en/model-deployment/recipes/local-quicktalk-audio.md").read_text(encoding="utf-8")
+
+    assert "/api/runtime/status" not in zh + en
+    assert "http://127.0.0.1:8000/runtime/status" in zh
+    assert "http://127.0.0.1:8000/runtime/status" in en
+
+
+def test_indextts_local_deployment_docs_include_api_start_and_status_check():
+    zh = Path("docs/zh/model-deployment/tts.md").read_text(encoding="utf-8")
+    en = Path("docs/en/model-deployment/tts.md").read_text(encoding="utf-8")
+
+    for doc in (zh, en):
+        assert "bash scripts/start_unified.sh --backend local --model quicktalk --api-port 8000 --web-port 5173" in doc
+        assert "http://127.0.0.1:8000/runtime/status" in doc
+        assert "tts_providers.indextts.backend" in doc
+        assert "tts_providers.indextts.resolved_provider" in doc
+        assert "local_indextts" in doc
+        assert "--max-time 300" in doc
+    assert "断点续传" in zh
+    assert "resumes" in en

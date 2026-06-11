@@ -24,6 +24,10 @@ export const LOCAL_COSYVOICE_MODEL_OPTIONS: { id: string; label: string }[] = [
   { id: "FunAudioLLM/Fun-CosyVoice3-0.5B-2512", label: "CosyVoice3-0.5B-2512（本地模型）" },
 ];
 
+export const LOCAL_INDEXTTS_MODEL_OPTIONS: { id: string; label: string }[] = [
+  { id: "IndexTeam/IndexTTS-2", label: "IndexTTS-2（本地模型）" },
+];
+
 export const LOCAL_TTS_VOICE_OPTIONS: { id: string; label: string }[] = [];
 
 export const XIAOMI_MIMO_MODEL_OPTIONS: { id: string; label: string }[] = [
@@ -49,6 +53,7 @@ export type TtsProviderExtended =
   | "cosyvoice"
   | "sambert"
   | "local_cosyvoice"
+  | "indextts"
   | "xiaomi_mimo"
   | "openai_compatible";
 

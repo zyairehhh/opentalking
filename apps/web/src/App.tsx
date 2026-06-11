@@ -60,6 +60,7 @@ import {
   COSYVOICE_MODEL_OPTIONS,
   COSYVOICE_VOICE_OPTIONS,
   LOCAL_COSYVOICE_MODEL_OPTIONS,
+  LOCAL_INDEXTTS_MODEL_OPTIONS,
   LOCAL_TTS_VOICE_OPTIONS,
   SAMBERT_MODEL_OPTIONS,
   XIAOMI_MIMO_MODEL_OPTIONS,
@@ -91,6 +92,8 @@ function bailianModelOptions(provider: TtsProviderExtended): { id: string; label
       return SAMBERT_MODEL_OPTIONS;
     case "local_cosyvoice":
       return LOCAL_COSYVOICE_MODEL_OPTIONS;
+    case "indextts":
+      return LOCAL_INDEXTTS_MODEL_OPTIONS;
     case "xiaomi_mimo":
       return XIAOMI_MIMO_MODEL_OPTIONS;
     default:
@@ -107,6 +110,7 @@ function bailianVoiceOptions(provider: TtsProviderExtended): { id: string; label
     case "sambert":
       return [];
     case "local_cosyvoice":
+    case "indextts":
       return LOCAL_TTS_VOICE_OPTIONS;
     case "xiaomi_mimo":
       return XIAOMI_MIMO_VOICE_OPTIONS;
@@ -119,6 +123,7 @@ function catalogProviderKey(p: TtsProviderExtended): string | null {
   if (p === "dashscope") return "dashscope";
   if (p === "cosyvoice") return "cosyvoice";
   if (p === "local_cosyvoice") return "local_cosyvoice";
+  if (p === "indextts") return "indextts";
   if (p === "xiaomi_mimo") return "xiaomi_mimo";
   return null;
 }
@@ -454,10 +459,14 @@ function normalizeTtsProvider(value: string | null | undefined, fallback: TtsPro
     normalized === "cosyvoice" ||
     normalized === "sambert" ||
     normalized === "local_cosyvoice" ||
+    normalized === "indextts" ||
     normalized === "xiaomi_mimo" ||
     normalized === "openai_compatible"
   ) {
     return normalized;
+  }
+  if (normalized === "local_indextts" || normalized === "omnirt_indextts") {
+    return "indextts";
   }
   return fallback;
 }
@@ -995,7 +1004,8 @@ export default function App() {
   const [ttsProvider, setTtsProvider] = useState<TtsProviderExtended>(() => {
     try {
       const s = window.localStorage.getItem(TTS_PROVIDER_STORAGE_KEY)?.trim();
-      if (s === "edge" || s === "dashscope" || s === "cosyvoice" || s === "sambert" || s === "local_cosyvoice" || s === "xiaomi_mimo" || s === "openai_compatible") return s;
+      const normalized = normalizeTtsProvider(s, "edge");
+      if (normalized !== "edge" || s === "edge") return normalized;
     } catch {
       /* ignore */
     }
@@ -1911,6 +1921,7 @@ export default function App() {
           : !hasSelectableTtsVoice(ttsProvider)
             ? undefined
             : qwenVoice,
+        tts_model: ttsModelSelectable(ttsProvider) ? qwenModel : undefined,
         wav2lip_postprocess_mode:
           model === "wav2lip" && wav2lipPostprocessMode !== "auto" ? wav2lipPostprocessMode : undefined,
         fasterliveportrait_config:

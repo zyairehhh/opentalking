@@ -1,4 +1,9 @@
-export type VoiceCloneProvider = "dashscope" | "cosyvoice" | "local_cosyvoice" | "xiaomi_mimo";
+export type VoiceCloneProvider =
+  | "dashscope"
+  | "cosyvoice"
+  | "local_cosyvoice"
+  | "indextts"
+  | "xiaomi_mimo";
 
 export type VoiceCloneApplicationInput<
   Provider extends VoiceCloneProvider = VoiceCloneProvider,
