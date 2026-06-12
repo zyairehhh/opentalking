@@ -8,7 +8,7 @@
 
 | 平台 | 推荐用途 | 可用路径 | 说明 |
 | --- | --- | --- | --- |
-| macOS | 文档、前端、API、Mock 验证 | `mock` | 适合快速体验，不建议作为真实模型推理环境。 |
+| macOS | 文档、前端、API、Mock 验证；Apple Silicon 上实验性 QuickTalk local | `mock`、实验性 `quicktalk` local | 适合快速体验；完整步骤见 [QuickTalk Local 单机部署](../model-deployment/quicktalk/local.md)。需要稳定实时 FPS 时仍推荐 Linux GPU。 |
 | Linux + CUDA | 真实模型验证与部署 | `mock`、`quicktalk`、`wav2lip`、`musetalk`、`omnirt` | 主要推荐环境。 |
 | Linux + Ascend NPU | 私有化和 NPU 评估 | `mock`、部分 OmniRT / FlashTalk 路线 | 依赖 CANN、驱动和 `torch_npu` |
 
@@ -24,11 +24,32 @@ brew install python@3.11 node ffmpeg
 uv sync --extra dev --python 3.11
 ```
 
-### 不适合真实数字人模型
+### Apple Silicon 上的实验性 QuickTalk local
 
-QuickTalk、MuseTalk、FlashTalk 等模型主要面向 CUDA GPU 或专用推理服务。macOS 上即使可以安装
-部分 Python 依赖，也不建议作为真实视频生成路径；更推荐把模型部署到 Linux GPU 机器，
-再通过 OpenTalking 连接远端推理服务。
+Apple Silicon 可以用 `quicktalk-cpu` 安装 QuickTalk local：
+
+```bash
+uv sync --extra dev --extra models --extra quicktalk-cpu --python 3.11
+export OPENTALKING_QUICKTALK_BACKEND=local
+export OPENTALKING_QUICKTALK_ASSET_ROOT=/absolute/path/to/models/quicktalk
+bash scripts/start_unified.sh --backend local --model quicktalk
+```
+
+OpenTalking 会在 PyTorch MPS 可用时选择 `mps`，否则回退到 `cpu`。公开 QuickTalk 资产使用 `quicktalk.pth`；如果你提供 `256.onnx` 变体，macOS arm64 上 ONNX Runtime 可能暴露 `CoreMLExecutionProvider`，否则 ONNX 部分走 CPU。
+
+Apple Silicon 默认把本地 QuickTalk 的 `OPENTALKING_QUICKTALK_SLICE_LEN` 设为 `12`，给每个 generate chunk 留出足够音频预算；Linux CUDA 仍保持 `28`。如果 Mac 上长文本仍卡顿，保持 slice length 为 `12`，再降低实际输出帧率：
+
+```env
+OPENTALKING_QUICKTALK_SLICE_LEN=12
+OPENTALKING_QUICKTALK_FPS=14
+OPENTALKING_QUICKTALK_MAX_LONG_EDGE=720
+```
+
+这个路径适合本地集成验证和演示；如果你需要稳定 25fps 实时输出，仍建议 Linux + CUDA 或 OmniRT。
+
+### 其他真实数字人模型
+
+MuseTalk、FlashTalk、FasterLivePortrait 等生产路径主要面向 CUDA GPU、昇腾 NPU 或专用推理服务。更推荐把这些模型部署到 Linux GPU/NPU 机器，再通过 OpenTalking 连接远端推理服务。
 
 ### ffmpeg 安装
 
@@ -170,7 +191,7 @@ models/
 
 | 现象 | 可能原因 | 处理方式 |
 | --- | --- | --- |
-| `ffmpeg: not found` | 未安装 FFmpeg | macOS 使用 `brew install ffmpeg`；Ubuntu 使用 `apt install ffmpeg`。 |
+| `ffmpeg: not found` | 未安装 FFmpeg，或显式配置了不存在的二进制 | macOS 可保持 `OPENTALKING_FFMPEG_BIN=` 使用 `imageio-ffmpeg` 兜底，或 `brew install ffmpeg`；Ubuntu 使用 `apt install ffmpeg`。 |
 | `npm ci` 失败 | Node.js 版本过低或网络不稳定 | 使用 Node.js 18+，必要时切换 npm 镜像。 |
 | `torch.cuda.is_available()` 为 `False` | CUDA / driver / PyTorch 不匹配 | 检查 `nvidia-smi`、虚拟环境和 PyTorch 安装来源。 |
 | `npu-smi: command not found` | CANN 环境未加载 | 执行 `source /usr/local/Ascend/ascend-toolkit/set_env.sh`。 |

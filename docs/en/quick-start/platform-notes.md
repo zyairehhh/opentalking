@@ -6,7 +6,7 @@ This page explains the recommended ways to run OpenTalking on different system e
 
 | Platform | Recommended Use | Available Paths | Notes |
 | --- | --- | --- | --- |
-| macOS | Docs, frontend, API, Mock validation | `mock` | Good for quick trials, not recommended as a real model inference environment. |
+| macOS | Docs, frontend, API, Mock validation; experimental QuickTalk local on Apple Silicon | `mock`, experimental `quicktalk` local | Good for quick trials. See [QuickTalk Local Deployment](../model-deployment/quicktalk/local.md) for the full path. Real realtime rendering is still recommended on Linux GPU. |
 | Linux + CUDA | Real model validation and deployment | `mock`, `quicktalk`, `wav2lip`, `musetalk`, `omnirt` | Primary recommended environment. |
 | Linux + Ascend NPU | Private deployment and NPU evaluation | `mock`, selected OmniRT / FlashTalk paths | Requires CANN, driver, and `torch_npu`. |
 
@@ -21,9 +21,32 @@ brew install python@3.11 node ffmpeg
 uv sync --extra dev --python 3.11
 ```
 
-### Not suitable for real digital-human models
+### Experimental QuickTalk local on Apple Silicon
 
-QuickTalk, MuseTalk, FlashTalk, and similar models mainly target CUDA GPUs or dedicated inference services. Even if some Python dependencies can be installed on macOS, it is not recommended as the real video-generation path. Deploy models on a Linux GPU machine and connect OpenTalking to the remote inference service instead.
+QuickTalk local can be installed on Apple Silicon with `quicktalk-cpu`:
+
+```bash
+uv sync --extra dev --extra models --extra quicktalk-cpu --python 3.11
+export OPENTALKING_QUICKTALK_BACKEND=local
+export OPENTALKING_QUICKTALK_ASSET_ROOT=/absolute/path/to/models/quicktalk
+bash scripts/start_unified.sh --backend local --model quicktalk
+```
+
+OpenTalking selects `mps` when PyTorch MPS is available and falls back to `cpu`. The public QuickTalk asset uses `quicktalk.pth`; if you provide a `256.onnx` variant, ONNX Runtime may expose `CoreMLExecutionProvider` on macOS arm64, otherwise it runs the ONNX portion on CPU.
+
+Apple Silicon defaults local QuickTalk to `OPENTALKING_QUICKTALK_SLICE_LEN=12`, giving each generated chunk enough audio budget. Linux CUDA keeps `28`. If long text still stalls on Mac, keep the slice length at `12` and lower the generated output cadence:
+
+```env
+OPENTALKING_QUICKTALK_SLICE_LEN=12
+OPENTALKING_QUICKTALK_FPS=14
+OPENTALKING_QUICKTALK_MAX_LONG_EDGE=720
+```
+
+This path is useful for local integration tests and demos, but Linux + CUDA or OmniRT remains the recommended route when stable 25fps realtime output matters.
+
+### Other real digital-human models
+
+MuseTalk, FlashTalk, FasterLivePortrait, and similar production paths mainly target CUDA GPUs, Ascend NPUs, or dedicated inference services. Deploy those models on a Linux GPU/NPU machine and connect OpenTalking to the remote inference service.
 
 ### ffmpeg Installation
 
@@ -159,7 +182,7 @@ In offline environments, as long as the final directory structure and filenames 
 
 | Symptom | Likely Cause | Fix |
 | --- | --- | --- |
-| `ffmpeg: not found` | FFmpeg is missing | macOS: `brew install ffmpeg`; Ubuntu: `apt install ffmpeg`. |
+| `ffmpeg: not found` | FFmpeg is missing, or an invalid binary was explicitly configured | On macOS, keep `OPENTALKING_FFMPEG_BIN=` to use the `imageio-ffmpeg` fallback, or run `brew install ffmpeg`; Ubuntu: `apt install ffmpeg`. |
 | `npm ci` fails | Node.js too old or network unstable | Use Node.js 18+ and switch npm mirror if needed. |
 | `torch.cuda.is_available()` is `False` | CUDA / driver / PyTorch mismatch | Check `nvidia-smi`, active venv, and PyTorch install source. |
 | `npu-smi: command not found` | CANN environment not loaded | Run `source /usr/local/Ascend/ascend-toolkit/set_env.sh`. |
