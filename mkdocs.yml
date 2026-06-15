@@ -101,6 +101,7 @@ plugins:
             Reference Materials: 参考资料
             Reference Materials Overview: 资料概览
             Benchmark: Benchmark
+            v0.1.0 Release Verification: v0.1.0 发版验证
             Changelog: 更新日志
             FAQ: 常见问题
             AI Customer Support: AI 客服数字人
@@ -274,6 +275,7 @@ nav:
       - Reference Materials:
           - Reference Materials Overview: reference/index.md
           - Benchmark: reference/benchmark.md
+          - v0.1.0 Release Verification: reference/release-v0.1.0.md
           - Changelog: reference/changelog.md
       - FAQ:
           - FAQ: faq.md
@@ -352,6 +354,7 @@ nav:
   - Reference Materials:
       - Reference Materials Overview: reference/index.md
       - Benchmark: reference/benchmark.md
+      - v0.1.0 Release Verification: reference/release-v0.1.0.md
       - Changelog: reference/changelog.md
   - FAQ:
       - FAQ: faq.md
