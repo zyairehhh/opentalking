@@ -1,0 +1,1781 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/faq/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/faq/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/faq/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/about/community/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/about/community/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/about/community/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/api-reference/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/api-reference/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/api-reference/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/api-reference/avatars/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/api-reference/avatars/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/api-reference/avatars/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/api-reference/events/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/api-reference/events/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/api-reference/events/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/api-reference/health/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/api-reference/health/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/api-reference/health/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/api-reference/sessions/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/api-reference/sessions/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/api-reference/sessions/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/api-reference/tts-and-voices/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/api-reference/tts-and-voices/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/api-reference/tts-and-voices/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/benchmark/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/benchmark/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/benchmark/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/benchmark/metrics/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/benchmark/metrics/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/benchmark/metrics/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/benchmark/results/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/benchmark/results/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/benchmark/results/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/benchmark/runbook/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/benchmark/runbook/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/benchmark/runbook/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/cases/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/cases/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/cases/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/cases/customer-support/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/cases/customer-support/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/cases/customer-support/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/cases/private-deployment/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/cases/private-deployment/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/cases/private-deployment/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/cases/product-demo-live-sales/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/cases/product-demo-live-sales/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/cases/product-demo-live-sales/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/community/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/community/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/community/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/design/agent-memory-knowledge-rag/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/design/agent-memory-knowledge-rag/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/design/agent-memory-knowledge-rag/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/developer-guide/agent-knowledge-lightrag/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/developer-guide/agent-knowledge-lightrag/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/developer-guide/agent-knowledge-lightrag/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/developer-guide/architecture/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/developer-guide/architecture/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/developer-guide/architecture/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/developer-guide/contributing/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/developer-guide/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/developer-guide/contributing/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/developer-guide/developing/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/developer-guide/developing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/developer-guide/developing/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/developer-guide/model-adapter/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/developer-guide/model-adapter/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/developer-guide/model-adapter/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/docs/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/docs/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/docs/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/docs/architecture/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/docs/architecture/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/docs/architecture/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/docs/avatar-format/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/docs/avatar-format/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/docs/avatar-format/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/docs/developing/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/docs/developing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/docs/developing/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/docs/model-adapter/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/docs/model-adapter/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/docs/model-adapter/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/docs/render-pipeline/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/docs/render-pipeline/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/docs/render-pipeline/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/docs/api/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/docs/api/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/docs/api/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/docs/api/avatars/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/docs/api/avatars/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/docs/api/avatars/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/docs/api/events/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/docs/api/events/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/docs/api/events/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/docs/api/health/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/docs/api/health/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/docs/api/health/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/docs/api/sessions/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/docs/api/sessions/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/docs/api/sessions/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/docs/api/tts-and-voices/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/docs/api/tts-and-voices/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/docs/api/tts-and-voices/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/examples/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/examples/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/examples/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/examples/companion/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/examples/companion/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/examples/companion/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/examples/course-news-presenter/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/examples/course-news-presenter/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/examples/course-news-presenter/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/examples/customer-support/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/examples/customer-support/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/examples/customer-support/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/examples/private-assistant/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/examples/private-assistant/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/examples/private-assistant/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/examples/product-demo-live-sales/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/examples/product-demo-live-sales/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/examples/product-demo-live-sales/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/avatar/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/avatar/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/avatar/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/deployment/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/deployment/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/deployment/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/fasterliveportrait/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/fasterliveportrait/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/fasterliveportrait/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/flashhead/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/flashhead/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/flashhead/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/flashtalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/flashtalk/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/flashtalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/llm-stt/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/llm-stt/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/llm-stt/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/local-quicktalk-audio/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/local-quicktalk-audio/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/local-quicktalk-audio/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/mock/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/mock/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/mock/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/musetalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/musetalk/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/musetalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/quicktalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/quicktalk/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/quicktalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/support-matrix/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/support-matrix/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/support-matrix/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/tts/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/tts/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/tts/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/wav2lip-local/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/wav2lip-local/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/wav2lip-local/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/wav2lip/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/wav2lip/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/wav2lip/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/backends/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/backends/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/backends/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/backends/local/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/backends/local/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/backends/local/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/backends/omnirt/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/backends/omnirt/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/backends/omnirt/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/musetalk/local/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/musetalk/local/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/musetalk/local/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/musetalk/omnirt/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/musetalk/omnirt/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/musetalk/omnirt/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/quicktalk/apple-silicon/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/quicktalk/apple-silicon/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/quicktalk/apple-silicon/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/quicktalk/local/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/quicktalk/local/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/quicktalk/local/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/quicktalk/omnirt/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/quicktalk/omnirt/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/quicktalk/omnirt/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/recipes/local-quicktalk-audio/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/recipes/local-quicktalk-audio/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/recipes/local-quicktalk-audio/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/recipes/v100-fasterliveportrait-flashhead/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/recipes/v100-fasterliveportrait-flashhead/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/recipes/v100-fasterliveportrait-flashhead/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/talking-head/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/talking-head/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/talking-head/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/wav2lip/local/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/wav2lip/local/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/wav2lip/local/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/wav2lip/omnirt/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-deployment/wav2lip/omnirt/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-deployment/wav2lip/omnirt/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-support/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-support/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-support/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-support/local-audio-quicktalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-support/local-audio-quicktalk/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-support/local-audio-quicktalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-support/selection/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-support/selection/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-support/selection/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-support/models/fasterliveportrait/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-support/models/fasterliveportrait/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-support/models/fasterliveportrait/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-support/models/flashhead/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-support/models/flashhead/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-support/models/flashhead/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-support/models/flashtalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-support/models/flashtalk/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-support/models/flashtalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-support/models/musetalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-support/models/musetalk/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-support/models/musetalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-support/models/quicktalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-support/models/quicktalk/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-support/models/quicktalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-support/models/wav2lip/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-support/models/wav2lip/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-support/models/wav2lip/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-support/runtime-backends/direct-websocket/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-support/runtime-backends/direct-websocket/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-support/runtime-backends/direct-websocket/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-support/runtime-backends/local-adapter/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-support/runtime-backends/local-adapter/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-support/runtime-backends/local-adapter/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-support/runtime-backends/mock/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-support/runtime-backends/mock/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-support/runtime-backends/mock/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/model-support/runtime-backends/omnirt/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/model-support/runtime-backends/omnirt/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/model-support/runtime-backends/omnirt/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/quick-start/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/quick-start/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/quick-start/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/quick-start/docker-deployment/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/quick-start/docker-deployment/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/quick-start/docker-deployment/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/quick-start/platform-notes/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/quick-start/platform-notes/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/quick-start/platform-notes/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/quick-start/windows-deployment/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/quick-start/windows-deployment/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/quick-start/windows-deployment/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/reference/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/reference/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/reference/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/reference/avatar-format/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/reference/avatar-format/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/reference/avatar-format/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/reference/benchmark/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/reference/benchmark/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/reference/benchmark/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/reference/changelog/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/reference/changelog/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/reference/changelog/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/reference/configuration/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/reference/configuration/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/reference/configuration/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/reference/model-adapter/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/reference/model-adapter/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/reference/model-adapter/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/reference/release-v0.1.0/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/reference/release-v0.1.0/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/reference/release-v0.1.0/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/reference/api/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/reference/api/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/reference/api/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/reference/api/avatars/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/reference/api/avatars/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/reference/api/avatars/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/reference/api/events/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/reference/api/events/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/reference/api/events/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/reference/api/health/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/reference/api/health/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/reference/api/health/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/reference/api/sessions/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/reference/api/sessions/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/reference/api/sessions/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/reference/api/tts-and-voices/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/reference/api/tts-and-voices/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/reference/api/tts-and-voices/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/tutorials/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/configuration/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/configuration/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/tutorials/configuration/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/install-from-source/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/install-from-source/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/tutorials/install-from-source/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/install-with-docker/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/install-with-docker/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/tutorials/install-with-docker/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/installation/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/installation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/tutorials/installation/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/quickstart/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/quickstart/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/tutorials/quickstart/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/cases/custom-avatar/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/cases/custom-avatar/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/tutorials/cases/custom-avatar/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/cases/flashtalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/cases/flashtalk/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/tutorials/cases/flashtalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/cases/mock-e2e/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/cases/mock-e2e/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/tutorials/cases/mock-e2e/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/cases/wav2lip/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/tutorials/cases/wav2lip/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/tutorials/cases/wav2lip/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/usage/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/usage/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/usage/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/usage/cli-advanced/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/usage/cli-advanced/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/usage/cli-advanced/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/usage/cli/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/usage/cli/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/usage/cli/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/usage/persona-package/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/usage/persona-package/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/usage/persona-package/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/usage/webui/basic/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/usage/webui/basic/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/usage/webui/basic/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/usage/webui/custom-avatar/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/usage/webui/custom-avatar/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/usage/webui/custom-avatar/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/usage/webui/video-clone/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/usage/webui/video-clone/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/usage/webui/video-clone/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/usage/webui/video-creation/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/usage/webui/video-creation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/usage/webui/video-creation/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/usage/webui/voice-and-tts/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/usage/webui/voice-and-tts/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/usage/webui/voice-and-tts/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/avatar-format/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/avatar-format/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/user-guide/avatar-format/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/configuration/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/configuration/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/user-guide/configuration/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/deployment/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/deployment/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/user-guide/deployment/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/install-from-source/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/install-from-source/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/user-guide/install-from-source/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/install-with-docker/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/install-with-docker/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/user-guide/install-with-docker/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/installation/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/installation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/user-guide/installation/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/quickstart/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/quickstart/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/user-guide/quickstart/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/render-pipeline/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0/user-guide/render-pipeline/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0en/user-guide/render-pipeline/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/faq/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/faq/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0faq/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/about/community/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/about/community/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0about/community/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/api-reference/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/api-reference/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0api-reference/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/api-reference/avatars/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/api-reference/avatars/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0api-reference/avatars/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/api-reference/events/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/api-reference/events/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0api-reference/events/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/api-reference/health/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/api-reference/health/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0api-reference/health/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/api-reference/sessions/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/api-reference/sessions/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0api-reference/sessions/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/api-reference/tts-and-voices/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/api-reference/tts-and-voices/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0api-reference/tts-and-voices/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/benchmark/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/benchmark/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0benchmark/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/benchmark/metrics/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/benchmark/metrics/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0benchmark/metrics/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/benchmark/results/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/benchmark/results/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0benchmark/results/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/benchmark/runbook/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/benchmark/runbook/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0benchmark/runbook/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/cases/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/cases/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0cases/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/cases/customer-support/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/cases/customer-support/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0cases/customer-support/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/cases/private-deployment/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/cases/private-deployment/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0cases/private-deployment/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/cases/product-demo-live-sales/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/cases/product-demo-live-sales/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0cases/product-demo-live-sales/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/community/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/community/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0community/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/developer-guide/architecture/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/developer-guide/architecture/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0developer-guide/architecture/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/developer-guide/contributing/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/developer-guide/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0developer-guide/contributing/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/developer-guide/developing/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/developer-guide/developing/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0developer-guide/developing/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/developer-guide/model-adapter/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/developer-guide/model-adapter/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0developer-guide/model-adapter/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0docs/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/architecture/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/architecture/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0docs/architecture/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/avatar-format/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/avatar-format/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0docs/avatar-format/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/developing/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/developing/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0docs/developing/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/model-adapter/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/model-adapter/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0docs/model-adapter/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/render-pipeline/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/render-pipeline/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0docs/render-pipeline/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/api/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/api/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0docs/api/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/api/avatars/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/api/avatars/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0docs/api/avatars/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/api/events/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/api/events/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0docs/api/events/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/api/health/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/api/health/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0docs/api/health/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/api/sessions/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/api/sessions/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0docs/api/sessions/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/api/tts-and-voices/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/docs/api/tts-and-voices/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0docs/api/tts-and-voices/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/examples/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/examples/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0examples/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/examples/companion/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/examples/companion/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0examples/companion/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/examples/course-news-presenter/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/examples/course-news-presenter/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0examples/course-news-presenter/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/examples/customer-support/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/examples/customer-support/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0examples/customer-support/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/examples/private-assistant/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/examples/private-assistant/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0examples/private-assistant/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/examples/product-demo-live-sales/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/examples/product-demo-live-sales/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0examples/product-demo-live-sales/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/avatar/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/avatar/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/avatar/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/deployment/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/deployment/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/deployment/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/fasterliveportrait/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/fasterliveportrait/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/fasterliveportrait/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/flashhead/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/flashhead/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/flashhead/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/flashtalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/flashtalk/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/flashtalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/llm-stt/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/llm-stt/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/llm-stt/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/local-quicktalk-audio/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/local-quicktalk-audio/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/local-quicktalk-audio/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/mock/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/mock/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/mock/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/musetalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/musetalk/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/musetalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/quicktalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/quicktalk/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/quicktalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/support-matrix/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/support-matrix/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/support-matrix/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/tts/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/tts/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/tts/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/wav2lip-local/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/wav2lip-local/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/wav2lip-local/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/wav2lip/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/wav2lip/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/wav2lip/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/backends/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/backends/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/backends/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/backends/local/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/backends/local/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/backends/local/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/backends/omnirt/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/backends/omnirt/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/backends/omnirt/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/musetalk/local/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/musetalk/local/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/musetalk/local/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/musetalk/omnirt/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/musetalk/omnirt/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/musetalk/omnirt/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/quicktalk/apple-silicon/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/quicktalk/apple-silicon/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/quicktalk/apple-silicon/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/quicktalk/local/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/quicktalk/local/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/quicktalk/local/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/quicktalk/omnirt/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/quicktalk/omnirt/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/quicktalk/omnirt/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/recipes/local-quicktalk-audio/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/recipes/local-quicktalk-audio/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/recipes/local-quicktalk-audio/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/recipes/v100-fasterliveportrait-flashhead/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/recipes/v100-fasterliveportrait-flashhead/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/recipes/v100-fasterliveportrait-flashhead/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/talking-head/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/talking-head/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/talking-head/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/wav2lip/local/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/wav2lip/local/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/wav2lip/local/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/wav2lip/omnirt/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-deployment/wav2lip/omnirt/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-deployment/wav2lip/omnirt/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-support/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/local-audio-quicktalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/local-audio-quicktalk/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-support/local-audio-quicktalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/selection/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/selection/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-support/selection/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/models/fasterliveportrait/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/models/fasterliveportrait/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-support/models/fasterliveportrait/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/models/flashhead/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/models/flashhead/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-support/models/flashhead/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/models/flashtalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/models/flashtalk/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-support/models/flashtalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/models/musetalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/models/musetalk/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-support/models/musetalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/models/quicktalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/models/quicktalk/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-support/models/quicktalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/models/wav2lip/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/models/wav2lip/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-support/models/wav2lip/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/runtime-backends/direct-websocket/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/runtime-backends/direct-websocket/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-support/runtime-backends/direct-websocket/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/runtime-backends/local-adapter/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/runtime-backends/local-adapter/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-support/runtime-backends/local-adapter/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/runtime-backends/mock/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/runtime-backends/mock/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-support/runtime-backends/mock/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/runtime-backends/omnirt/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/model-support/runtime-backends/omnirt/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0model-support/runtime-backends/omnirt/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/quick-start/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/quick-start/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0quick-start/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/quick-start/docker-deployment/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/quick-start/docker-deployment/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0quick-start/docker-deployment/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/quick-start/platform-notes/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/quick-start/platform-notes/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0quick-start/platform-notes/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/quick-start/windows-deployment/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/quick-start/windows-deployment/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0quick-start/windows-deployment/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0reference/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/avatar-format/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/avatar-format/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0reference/avatar-format/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/benchmark/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/benchmark/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0reference/benchmark/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/changelog/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/changelog/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0reference/changelog/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/configuration/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/configuration/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0reference/configuration/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/model-adapter/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/model-adapter/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0reference/model-adapter/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/release-v0.1.0/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/release-v0.1.0/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0reference/release-v0.1.0/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/api/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/api/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0reference/api/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/api/avatars/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/api/avatars/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0reference/api/avatars/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/api/events/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/api/events/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0reference/api/events/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/api/health/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/api/health/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0reference/api/health/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/api/sessions/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/api/sessions/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0reference/api/sessions/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/api/tts-and-voices/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/reference/api/tts-and-voices/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0reference/api/tts-and-voices/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0tutorials/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/configuration/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/configuration/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0tutorials/configuration/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/install-from-source/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/install-from-source/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0tutorials/install-from-source/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/install-with-docker/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/install-with-docker/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0tutorials/install-with-docker/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/installation/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/installation/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0tutorials/installation/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/quickstart/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/quickstart/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0tutorials/quickstart/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/cases/custom-avatar/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/cases/custom-avatar/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0tutorials/cases/custom-avatar/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/cases/flashtalk/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/cases/flashtalk/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0tutorials/cases/flashtalk/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/cases/mock-e2e/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/cases/mock-e2e/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0tutorials/cases/mock-e2e/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/cases/wav2lip/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/tutorials/cases/wav2lip/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0tutorials/cases/wav2lip/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0usage/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/cli-advanced/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/cli-advanced/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0usage/cli-advanced/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/cli/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/cli/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0usage/cli/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/persona-package/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/persona-package/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0usage/persona-package/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/webui/basic/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/webui/basic/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0usage/webui/basic/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/webui/custom-avatar/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/webui/custom-avatar/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0usage/webui/custom-avatar/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/webui/video-clone/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/webui/video-clone/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0usage/webui/video-clone/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/webui/video-creation/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/webui/video-creation/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0usage/webui/video-creation/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/webui/voice-and-tts/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/usage/webui/voice-and-tts/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0usage/webui/voice-and-tts/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/avatar-format/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/avatar-format/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0user-guide/avatar-format/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/configuration/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/configuration/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0user-guide/configuration/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/deployment/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/deployment/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0user-guide/deployment/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/install-from-source/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/install-from-source/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0user-guide/install-from-source/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/install-with-docker/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/install-with-docker/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0user-guide/install-with-docker/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/installation/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/installation/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0user-guide/installation/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/quickstart/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/quickstart/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0user-guide/quickstart/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/render-pipeline/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/user-guide/render-pipeline/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0user-guide/render-pipeline/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/design/agent-memory-knowledge-rag/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/design/agent-memory-knowledge-rag/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0design/agent-memory-knowledge-rag/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/v0.1.0/en/developer-guide/agent-knowledge-lightrag/</loc>
+        <lastmod>2026-06-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/v0.1.0/en/developer-guide/agent-knowledge-lightrag/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/v0.1.0developer-guide/agent-knowledge-lightrag/"/>
+    </url>
+</urlset>
