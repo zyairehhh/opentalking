@@ -551,6 +551,8 @@
       
         
       
+        
+      
     
     
       
@@ -606,6 +608,27 @@
   
   <span class="md-ellipsis">
     平台说明
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="compshare-image/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    优云智算镜像快速体验
   </span>
   
 
@@ -2836,6 +2859,8 @@
       
         
       
+        
+      
     
     
       
@@ -2894,6 +2919,27 @@
   
   <span class="md-ellipsis">
     平台说明
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="compshare-image/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    优云智算镜像快速体验
   </span>
   
 
@@ -5093,6 +5139,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      快速体验：优云智算镜像
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#mock" class="md-nav__link">
     <span class="md-ellipsis">
       Mock 模式
@@ -5249,7 +5304,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+  <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
       验证
     </span>
@@ -5259,7 +5314,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       检查浏览器播放
     </span>
@@ -5282,7 +5337,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
+  <a href="#_5" class="md-nav__link">
     <span class="md-ellipsis">
       常见问题
     </span>
@@ -5292,7 +5347,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
+  <a href="#_6" class="md-nav__link">
     <span class="md-ellipsis">
       端口被占用
     </span>
@@ -5310,7 +5365,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_6" class="md-nav__link">
+  <a href="#_7" class="md-nav__link">
     <span class="md-ellipsis">
       浏览器没有声音
     </span>
@@ -5351,7 +5406,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_7" class="md-nav__link">
+  <a href="#_8" class="md-nav__link">
     <span class="md-ellipsis">
       下一步
     </span>
@@ -5361,7 +5416,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_8" class="md-nav__link">
+  <a href="#_9" class="md-nav__link">
     <span class="md-ellipsis">
       不同平台环境
     </span>
@@ -5388,7 +5443,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_9" class="md-nav__link">
+  <a href="#_10" class="md-nav__link">
     <span class="md-ellipsis">
       模型支持
     </span>
@@ -5397,7 +5452,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_10" class="md-nav__link">
+  <a href="#_11" class="md-nav__link">
     <span class="md-ellipsis">
       命令行工具
     </span>
@@ -5441,6 +5496,14 @@
 <li>QuickTalk 模式：使用本地 CUDA GPU 和 QuickTalk 权重，验证真实数字人渲染链路。</li>
 <li>WebUI 验证：在页面中选择 Avatar、模型、音色，发起一次实时对话。</li>
 </ul>
+<h2 id="_2">快速体验：优云智算镜像<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>如果你希望跳过本地依赖安装和模型下载，可以直接部署我们发布的优云智算社区镜像：</p>
+<ul>
+<li>镜像地址：<a href="https://www.compshare.cn/images/TdDwmKZUZebI">https://www.compshare.cn/images/TdDwmKZUZebI</a></li>
+<li>对外端口：<code>5173</code></li>
+<li>操作文档：<a href="compshare-image/">优云智算镜像快速体验</a></li>
+</ul>
+<p>镜像已预置 OpenTalking、OmniRT、QuickTalk 运行环境和模型文件，适合先体验真实数字人链路；需要从源码安装或做二次开发时，再继续阅读本页后续步骤。</p>
 <h2 id="mock">Mock 模式<a class="headerlink" href="#mock" title="Permanent link">&para;</a></h2>
 <p>Mock 模式是第一次使用 OpenTalking 的推荐路径。它不需要 GPU、模型权重或外部推理服务，
 但仍然会跑通 API、LLM、TTS、字幕事件、WebRTC 和浏览器播放链路。</p>
@@ -5679,8 +5742,8 @@ QuickTalk 权重，适合消费级 CUDA GPU 单机验证。</p>
 如果视频画面随音频生成，说明本地 QuickTalk 渲染链路已经可用。</p>
 <p><img alt="QuickTalk 会话效果示例" src="../assets/images/companion/04_webrtc_connected.jpeg" /></p>
 <p><em>选择 QuickTalk 相关 Avatar 和模型后，确认生成状态、连接状态和播放画面正常。</em></p>
-<h2 id="_2">验证<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<h3 id="_3">检查浏览器播放<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<h2 id="_3">验证<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="_4">检查浏览器播放<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
 <p>在 WebUI 中确认：</p>
 <ul>
 <li>页面能够连接到 API。</li>
@@ -5693,8 +5756,8 @@ QuickTalk 权重，适合消费级 CUDA GPU 单机验证。</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>nvidia-smi
 </span></code></pre></div>
 <p>如果 WebUI 能看到动态视频结果，说明 QuickTalk 本地链路已经跑通。</p>
-<h2 id="_4">常见问题<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
-<h3 id="_5">端口被占用<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<h2 id="_5">常见问题<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="_6">端口被占用<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
 <p>换一组端口启动：</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>bash<span class="w"> </span>scripts/start_unified.sh<span class="w"> </span>--mock<span class="w"> </span>--api-port<span class="w"> </span><span class="m">8210</span><span class="w"> </span>--web-port<span class="w"> </span><span class="m">5280</span>
 </span></code></pre></div>
@@ -5705,7 +5768,7 @@ QuickTalk 权重，适合消费级 CUDA GPU 单机验证。</p>
 <p>检查 <code>.env</code> 中的 <code>OPENTALKING_LLM_BASE_URL</code>、<code>OPENTALKING_LLM_API_KEY</code> 和
 <code>OPENTALKING_LLM_MODEL</code>。如果使用 DashScope compatible mode，确认 URL 包含
 <code>/compatible-mode/v1</code>。</p>
-<h3 id="_6">浏览器没有声音<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<h3 id="_7">浏览器没有声音<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
 <p>确认浏览器没有静音，页面获得了播放权限，并检查 TTS provider 是否可用。使用 <code>edge</code> TTS 时一般不需要
 API key；使用 DashScope TTS 时需要配置 <code>OPENTALKING_TTS_DASHSCOPE_API_KEY</code>。</p>
 <h3 id="webrtc">WebRTC 没有画面<a class="headerlink" href="#webrtc" title="Permanent link">&para;</a></h3>
@@ -5717,17 +5780,17 @@ API key；使用 DashScope TTS 时需要配置 <code>OPENTALKING_TTS_DASHSCOPE_A
 <h3 id="gpu">GPU / 权重路径错误<a class="headerlink" href="#gpu" title="Permanent link">&para;</a></h3>
 <p>确认 <code>OPENTALKING_TORCH_DEVICE</code>、<code>OPENTALKING_QUICKTALK_ASSET_ROOT</code> 和 <code>models/quicktalk</code>
 目录结构一致。如果使用离线权重，只要最终文件路径与本页示例一致即可。</p>
-<h2 id="_7">下一步<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
-<h3 id="_8">不同平台环境<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<h2 id="_8">下一步<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<h3 id="_9">不同平台环境<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
 <p>查看 <a href="platform-notes/">平台说明</a>，了解 Linux、macOS、Windows、国内镜像源和常见系统依赖。</p>
 <h3 id="docker">Docker 部署<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h3>
 <p>查看 <a href="docker-deployment/">Docker 部署</a>，了解容器化运行方式。</p>
 <h3 id="webui">WebUI 使用<a class="headerlink" href="#webui" title="Permanent link">&para;</a></h3>
 <p>查看 <a href="../usage/webui/basic/">WebUI 使用</a>，继续了解页面布局、Avatar、音色和会话操作。</p>
-<h3 id="_9">模型支持<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<h3 id="_10">模型支持<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
 <p>查看 <a href="../model-support/">模型支持</a>，选择 Wav2Lip、QuickTalk、MuseTalk、FlashTalk、
 OmniRT 或后续推理后端。</p>
-<h3 id="_10">命令行工具<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<h3 id="_11">命令行工具<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
 <p>查看 <a href="../usage/cli/">命令行工具</a>，了解 <code>opentalking-unified</code>、启动脚本和常用参数。</p>
 
 
