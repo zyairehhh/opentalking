@@ -306,7 +306,8 @@ def _legacy_env_mapping() -> dict[str, str]:
 
 
 def _load_legacy_dotenv_source() -> dict[str, Any]:
-    values = dotenv_values(".env")
+    env_file = os.environ.get("OPENTALKING_ENV_FILE", ".env")
+    values = dotenv_values(env_file)
     mapping = _legacy_env_mapping()
     return {
         target: value
@@ -323,7 +324,7 @@ def _load_legacy_env_source() -> dict[str, Any]:
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="OPENTALKING_",
-        env_file=".env",
+        env_file=os.environ.get("OPENTALKING_ENV_FILE", ".env"),
         extra="ignore",
     )
 

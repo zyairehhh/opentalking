@@ -166,13 +166,13 @@ function mergeVoiceCatalogIntoOptions(
   const extras: VoiceOpt[] = [];
   for (const r of catalog) {
     if (r.provider !== cp) continue;
-    if (activeModel && r.target_model && r.target_model !== activeModel) continue;
+    if (activeModel && r.target_model && r.target_model !== activeModel && !(ttsProvider === "local_cosyvoice" && r.source === "system")) continue;
     if (cloneOnly && r.source !== "clone") continue;
     if (staticIds.has(r.voice_id)) continue;
     extras.push({
       id: r.voice_id,
       label: r.source === "clone" ? `复刻 · ${r.display_label}` : r.display_label,
-      targetModel: r.target_model,
+      targetModel: ttsProvider === "local_cosyvoice" && r.source === "system" ? undefined : r.target_model,
     });
     staticIds.add(r.voice_id);
   }
@@ -983,7 +983,6 @@ export default function App() {
     return false;
   });
   const [voiceCloneOpen, setVoiceCloneOpen] = useState(false);
-  const [promptSaving, setPromptSaving] = useState(false);
   const [referenceSaving, setReferenceSaving] = useState(false);
   const [panelTab, setPanelTab] = useState<PanelTab>("chat");
   const [sessionPanelCollapsed, setSessionPanelCollapsed] = useState(() => {
@@ -1621,7 +1620,7 @@ export default function App() {
     }
   }, [sessionPanelCollapsed]);
 
-  const [llmSystemPrompt, setLlmSystemPrompt] = useState<string>(() => {
+  const [llmSystemPrompt] = useState<string>(() => {
     try {
       return window.localStorage.getItem(LLM_SYSTEM_PROMPT_STORAGE_KEY) ?? "";
     } catch {
@@ -2081,9 +2080,19 @@ export default function App() {
         clearSubtitleState();
         if (msgId) {
           if (finalText) {
-            setMessages((prev) =>
-              prev.map((m) => (m.id === msgId ? { ...m, text: finalText } : m)),
-            );
+            setMessages((prev) => {
+              let updated = false;
+              const next = prev.map((m) => {
+                if (m.id !== msgId) return m;
+                updated = true;
+                return { ...m, text: finalText };
+              });
+              if (updated) return next;
+              return [
+                ...prev,
+                { id: makeId(), role: "assistant", text: finalText, timestamp: Date.now() },
+              ];
+            });
           } else {
             setMessages((prev) => prev.filter((m) => m.id !== msgId));
           }
@@ -2311,27 +2320,6 @@ export default function App() {
     }
   }, [connection, fasterliveportraitConfig, model, notify]);
 
-  const handleSavePrompt = useCallback(async () => {
-    setPromptSaving(true);
-    try {
-      await apiPost("/sessions/customize/prompt", {
-        avatar_id: avatarId,
-        llm_system_prompt: llmSystemPrompt,
-      });
-      const sid = sessionIdRef.current;
-      if (sid) await releaseSession(sid);
-      resetLiveState(true);
-      setConnection("idle");
-      notify("System Prompt 已保存，页面即将刷新并在新会话生效。", "success");
-      window.setTimeout(() => window.location.reload(), 900);
-    } catch (e) {
-      console.warn("save prompt failed", e);
-      notify("保存 Prompt 失败，请查看后端日志。", "error");
-    } finally {
-      setPromptSaving(false);
-    }
-  }, [avatarId, llmSystemPrompt, notify, releaseSession, resetLiveState]);
-
   const handleCreateCustomAvatar = useCallback(async (file: File, name: string) => {
     const trimmedName = name.trim();
     if (!trimmedName) {
@@ -2442,7 +2430,8 @@ export default function App() {
       notify("正在播放试听音频。", "success");
     } catch (e) {
       console.warn("tts preview failed", e);
-      notify("试听失败，请确认音色、模型和后端密钥配置。", "error");
+      const detail = apiErrorMessage(e, "请确认音色、模型和后端密钥配置。");
+      notify(`试听失败：${detail}`, "error");
     } finally {
       setTtsPreviewing(false);
     }
@@ -3012,10 +3001,6 @@ export default function App() {
             onMemoryLibrarySelect={setMemoryLibraryId}
             onMemoryEnabledChange={setMemoryEnabled}
             onManageMemoryLibraries={() => void handleManageMemoryLibraries()}
-            llmSystemPrompt={llmSystemPrompt}
-            onLlmSystemPromptChange={setLlmSystemPrompt}
-            onSavePrompt={() => void handleSavePrompt()}
-            promptSaving={promptSaving}
             onOpenVoiceClone={() => setVoiceCloneOpen(true)}
           />
         </div>
@@ -3169,15 +3154,11 @@ export default function App() {
                     modelBadge={selectedModelBadge}
                     queueInfo={queueInfo}
                     prewarmState={selectedPrewarmState}
-                    agentConfig={agentConfig}
-                    onAgentConfigChange={setAgentConfig}
-                    knowledgeBases={knowledgeBaseSummaries}
                     personas={personas}
                     selectedPersonaId={selectedPersonaId}
                     personaImporting={personaImporting}
                     onPersonaChange={handlePersonaChange}
                     onPersonaImport={handlePersonaImport}
-                    memorySummary={memorySummary}
                     onAvatarChange={handleAvatarChange}
                     onStart={() => void handleStart()}
                     onCustomAvatarCreate={(file, name) => void handleCreateCustomAvatar(file, name)}

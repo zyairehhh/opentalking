@@ -106,10 +106,10 @@ def _read_text_file(path: Path) -> str:
     raw = path.read_bytes()
     for encoding in ("utf-8", "utf-8-sig", "gb18030"):
         try:
-            return raw.decode(encoding)
+            return raw.decode(encoding).replace("\r\n", "\n").replace("\r", "\n")
         except UnicodeDecodeError:
             continue
-    return raw.decode("utf-8", errors="replace")
+    return raw.decode("utf-8", errors="replace").replace("\r\n", "\n").replace("\r", "\n")
 
 
 def _has_enough_text(text: str) -> bool:

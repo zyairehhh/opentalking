@@ -7,7 +7,6 @@ import base64
 import io
 import json
 import logging
-import os
 import re
 import shutil
 import uuid
@@ -21,6 +20,15 @@ from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, Reque
 from fastapi.responses import FileResponse, JSONResponse
 
 from opentalking.providers.tts.dashscope_qwen import clone as bailian_clone
+from opentalking.providers.tts.voice_assets import (
+    INDEXTTS_PROVIDER,
+    INDEXTTS_PROVIDERS,
+    LOCAL_COSYVOICE_PROVIDER,
+    bundled_system_voice_root,
+    iter_voice_assets,
+    local_audio_model_root,
+    system_voice_roots,
+)
 from opentalking.voice.store import delete_entry, get_entry, init_voice_store, insert_clone, list_voices
 
 log = logging.getLogger(__name__)
@@ -31,13 +39,16 @@ _UPLOAD_DIR = Path("data/voice_uploads")
 LOCAL_COSYVOICE_SAMPLE_TEXT = "你好，今天阳光很好，我正在用自然清晰的声音，记录这一段音色。"
 LOCAL_COSYVOICE_MIN_ACTIVE_SEC = 2.0
 LOCAL_COSYVOICE_MIN_RMS_DBFS = -45.0
+_TECHNICAL_VOICE_LABEL_PREFIX_RE = re.compile(
+    r"^\s*(?:IndexTTS|CosyVoice|local_cosyvoice|local_indextts|local|本地)\s*[-_/：:·|]?\s*",
+    re.IGNORECASE,
+)
+_TECHNICAL_VOICE_LABEL_SUFFIX_RE = re.compile(
+    r"\s*[（(]\s*(?:IndexTTS|CosyVoice|local_cosyvoice|local_indextts|local|本地)\s*[)）]\s*$",
+    re.IGNORECASE,
+)
 LOCAL_COSYVOICE_MIN_RECOGNIZED_CHARS = 4
 LOCAL_COSYVOICE_MIN_TEXT_OVERLAP = 0.45
-INDEXTTS_PROVIDER = "indextts"
-INDEXTTS_LEGACY_PROVIDERS = {"local_indextts", "omnirt_indextts"}
-INDEXTTS_PROVIDERS = {INDEXTTS_PROVIDER, *INDEXTTS_LEGACY_PROVIDERS}
-
-
 class VoiceItem(TypedDict):
     id: int
     user_id: int
@@ -61,16 +72,7 @@ def _upload_dir() -> Path:
 
 
 def _local_audio_model_root() -> Path:
-    raw = os.environ.get("OPENTALKING_LOCAL_AUDIO_MODEL_ROOT", "").strip()
-    try:
-        from opentalking.core.config import get_settings
-
-        raw = raw or (get_settings().local_audio_model_root or "").strip()
-    except Exception:
-        pass
-    if not raw:
-        raw = "./models/local-audio"
-    return Path(raw).expanduser().resolve()
+    return local_audio_model_root()
 
 
 def _safe_local_voice_id(label: str) -> str:
@@ -259,47 +261,38 @@ def _remove_local_cosyvoice_prompt(voice_id: str) -> None:
 
 
 def _bundled_system_voice_root() -> Path:
-    return Path(__file__).resolve().parents[3] / "opentalking" / "assets" / "voices" / "system"
+    return bundled_system_voice_root()
 
 
 def _system_voice_roots() -> list[Path]:
-    roots = [_local_audio_model_root() / "voices" / "system", _bundled_system_voice_root()]
-    out: list[Path] = []
-    seen: set[Path] = set()
-    for root in roots:
-        try:
-            resolved = root.resolve()
-        except OSError:
-            resolved = root
-        if resolved in seen:
-            continue
-        seen.add(resolved)
-        out.append(root)
-    return out
+    return system_voice_roots(_local_audio_model_root())
+
+
+def _public_voice_label(label: str, *, fallback: str) -> str:
+    cleaned = _TECHNICAL_VOICE_LABEL_PREFIX_RE.sub("", label or "").strip()
+    cleaned = _TECHNICAL_VOICE_LABEL_SUFFIX_RE.sub("", cleaned).strip()
+    return cleaned or fallback
 
 
 def _local_cosyvoice_system_voice_items() -> list[VoiceItem]:
-    root = _local_audio_model_root() / "voices" / "system"
-    if not root.is_dir():
-        return []
     items: list[VoiceItem] = []
-    for idx, voice_dir in enumerate(sorted(p for p in root.iterdir() if p.is_dir()), start=1):
-        voice_id = voice_dir.name
+    for idx, asset in enumerate(
+        iter_voice_assets(
+            provider=LOCAL_COSYVOICE_PROVIDER,
+            sources=("system",),
+            model_root=_local_audio_model_root(),
+            require_prompt_text=True,
+        ),
+        start=1,
+    ):
+        voice_id = asset.voice_id
         if not re.fullmatch(r"[A-Za-z0-9_-]{3,80}", voice_id):
             continue
-        if not (voice_dir / "prompt.wav").is_file() or not (voice_dir / "prompt.txt").is_file():
-            continue
         label = voice_id
-        target_model: str | None = None
-        meta_path = voice_dir / "meta.json"
-        if meta_path.is_file():
-            try:
-                meta = json.loads(meta_path.read_text(encoding="utf-8"))
-                label = str(meta.get("display_label") or meta.get("label") or label)
-                tm = str(meta.get("target_model") or "").strip()
-                target_model = tm or None
-            except Exception:
-                pass
+        meta = asset.meta
+        label = _public_voice_label(str(meta.get("display_label") or meta.get("label") or label), fallback=voice_id)
+        tm = str(meta.get("target_model") or "").strip()
+        target_model = tm or None
         items.append(
             {
                 "id": -idx,
@@ -314,48 +307,26 @@ def _local_cosyvoice_system_voice_items() -> list[VoiceItem]:
     return items
 
 
-def _local_indextts_voice_items(provider: str, source: str) -> list[VoiceItem]:
-    if provider not in INDEXTTS_PROVIDERS or source not in {"system", "clones"}:
+def _local_indextts_voice_items(source: str) -> list[VoiceItem]:
+    if source not in {"system", "clones"}:
         return []
-    roots = [_local_audio_model_root() / "voices" / source]
-    if source == "system":
-        roots = _system_voice_roots()
     items: list[VoiceItem] = []
-    idx = 0
-    for root in roots:
-        if not root.is_dir():
-            continue
-        for voice_dir in sorted(p for p in root.iterdir() if p.is_dir()):
-            idx += 1
-            voice_id = voice_dir.name
-            if not re.fullmatch(r"[A-Za-z0-9_-]{3,80}", voice_id):
+    seen: set[str] = set()
+    for provider in sorted(INDEXTTS_PROVIDERS):
+        for asset in iter_voice_assets(provider=provider, sources=(source,), model_root=_local_audio_model_root()):
+            voice_id = asset.voice_id
+            if voice_id in seen or not re.fullmatch(r"[A-Za-z0-9_-]{3,80}", voice_id):
                 continue
-            if not (voice_dir / "prompt.wav").is_file():
-                continue
-            label = voice_id
-            target_model: str | None = None
-            meta_path = voice_dir / "meta.json"
-            if meta_path.is_file():
-                try:
-                    meta = json.loads(meta_path.read_text(encoding="utf-8"))
-                    raw_providers = meta.get("providers")
-                    requested = {provider, *INDEXTTS_LEGACY_PROVIDERS} if provider == INDEXTTS_PROVIDER else {provider}
-                    if isinstance(raw_providers, list):
-                        allowed = {str(item).strip().lower() for item in raw_providers}
-                        if allowed and not (allowed & requested):
-                            continue
-                    elif str(meta.get("provider") or "").strip().lower() not in {"", *INDEXTTS_PROVIDERS}:
-                        continue
-                    label = str(meta.get("display_label") or meta.get("label") or label)
-                    tm = str(meta.get("target_model") or "").strip()
-                    target_model = tm or None
-                except Exception:
-                    pass
+            seen.add(voice_id)
+            meta = asset.meta
+            label = _public_voice_label(str(meta.get("display_label") or meta.get("label") or voice_id), fallback=voice_id)
+            tm = str(meta.get("target_model") or "").strip()
+            target_model = tm or None
             items.append(
                 {
-                    "id": -idx,
+                    "id": -len(items) - 1,
                     "user_id": 1,
-                    "provider": provider,
+                    "provider": INDEXTTS_PROVIDER,
                     "voice_id": voice_id,
                     "display_label": label,
                     "target_model": target_model,
@@ -430,7 +401,7 @@ async def get_voices(provider: str | None = None) -> JSONResponse:
                 existing.add(key)
     if public_p is None or public_p == INDEXTTS_PROVIDER:
         for source in ("system", "clones"):
-            for item in _local_indextts_voice_items(INDEXTTS_PROVIDER, source):
+            for item in _local_indextts_voice_items(source):
                 key = (item["provider"], item["voice_id"])
                 if key not in existing:
                     items.append(item)

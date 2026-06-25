@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import posixpath
 from collections.abc import Mapping
 from pathlib import Path
 from types import SimpleNamespace
@@ -40,6 +41,13 @@ def _settings_value(name: str, default: str = "") -> str:
 def _provider_env(provider: str, field: str) -> str:
     key_provider = provider.upper().replace("-", "_")
     return os.environ.get(f"OPENTALKING_TTS_{key_provider}_{field}", "").strip()
+
+
+def _join_config_path(root: str, *parts: str) -> str:
+    value = root.strip()
+    if "/" in value and "\\" not in value:
+        return posixpath.join(value.rstrip("/"), *parts)
+    return str(Path(value).expanduser().joinpath(*parts))
 
 
 def _configured_tts_provider_values() -> tuple[str, ...]:
@@ -118,20 +126,19 @@ def _local_cosyvoice_service_url() -> str:
     )
 
 
-def _local_audio_model_root() -> Path:
-    raw = (
+def _local_audio_model_root() -> str:
+    return (
         os.environ.get("OPENTALKING_LOCAL_AUDIO_MODEL_ROOT", "").strip()
         or _settings_value("local_audio_model_root", "")
         or "./models/local-audio"
     )
-    return Path(raw).expanduser()
 
 
 def _local_cosyvoice_model_dir(model: str) -> str:
     return (
         _provider_env("local_cosyvoice", "MODEL_DIR")
         or _settings_value("tts_local_cosyvoice_model_dir", "")
-        or str(_local_audio_model_root() / model.replace("/", "__"))
+        or _join_config_path(_local_audio_model_root(), model.replace("/", "__"))
     )
 
 
@@ -184,10 +191,11 @@ def _local_cosyvoice_fp16() -> str:
 def _local_audio_asset_dir(name: str, required_file: str, *fallback_names: str) -> str:
     root = _local_audio_model_root()
     for candidate_name in (name, *fallback_names):
-        candidate = root / candidate_name
+        candidate_value = _join_config_path(root, candidate_name)
+        candidate = Path(candidate_value).expanduser()
         if (candidate / required_file).is_file():
-            return str(candidate)
-    return str(root / name)
+            return candidate_value
+    return _join_config_path(root, name)
 
 
 def _local_audio_asset_file_dir(name: str, relative_file: str, *fallback_names: str) -> str:
@@ -206,7 +214,7 @@ def _local_indextts_model_dir(model: str) -> str:
     return (
         _provider_env("local_indextts", "MODEL_DIR")
         or _settings_value("tts_local_indextts_model_dir", "")
-        or str(_local_audio_model_root() / model.replace("/", "__"))
+        or _join_config_path(_local_audio_model_root(), model.replace("/", "__"))
     )
 
 
@@ -214,7 +222,7 @@ def _local_indextts_cfg_path(model_dir: str) -> str:
     return (
         _provider_env("local_indextts", "CFG_PATH")
         or _settings_value("tts_local_indextts_cfg_path", "")
-        or str(Path(model_dir) / "config.yaml")
+        or _join_config_path(model_dir, "config.yaml")
     )
 
 
@@ -236,7 +244,7 @@ def _local_indextts_w2v_bert_dir() -> str:
     return (
         _provider_env("local_indextts", "W2V_BERT_DIR")
         or _settings_value("tts_local_indextts_w2v_bert_dir", "")
-        or str(_local_audio_model_root() / "facebook__w2v-bert-2.0")
+        or _join_config_path(_local_audio_model_root(), "facebook__w2v-bert-2.0")
     )
 
 
@@ -252,7 +260,7 @@ def _local_indextts_campplus_dir() -> str:
     return (
         _provider_env("local_indextts", "CAMPPLUS_DIR")
         or _settings_value("tts_local_indextts_campplus_dir", "")
-        or str(_local_audio_model_root() / "funasr__campplus")
+        or _join_config_path(_local_audio_model_root(), "funasr__campplus")
     )
 
 
@@ -260,7 +268,7 @@ def _local_indextts_bigvgan_dir() -> str:
     return (
         _provider_env("local_indextts", "BIGVGAN_DIR")
         or _settings_value("tts_local_indextts_bigvgan_dir", "")
-        or str(_local_audio_model_root() / "nvidia__bigvgan_v2_22khz_80band_256x")
+        or _join_config_path(_local_audio_model_root(), "nvidia__bigvgan_v2_22khz_80band_256x")
     )
 
 
@@ -519,6 +527,16 @@ def tts_enabled_providers() -> list[str]:
 
 def tts_provider_config(provider: str) -> dict[str, str | bool | int | float]:
     p = normalize_tts_provider(provider, default=None) or _provider()
+    if p == "mock":
+        return {
+            "provider": p,
+            "model": "mock",
+            "model_dir": "",
+            "voice": "mock",
+            "device": "",
+            "key_set": False,
+            "service_url_set": True,
+        }
     if p == "indextts":
         resolved = _resolve_indextts_provider(p)
         config = dict(tts_provider_config(resolved))
@@ -1260,6 +1278,15 @@ def build_tts_adapter(
             tts_model=effective_tts_model,
         )
 
+    if provider == "mock":
+        from opentalking.providers.tts.mock.adapter import MockTTSAdapter
+
+        return MockTTSAdapter(
+            default_voice=default_voice or "mock",
+            sample_rate=sample_rate,
+            chunk_ms=chunk_ms,
+        )
+
     # For dashscope/bailian/etc., delegate to create_tts_adapter
     if provider in _QWEN_RT or provider in _COSY_WS or provider in _SAMBERT or provider in _LOCAL or provider in _OMNIRT or provider in _INDEXTTS:
         return create_tts_adapter(
@@ -1272,6 +1299,14 @@ def build_tts_adapter(
         )
 
     if provider in _CORE:
+        if provider == "mock":
+            from opentalking.providers.tts.mock.adapter import MockTTSAdapter
+
+            return MockTTSAdapter(
+                default_voice=default_voice or getattr(settings, "tts_voice", None) or "mock",
+                sample_rate=sample_rate,
+                chunk_ms=chunk_ms,
+            )
         return EdgeTTSAdapter(
             default_voice=default_voice or getattr(settings, "tts_voice", None) or _edge_default_voice(),
             sample_rate=sample_rate,

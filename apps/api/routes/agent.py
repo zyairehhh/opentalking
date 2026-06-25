@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import tempfile
 from dataclasses import asdict
+from pathlib import Path
 
 from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
 from pydantic import BaseModel
@@ -162,27 +163,32 @@ async def _add_uploaded_document(
     filename = file.filename or "document.txt"
     mime_type = file.content_type or "application/octet-stream"
     total = 0
-    with tempfile.NamedTemporaryFile(prefix="opentalking-kb-", delete=True) as tmp:
-        while True:
-            chunk = await file.read(1024 * 1024)
-            if not chunk:
-                break
-            total += len(chunk)
-            if total > MAX_DOCUMENT_BYTES:
-                raise HTTPException(status_code=413, detail="document is larger than 20MB")
-            tmp.write(chunk)
-        tmp.flush()
+    tmp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(prefix="opentalking-kb-", delete=False) as tmp:
+            tmp_path = Path(tmp.name)
+            while True:
+                chunk = await file.read(1024 * 1024)
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > MAX_DOCUMENT_BYTES:
+                    raise HTTPException(status_code=413, detail="document is larger than 20MB")
+                tmp.write(chunk)
         try:
             doc = await store.add_document(
                 kb_id=kb_id,
                 filename=filename,
                 mime_type=mime_type,
-                source_path=tmp.name,
+                source_path=tmp_path,
             )
         except DuplicateKnowledgeDocumentError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+    finally:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
     return KnowledgeDocumentResponse(**asdict(doc))
 
 
@@ -194,26 +200,31 @@ async def _add_uploaded_file(
     filename = file.filename or "document.txt"
     mime_type = file.content_type or "application/octet-stream"
     total = 0
-    with tempfile.NamedTemporaryFile(prefix="opentalking-kb-file-", delete=True) as tmp:
-        while True:
-            chunk = await file.read(1024 * 1024)
-            if not chunk:
-                break
-            total += len(chunk)
-            if total > MAX_DOCUMENT_BYTES:
-                raise HTTPException(status_code=413, detail="document is larger than 20MB")
-            tmp.write(chunk)
-        tmp.flush()
+    tmp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(prefix="opentalking-kb-file-", delete=False) as tmp:
+            tmp_path = Path(tmp.name)
+            while True:
+                chunk = await file.read(1024 * 1024)
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > MAX_DOCUMENT_BYTES:
+                    raise HTTPException(status_code=413, detail="document is larger than 20MB")
+                tmp.write(chunk)
         try:
             doc = await store.add_file(
                 filename=filename,
                 mime_type=mime_type,
-                source_path=tmp.name,
+                source_path=tmp_path,
             )
         except DuplicateKnowledgeDocumentError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+    finally:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
     return KnowledgeDocumentResponse(**asdict(doc))
 
 

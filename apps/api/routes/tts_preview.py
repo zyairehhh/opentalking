@@ -87,6 +87,11 @@ def _normalize_preview_request(
     return text, voice, provider, model, indextts_config
 
 
+def _is_local_cosyvoice_input_error(exc: Exception) -> bool:
+    message = str(exc)
+    return isinstance(exc, ValueError) or "HTTP 400" in message or "请求无效" in message or "请先选择本地音色" in message
+
+
 def _config_from_form_value(raw: object) -> dict[str, Any] | None:
     text = str(raw or "").strip()
     if not text:
@@ -234,6 +239,29 @@ async def preview_tts(request: Request) -> Response:
             if sample_limit is not None and total_samples >= sample_limit:
                 break
     except Exception as exc:
+        logger.exception(
+            "tts preview failed | provider=%s voice_id=%s model=%s error=%s",
+            provider or "default",
+            voice or "default",
+            model or "default",
+            exc,
+        )
+        if provider == "local_cosyvoice":
+            if _is_local_cosyvoice_input_error(exc):
+                raise HTTPException(
+                    status_code=400,
+                    detail=str(exc),
+                ) from exc
+            error_text = str(exc)
+            if "CosyVoice returned no audio" in error_text or "本地 CosyVoice 返回空音频" in error_text:
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"TTS preview failed: {error_text}",
+                ) from exc
+            raise HTTPException(
+                status_code=502,
+                detail=f"TTS preview failed: 本地 CosyVoice 服务不可用（可能已退出/内存不足）；前端可回退 Edge 试听。{exc}",
+            ) from exc
         raise HTTPException(status_code=502, detail=f"TTS preview failed: {exc}") from exc
     finally:
         close = getattr(tts, "aclose", None)

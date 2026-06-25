@@ -186,10 +186,6 @@ interface SettingsPanelProps {
   qwenVoice: string;
   onQwenVoiceChange: (voiceId: string) => void;
   qwenVoiceOptions: VoiceOpt[];
-  llmSystemPrompt: string;
-  onLlmSystemPromptChange: (value: string) => void;
-  onSavePrompt: () => void;
-  promptSaving?: boolean;
   onOpenVoiceClone?: () => void;
   voiceApplyNotice?: string | null;
   ttsPreviewText: string;
@@ -415,10 +411,6 @@ export function SettingsPanel({
   qwenVoice,
   onQwenVoiceChange,
   qwenVoiceOptions,
-  llmSystemPrompt,
-  onLlmSystemPromptChange,
-  onSavePrompt,
-  promptSaving = false,
   onOpenVoiceClone,
   voiceApplyNotice = null,
   ttsPreviewText,
@@ -525,6 +517,7 @@ export function SettingsPanel({
   }));
   const providerHasSingleModel = (provider: TtsProviderExtended) => {
     if (provider === "edge" || provider === "openai_compatible") return true;
+    if (provider === "local_cosyvoice" || provider === "indextts") return true;
     if (provider !== ttsProvider) return false;
     return qwenModelColumnOptions.length <= 1;
   };
@@ -1083,33 +1076,6 @@ export function SettingsPanel({
           </div>
         </SettingsSection>
 
-        <SettingsSection
-          id="role"
-          title="人设"
-          open={openSections.role}
-          onToggle={toggleSection}
-        >
-          <div className="space-y-3">
-            <label className="block">
-              <span className="mb-1.5 block text-xs text-slate-500">人设定义</span>
-              <textarea
-                value={llmSystemPrompt}
-                onChange={(e) => onLlmSystemPromptChange(e.target.value)}
-                rows={5}
-                className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-cyan-300 focus:bg-white"
-                placeholder={"你可以在这里定义数字人的身份、说话风格和边界。\n\n示例：你是一位温和专业的产品讲解员，回答简洁自然，优先用中文回复。遇到不确定的问题先说明不确定，再给出可执行建议。"}
-              />
-            </label>
-            <button
-              type="button"
-              onClick={onSavePrompt}
-              disabled={promptSaving}
-              className="w-full rounded-lg bg-slate-950 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {promptSaving ? "保存中..." : "保存人设"}
-            </button>
-          </div>
-        </SettingsSection>
       </div>
     </aside>
   );

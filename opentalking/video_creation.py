@@ -117,10 +117,24 @@ def _fit_reference_driver_pcm(pcm: np.ndarray, total_samples: int) -> np.ndarray
     return np.tile(source, repeats)[:target].astype(np.int16, copy=False)
 
 
+def _read_pcm16_mono_wav(path: Path) -> np.ndarray | None:
+    try:
+        with wave.open(str(path), "rb") as wf:
+            if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getframerate() != 16000:
+                return None
+            raw = wf.readframes(wf.getnframes())
+    except (wave.Error, OSError):
+        return None
+    return np.frombuffer(raw, dtype="<i2").copy()
+
+
 async def _load_reference_driver_pcm(settings: object, total_samples: int) -> np.ndarray | None:
     path = _reference_driver_audio_path(settings)
     if not path.is_file():
         return None
+    direct_pcm = _read_pcm16_mono_wav(path)
+    if direct_pcm is not None:
+        return _fit_reference_driver_pcm(direct_pcm, total_samples)
     try:
         pcm = await decode_audio_file_to_pcm_i16(path)
         return _fit_reference_driver_pcm(pcm, total_samples)
@@ -415,6 +429,12 @@ def _quicktalk_prepared_template_video(settings: object, avatar_path: Path) -> P
         path = avatar_path / name
         if path.is_file():
             return path.resolve()
+    source_dir = avatar_path / "source"
+    if source_dir.is_dir():
+        for pattern in ("*.mp4", "*.mov", "*.webm", "*.avi"):
+            for candidate in sorted(source_dir.glob(pattern)):
+                if candidate.is_file():
+                    return candidate.resolve()
     return None
 
 
@@ -492,12 +512,13 @@ def _init_session_kwargs(
     fasterliveportrait_config: Mapping[str, object] | None,
 ) -> dict[str, object]:
     kwargs: dict[str, object] = {"avatar_path": avatar_path}
+    if model == "quicktalk":
+        kwargs.update(_quicktalk_init_session_kwargs(settings, avatar_path))
     if not _remote_audio2video_backend(backend):
         return kwargs
 
     kwargs["ref_image"] = _reference_image_path(avatar_path)
     if model == "quicktalk":
-        kwargs.update(_quicktalk_init_session_kwargs(settings, avatar_path))
         return kwargs
     if model != "fasterliveportrait":
         return kwargs

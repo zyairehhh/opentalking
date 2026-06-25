@@ -9,6 +9,11 @@ from pathlib import Path
 
 
 DEFAULT_ROOT = Path(os.environ.get("OPENTALKING_LOCAL_AUDIO_MODEL_ROOT", "./models/local-audio"))
+DEFAULT_REUSE_ROOTS = (
+    Path("./models"),
+    Path("/root/models"),
+    Path.home() / ".cache" / "opentalking" / "models",
+)
 
 MODELS: dict[str, tuple[str, str]] = {
     "sensevoice-small": ("modelscope", "iic/SenseVoiceSmall"),
@@ -58,6 +63,30 @@ HF_ALLOW_PATTERNS: dict[str, list[str]] = {
     ],
 }
 
+MODEL_HINTS: dict[str, tuple[str, ...]] = {
+    "sensevoice-small": ("iic__SenseVoiceSmall", "sensevoice", "SenseVoiceSmall"),
+    "fun-cosyvoice3-0.5b-2512": (
+        "FunAudioLLM__Fun-CosyVoice3-0.5B-2512",
+        "Fun-CosyVoice3-0.5B-2512",
+        "cosyvoice",
+    ),
+    "indextts2": ("IndexTeam__IndexTTS-2", "IndexTTS-2"),
+    "indextts2-w2v-bert": ("facebook__w2v-bert-2.0", "w2v-bert-2.0"),
+    "indextts2-maskgct": ("amphion__MaskGCT", "amphion__MaskGCT-ms"),
+    "indextts2-campplus": ("funasr__campplus", "campplus"),
+    "indextts2-bigvgan": ("nvidia__bigvgan_v2_22khz_80band_256x", "bigvgan_v2_22khz_80band_256x"),
+}
+
+MODEL_REQUIRED_FILES: dict[str, tuple[str, ...]] = {
+    "sensevoice-small": ("model.pt", "config.yaml", "configuration.json"),
+    "fun-cosyvoice3-0.5b-2512": ("cosyvoice3.yaml", "flow.pt", "hift.pt", "llm.pt"),
+    "indextts2": ("config.yaml", "model.pt"),
+    "indextts2-w2v-bert": ("model.safetensors", "conformer_shaw.pt"),
+    "indextts2-maskgct": ("semantic_codec/model.safetensors", "acoustic_codec/model.safetensors"),
+    "indextts2-campplus": ("campplus_cn_common.bin", "config.yaml"),
+    "indextts2-bigvgan": ("bigvgan_generator.pt",),
+}
+
 
 def default_model_keys() -> list[str]:
     return ["sensevoice-small", "fun-cosyvoice3-0.5b-2512"]
@@ -69,6 +98,61 @@ def local_audio_model_ids() -> tuple[str, ...]:
 
 def _target(root: Path, model_id: str) -> Path:
     return root / model_id.replace("/", "__")
+
+
+def _reuse_root_values(raw: str | None) -> list[Path]:
+    if not raw:
+        return [root for root in DEFAULT_REUSE_ROOTS if root is not None]
+    roots: list[Path] = []
+    for chunk in raw.replace(";", os.pathsep).replace(",", os.pathsep).split(os.pathsep):
+        value = chunk.strip()
+        if value:
+            roots.append(Path(value).expanduser())
+    return roots
+
+
+def _model_hints(model_key: str) -> tuple[str, ...]:
+    return MODEL_HINTS.get(model_key, (MODELS[model_key][1].replace("/", "__"),))
+
+
+def _required_files(model_key: str) -> tuple[str, ...]:
+    return MODEL_REQUIRED_FILES.get(model_key, ())
+
+
+def _is_model_ready(path: Path, *, model_key: str) -> bool:
+    if not path.exists():
+        return False
+    required = _required_files(model_key)
+    if not required:
+        return path.is_dir() or path.is_file()
+    return all((path / relative).exists() for relative in required)
+
+
+def _find_reusable_source(model_key: str, roots: list[Path]) -> Path | None:
+    for root in roots:
+        for hint in _model_hints(model_key):
+            candidate = root / hint
+            if _is_model_ready(candidate, model_key=model_key):
+                return candidate
+            nested = candidate / "checkpoints"
+            if _is_model_ready(nested, model_key=model_key):
+                return nested
+    return None
+
+
+def _mirror_existing_source(source: Path, target: Path) -> None:
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists():
+        return
+    try:
+        target.symlink_to(source, target_is_directory=source.is_dir())
+        return
+    except Exception:
+        pass
+    if source.is_dir():
+        shutil.copytree(source, target)
+    else:
+        shutil.copy2(source, target)
 
 
 def _download_modelscope(model_id: str, target: Path) -> None:
@@ -100,6 +184,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Download the supported local STT/TTS model weights.")
     parser.add_argument("--root", type=Path, default=DEFAULT_ROOT)
     parser.add_argument(
+        "--reuse-root",
+        action="append",
+        dest="reuse_roots",
+        help="Search these roots first and reuse existing weights instead of downloading.",
+    )
+    parser.add_argument(
         "--model",
         action="append",
         choices=sorted(MODELS),
@@ -110,6 +200,9 @@ def main() -> None:
     root = args.root.expanduser().resolve()
     root.mkdir(parents=True, exist_ok=True)
     selected = args.model or default_model_keys()
+    reuse_roots = [root] + _reuse_root_values(os.environ.get("OPENTALKING_LOCAL_AUDIO_MODEL_SEARCH_ROOTS"))
+    if args.reuse_roots:
+        reuse_roots.extend(Path(value).expanduser().resolve() for value in args.reuse_roots)
 
     failures: list[tuple[str, str]] = []
     for key in selected:
@@ -118,6 +211,17 @@ def main() -> None:
         print(f"[{key}] {source}:{model_id} -> {target}", flush=True)
         target.mkdir(parents=True, exist_ok=True)
         try:
+            if _is_model_ready(target, model_key=key):
+                print(f"[{key}] reusing existing target: {target}", flush=True)
+                continue
+
+            reusable = _find_reusable_source(key, reuse_roots)
+            if reusable is not None:
+                print(f"[{key}] reusing existing source: {reusable}", flush=True)
+                if reusable.resolve() != target.resolve():
+                    _mirror_existing_source(reusable, target)
+                continue
+
             if source == "modelscope":
                 _download_modelscope(model_id, target)
             else:

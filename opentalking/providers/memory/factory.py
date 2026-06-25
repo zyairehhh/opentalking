@@ -6,7 +6,11 @@ from typing import Any
 
 from opentalking.core.config import Settings, get_settings
 from opentalking.providers.memory.base import MemoryProvider
-from opentalking.providers.memory.mem0_provider import InMemoryMemoryProvider, Mem0MemoryProvider
+from opentalking.providers.memory.mem0_provider import (
+    InMemoryMemoryProvider,
+    Mem0MemoryProvider,
+    Mem0UnavailableError,
+)
 from opentalking.providers.memory.noop import NoopMemoryProvider
 from opentalking.providers.memory.sqlite_provider import SQLiteMemoryProvider
 
@@ -110,7 +114,10 @@ def build_memory_provider() -> MemoryProvider:
     if provider in {"sqlite", "local"}:
         return SQLiteMemoryProvider(settings.memory_sqlite_path)
     if provider == "mem0":
-        return Mem0MemoryProvider(config=_mem0_config(settings))
+        try:
+            return Mem0MemoryProvider(config=_mem0_config(settings))
+        except Mem0UnavailableError:
+            return SQLiteMemoryProvider(settings.memory_sqlite_path)
     if provider in {"memory", "inmemory", "in-memory"}:
         return InMemoryMemoryProvider()
     raise ValueError(f"unsupported memory provider: {settings.memory_provider}")

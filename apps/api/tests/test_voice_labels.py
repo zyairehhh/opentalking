@@ -205,17 +205,16 @@ def test_get_voices_includes_local_cosyvoice_system_voice_dirs(tmp_path, monkeyp
     response = TestClient(app).get("/voices?provider=local_cosyvoice")
 
     assert response.status_code == 200
-    assert response.json()["items"] == [
-        {
-            "id": -1,
-            "user_id": 1,
-            "provider": "local_cosyvoice",
-            "voice_id": "local-female-standard",
-            "display_label": "标准女声",
-            "target_model": None,
-            "source": "system",
-        }
-    ]
+    item = next(item for item in response.json()["items"] if item["voice_id"] == "local-female-standard")
+    assert item == {
+        "id": -1,
+        "user_id": 1,
+        "provider": "local_cosyvoice",
+        "voice_id": "local-female-standard",
+        "display_label": "标准女声",
+        "target_model": None,
+        "source": "system",
+    }
 
 
 @pytest.mark.parametrize("provider", ["indextts", "local_indextts", "omnirt_indextts"])
@@ -242,7 +241,7 @@ def test_get_voices_includes_indextts_system_voice_dirs(provider: str, tmp_path,
         "user_id": 1,
         "provider": "indextts",
         "voice_id": "indextts-clear-cn",
-        "display_label": "IndexTTS 清晰中文",
+        "display_label": "清晰中文",
         "target_model": "IndexTeam/IndexTTS-2",
         "source": "system",
     } in response.json()["items"]
@@ -426,12 +425,13 @@ def test_get_voices_includes_indextts_clone_voice_dirs(provider: str, tmp_path, 
     response = TestClient(app).get(f"/voices?provider={provider}")
 
     assert response.status_code == 200
-    assert {
-        "id": -1,
+    item = next(item for item in response.json()["items"] if item["voice_id"] == "indextts-cloned-cn")
+    assert item == {
+        "id": item["id"],
         "user_id": 1,
         "provider": "indextts",
         "voice_id": "indextts-cloned-cn",
-        "display_label": "IndexTTS 复刻中文",
+        "display_label": "复刻中文",
         "target_model": "IndexTeam/IndexTTS-2",
         "source": "clone",
-    } in response.json()["items"]
+    }

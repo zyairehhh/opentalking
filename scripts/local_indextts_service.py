@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import soundfile as sf
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -63,8 +62,26 @@ def _resample_linear(pcm: np.ndarray, src_sr: int, dst_sr: int) -> np.ndarray:
 
 def _to_wav_bytes(pcm: np.ndarray, sr: int) -> bytes:
     buf = io.BytesIO()
-    sf.write(buf, np.asarray(pcm, dtype=np.int16), sr, format="WAV", subtype="PCM_16")
+    _write_wav_i16(buf, np.asarray(pcm, dtype=np.int16), sr)
     return buf.getvalue()
+
+
+def _write_wav_i16(path_or_file: str | Path | io.BytesIO, data: np.ndarray, sample_rate: int) -> None:
+    pcm = np.asarray(data)
+    if pcm.ndim == 2 and pcm.shape[0] == 1:
+        pcm = pcm[0]
+    elif pcm.ndim == 2:
+        pcm = pcm.T.reshape(-1)
+    if np.issubdtype(pcm.dtype, np.floating):
+        pcm = np.clip(pcm, -1.0, 1.0)
+        pcm = np.round(pcm * 32767.0).astype("<i2")
+    else:
+        pcm = np.clip(pcm, -32768, 32767).astype("<i2")
+    with wave.open(path_or_file if hasattr(path_or_file, "write") else str(path_or_file), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(int(sample_rate))
+        wf.writeframes(pcm.reshape(-1).tobytes())
 
 
 class LocalIndexTTSService:
@@ -216,7 +233,7 @@ class LocalIndexTTSService:
                     data = data[0]
                 elif data.ndim == 2:
                     data = data.T
-                sf.write(path, data, sample_rate, subtype="PCM_16")
+                _write_wav_i16(path, data, sample_rate)
                 return None
 
         torchaudio.save = save
@@ -286,10 +303,15 @@ class LocalIndexTTSService:
             raise HTTPException(status_code=400, detail=f"prompt_audio does not exist: {prompt_audio}")
         target_sr = int(req.sample_rate or 16000)
         t0 = time.perf_counter()
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as tmp:
+        fd, tmp_name = tempfile.mkstemp(suffix=".wav")
+        os.close(fd)
+        tmp_path = Path(tmp_name)
+        try:
             with self._lock:
-                self.model().infer(prompt_audio, text, tmp.name, **self._infer_kwargs(req))
-            pcm, sr = _audio_to_i16(Path(tmp.name))
+                self.model().infer(prompt_audio, text, tmp_name, **self._infer_kwargs(req))
+            pcm, sr = _audio_to_i16(tmp_path)
+        finally:
+            tmp_path.unlink(missing_ok=True)
         pcm = _resample_linear(pcm, sr, target_sr)
         elapsed = time.perf_counter() - t0
         print(

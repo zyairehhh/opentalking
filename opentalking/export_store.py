@@ -4,9 +4,11 @@ import json
 import re
 import shutil
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+UTC = timezone.utc
 
 _ALLOWED_KINDS = {"realtime_dialogue", "video_clone", "video_creation"}
 _SAFE_ID_RE = re.compile(r"^[a-zA-Z0-9_.-]{1,128}$")

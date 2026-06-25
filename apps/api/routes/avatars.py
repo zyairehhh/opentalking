@@ -706,12 +706,33 @@ def _prewarm_local_backend(
             settings=settings,
             overwrite=overwrite,
         )
-    return _prewarm_local_adapter(
-        model,
-        avatar_dir,
-        settings,
-        prepared_cache=prepared_cache,
-    )
+    try:
+        return _prewarm_local_adapter(
+            model,
+            avatar_dir,
+            settings,
+            prepared_cache=prepared_cache,
+        )
+    except RuntimeError as exc:
+        if model == "quicktalk" and "out of memory" in str(exc).lower():
+            cache = {
+                "model": model,
+                "status": "ready",
+                "source_mode": "local",
+                "frames": prepared_cache.frames if prepared_cache is not None else None,
+                "detail": "local adapter prepared QuickTalk assets but warmup ran out of memory",
+                "prepared_status": prepared_cache.status if prepared_cache is not None else None,
+            }
+            runtime = {
+                "type": "local_prewarm_result",
+                "backend": "local",
+                "model": model,
+                "warmed": False,
+                "elapsed_ms": 0.0,
+                "message": str(exc),
+            }
+            return cache, runtime
+        raise
 
 
 def _quicktalk_runtime_payload(
@@ -1063,11 +1084,12 @@ async def prewarm_avatar(avatar_id: str, request: Request) -> dict[str, Any]:
             )
         except Exception as exc:  # noqa: BLE001
             raise HTTPException(status_code=500, detail=f"failed to prewarm local {model}: {exc}") from exc
+        runtime_status = "failed" if not bool(runtime.get("warmed", True)) else "ready"
         return {
             "avatar_id": avatar_id,
             "model": model,
             "status": "ready",
-            "runtime_status": "ready",
+            "runtime_status": runtime_status,
             "cache": cache_response,
             "runtime": runtime,
         }

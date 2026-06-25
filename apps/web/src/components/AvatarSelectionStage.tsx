@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
-import type { AvatarSummary, KnowledgeBaseSummary, PersonaSummary } from "../lib/api";
+import type { AvatarSummary, PersonaSummary } from "../lib/api";
 import { buildApiUrl } from "../lib/api";
 import type { ModelConnectionBadge } from "../lib/modelStatus";
 
@@ -27,14 +27,6 @@ type AvatarSelectionStageProps = {
   onCustomAvatarCreate: (file: File, name: string) => void;
   onAvatarDelete?: (avatar: AvatarSummary) => void;
   referenceSaving?: boolean;
-  memorySummary?: {
-    enabled: boolean;
-    libraryName: string | null;
-    memoryCount: number | null;
-  };
-  agentConfig: AgentConfig;
-  onAgentConfigChange: (next: AgentConfig) => void;
-  knowledgeBases: KnowledgeBaseSummary[];
   personas: PersonaSummary[];
   selectedPersonaId: string;
   personaImporting?: boolean;
@@ -84,10 +76,6 @@ export function AvatarSelectionStage({
   onCustomAvatarCreate,
   onAvatarDelete,
   referenceSaving = false,
-  memorySummary,
-  agentConfig,
-  onAgentConfigChange,
-  knowledgeBases,
   personas,
   selectedPersonaId,
   personaImporting = false,
@@ -106,20 +94,7 @@ export function AvatarSelectionStage({
   });
   const [customFile, setCustomFile] = useState<File | null>(null);
   const [customPreviewUrl, setCustomPreviewUrl] = useState<string | null>(null);
-  const selectedKnowledgeBaseIds = agentConfig.knowledgeBaseIds;
   const selectedPersona = personas.find((persona) => persona.id === selectedPersonaId) ?? null;
-  const knowledgeBasesById = new Map(knowledgeBases.map((kb) => [kb.id, kb]));
-  const selectedKnowledgeBases = selectedKnowledgeBaseIds.map((id) => (
-    knowledgeBasesById.get(id) ?? {
-      id,
-      name: id,
-      document_count: 0,
-      ready_document_count: 0,
-      error_document_count: 0,
-      created_at: "",
-      updated_at: "",
-    }
-  ));
   const configDisabled = loading || queued || prewarmState === "preparing";
   const baseDisabled = loading || queued || prewarmState === "preparing" || !selectedAvatar || !modelConnected;
   const startLabel = queued
@@ -161,15 +136,6 @@ export function AvatarSelectionStage({
     const file = event.target.files?.[0] ?? null;
     event.target.value = "";
     if (file) onPersonaImport(file);
-  };
-
-  const updateKnowledgeBaseIds = (nextIds: string[]) => {
-    const deduped = Array.from(new Set(nextIds.filter((id) => id.trim())));
-    onAgentConfigChange({
-      ...agentConfig,
-      knowledgeEnabled: deduped.length > 0,
-      knowledgeBaseIds: deduped,
-    });
   };
 
   return (
@@ -369,78 +335,6 @@ export function AvatarSelectionStage({
                   <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
                     <p className="text-xs font-medium text-slate-500">已选音色</p>
                     <p className="mt-1 truncate text-sm font-semibold text-slate-950">{selectedVoiceLabel}</p>
-                  </div>
-                </div>
-                <div className="mb-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs font-semibold text-slate-600">Agent 增强</p>
-                    <span className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-500">
-                      {knowledgeBases.length} 个知识库
-                    </span>
-                  </div>
-                  <div className="mt-2 min-h-20 rounded-md border border-slate-200 bg-white p-2">
-                    <div className="mb-2 flex items-center justify-between gap-2">
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">当前形象知识库</p>
-                      <span className="text-[11px] text-slate-400">{selectedKnowledgeBases.length} 项</span>
-                    </div>
-                    {selectedKnowledgeBases.length ? (
-                      <div className="flex flex-wrap gap-1.5">
-                        {selectedKnowledgeBases.map((kb) => (
-                          <div
-                            key={kb.id}
-                            className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs text-cyan-800"
-                          >
-                            <span className="min-w-0 truncate font-medium">{kb.name}</span>
-                            <button
-                              type="button"
-                              disabled={baseDisabled}
-                              onClick={() =>
-                                updateKnowledgeBaseIds(selectedKnowledgeBaseIds.filter((id) => id !== kb.id))
-                              }
-                              className="shrink-0 rounded-full px-1.5 py-0.5 font-semibold text-cyan-700 transition hover:bg-cyan-100 disabled:opacity-50"
-                              aria-label={`移除 ${kb.name}`}
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="px-1 py-2 text-xs text-slate-400">未选择知识库</p>
-                    )}
-                  </div>
-                </div>
-                <div className="mb-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs font-semibold text-slate-600">记忆库</p>
-                    <span
-                      className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium ${
-                        memorySummary?.enabled
-                          ? "border-cyan-200 bg-white text-cyan-700"
-                          : "border-slate-200 bg-white text-slate-500"
-                      }`}
-                    >
-                      {memorySummary?.enabled ? "已挂载" : "未挂载"}
-                    </span>
-                  </div>
-                  <div className="mt-2 min-h-16 rounded-md border border-slate-200 bg-white p-2">
-                    <div className="mb-2 flex items-center justify-between gap-2">
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                        当前形象记忆库
-                      </p>
-                      <span className="text-[11px] text-slate-400">
-                        {memorySummary?.enabled && memorySummary.memoryCount !== null
-                          ? `${memorySummary.memoryCount} 条`
-                          : "0 条"}
-                      </span>
-                    </div>
-                    {memorySummary?.enabled && memorySummary.libraryName ? (
-                      <div className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs text-cyan-800">
-                        <span className="min-w-0 truncate font-medium">{memorySummary.libraryName}</span>
-                      </div>
-                    ) : (
-                      <p className="px-1 py-2 text-xs text-slate-400">未选择记忆库</p>
-                    )}
                   </div>
                 </div>
                 {queued ? (
