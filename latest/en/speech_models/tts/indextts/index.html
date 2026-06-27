@@ -5481,13 +5481,29 @@
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>OPENTALKING_TTS_INDEXTTS_BACKEND=local
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>OPENTALKING_TTS_INDEXTTS_SERVICE_URL=http://127.0.0.1:19190/synthesize
 </span></code></pre></div>
+<p>When OmniRT hosts the IndexTTS runtime, OpenTalking still exposes
+<code>provider=indextts</code>; <code>backend=omnirt</code> switches it to the remote resident service.
+OmniRT owns model loading, segmented streaming, and token-window streaming:</p>
+<div class="language-text highlight"><span class="filename">.env</span><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>OPENTALKING_TTS_DEFAULT_PROVIDER=indextts
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>OPENTALKING_TTS_INDEXTTS_BACKEND=omnirt
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>OPENTALKING_TTS_OMNIRT_INDEXTTS_SERVICE_URL=http://127.0.0.1:9012/v1/text2audio/indextts
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>OPENTALKING_TTS_OMNIRT_INDEXTTS_STREAMING_MODE=token_window
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>OPENTALKING_TTS_OMNIRT_INDEXTTS_TOKEN_WINDOW_SIZE=40
+</span></code></pre></div>
 <h2 id="start-command">Start Command<a class="headerlink" href="#start-command" title="Permanent link">&para;</a></h2>
 <p>Start the IndexTTS sidecar first, then start OpenTalking. The exact sidecar command depends on the IndexTTS runtime version; make sure it exposes an HTTP endpoint matching <code>OPENTALKING_TTS_INDEXTTS_SERVICE_URL</code>.</p>
-<div class="language-bash highlight"><span class="filename">Terminal</span><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_HOME</span><span class="s2">&quot;</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>bash<span class="w"> </span>scripts/start_unified.sh<span class="w"> </span>--backend<span class="w"> </span>mock<span class="w"> </span>--model<span class="w"> </span>mock<span class="w"> </span>--api-port<span class="w"> </span><span class="m">8000</span><span class="w"> </span>--web-port<span class="w"> </span><span class="m">5173</span>
+<div class="language-bash highlight"><span class="filename">Terminal</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_HOME</span><span class="s2">&quot;</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nb">cd</span><span class="w"> </span>./models/local-audio/runtime/index-tts
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_HOME</span><span class="s2">&quot;</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>./models/local-audio/runtime/index-tts/.venv/bin/python<span class="w"> </span>scripts/local_indextts_service.py<span class="w"> </span>--host<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>--port<span class="w"> </span><span class="m">19092</span>
+</span></code></pre></div>
+<p>Then start OpenTalking:</p>
+<div class="language-bash highlight"><span class="filename">Terminal</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_HOME</span><span class="s2">&quot;</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>bash<span class="w"> </span>scripts/start_unified.sh<span class="w"> </span>--backend<span class="w"> </span><span class="nb">local</span><span class="w"> </span>--model<span class="w"> </span>quicktalk<span class="w"> </span>--api-port<span class="w"> </span><span class="m">8000</span><span class="w"> </span>--web-port<span class="w"> </span><span class="m">5173</span>
 </span></code></pre></div>
 <h2 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><span class="filename">Terminal</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>curl<span class="w"> </span>-fsS<span class="w"> </span>http://127.0.0.1:8000/health
+<div class="language-bash highlight"><span class="filename">Terminal</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>curl<span class="w"> </span>-fsS<span class="w"> </span>http://127.0.0.1:8000/health
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>curl<span class="w"> </span>-fsS<span class="w"> </span>--max-time<span class="w"> </span><span class="m">300</span><span class="w"> </span>http://127.0.0.1:8000/runtime/status<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.tts_providers.indextts.backend, .tts_providers.indextts.resolved_provider&#39;</span>
 </span></code></pre></div>
 <p>After creating a <code>mock</code> session, call <code>/speak</code> to verify that the TTS provider returns audio.</p>
 <h2 id="common-errors">Common Errors<a class="headerlink" href="#common-errors" title="Permanent link">&para;</a></h2>
@@ -5510,6 +5526,10 @@
 <tr>
 <td>Dependency conflicts</td>
 <td>Keep the IndexTTS runtime in its own venv.</td>
+</tr>
+<tr>
+<td>Slow first startup</td>
+<td>The downloader resumes partial downloads; confirm the model directories are complete, then restart the sidecar.</td>
 </tr>
 </tbody>
 </table>
