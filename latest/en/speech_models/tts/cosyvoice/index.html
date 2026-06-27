@@ -5608,12 +5608,16 @@ CosyVoice audio:</p>
 </span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;text&quot;:&quot;Hello, this is a local CosyVoice speech test.&quot;}&#39;</span>
 </span></code></pre></div>
 <h2 id="benchmark-baseline">Benchmark Baseline<a class="headerlink" href="#benchmark-baseline" title="Permanent link">&para;</a></h2>
-<p>Test environment: NVIDIA RTX 3090 Linux server, CosyVoice3 standalone sidecar venv,
-<code>FP16 + LOAD_TRT=1</code>, and the autocast fp16 TensorRT plan loaded. The benchmark called
-sidecar <code>/synthesize</code> directly and measured TTFB as first PCM-byte arrival.</p>
+<p>The benchmark called sidecar <code>/synthesize</code> directly and measured TTFB as first
+PCM-byte arrival. The RTX 3090 baseline used a CosyVoice3 standalone sidecar venv
+with <code>FP16 + LOAD_TRT=1</code> and the autocast fp16 TensorRT plan loaded. The RTX 4090
+results were measured on the same OpenTalking sidecar path with <code>TOKEN_HOP_LEN=8</code>,
+<code>TOKEN_MAX_HOP_LEN=16</code>, and <code>STREAM_SCALE_FACTOR=1</code>.</p>
 <table>
 <thead>
 <tr>
+<th>Device</th>
+<th>Mode</th>
 <th style="text-align: right;">Text length</th>
 <th style="text-align: right;">TTFB</th>
 <th style="text-align: right;">Wall time</th>
@@ -5623,6 +5627,8 @@ sidecar <code>/synthesize</code> directly and measured TTFB as first PCM-byte ar
 </thead>
 <tbody>
 <tr>
+<td>RTX 3090</td>
+<td>FP16 + TRT autocast</td>
 <td style="text-align: right;">43 chars</td>
 <td style="text-align: right;">0.683 s</td>
 <td style="text-align: right;">6.215 s</td>
@@ -5630,6 +5636,8 @@ sidecar <code>/synthesize</code> directly and measured TTFB as first PCM-byte ar
 <td style="text-align: right;">0.863</td>
 </tr>
 <tr>
+<td>RTX 3090</td>
+<td>FP16 + TRT autocast</td>
 <td style="text-align: right;">42 chars</td>
 <td style="text-align: right;">0.642 s</td>
 <td style="text-align: right;">5.858 s</td>
@@ -5637,6 +5645,8 @@ sidecar <code>/synthesize</code> directly and measured TTFB as first PCM-byte ar
 <td style="text-align: right;">0.842</td>
 </tr>
 <tr>
+<td>RTX 3090</td>
+<td>FP16 + TRT autocast</td>
 <td style="text-align: right;">29 chars</td>
 <td style="text-align: right;">0.639 s</td>
 <td style="text-align: right;">5.771 s</td>
@@ -5644,11 +5654,85 @@ sidecar <code>/synthesize</code> directly and measured TTFB as first PCM-byte ar
 <td style="text-align: right;">0.885</td>
 </tr>
 <tr>
-<td style="text-align: right;"><strong>Average</strong></td>
+<td>RTX 3090</td>
+<td><strong>Average</strong></td>
+<td style="text-align: right;"><strong>-</strong></td>
 <td style="text-align: right;"><strong>0.655 s</strong></td>
 <td style="text-align: right;"><strong>5.948 s</strong></td>
 <td style="text-align: right;"><strong>6.893 s</strong></td>
 <td style="text-align: right;"><strong>0.863</strong></td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td>FP16 CUDA</td>
+<td style="text-align: right;">39 chars</td>
+<td style="text-align: right;">1.316 s</td>
+<td style="text-align: right;">11.662 s</td>
+<td style="text-align: right;">6.800 s</td>
+<td style="text-align: right;">1.715</td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td>FP16 CUDA</td>
+<td style="text-align: right;">38 chars</td>
+<td style="text-align: right;">0.895 s</td>
+<td style="text-align: right;">11.199 s</td>
+<td style="text-align: right;">7.120 s</td>
+<td style="text-align: right;">1.573</td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td>FP16 CUDA</td>
+<td style="text-align: right;">21 chars</td>
+<td style="text-align: right;">1.110 s</td>
+<td style="text-align: right;">9.493 s</td>
+<td style="text-align: right;">5.640 s</td>
+<td style="text-align: right;">1.683</td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td><strong>FP16 CUDA average</strong></td>
+<td style="text-align: right;"><strong>-</strong></td>
+<td style="text-align: right;"><strong>1.107 s</strong></td>
+<td style="text-align: right;"><strong>10.785 s</strong></td>
+<td style="text-align: right;"><strong>6.520 s</strong></td>
+<td style="text-align: right;"><strong>1.657</strong></td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td>FP16 + TRT autocast</td>
+<td style="text-align: right;">39 chars</td>
+<td style="text-align: right;">0.772 s</td>
+<td style="text-align: right;">7.507 s</td>
+<td style="text-align: right;">6.800 s</td>
+<td style="text-align: right;">1.104</td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td>FP16 + TRT autocast</td>
+<td style="text-align: right;">38 chars</td>
+<td style="text-align: right;">0.560 s</td>
+<td style="text-align: right;">5.613 s</td>
+<td style="text-align: right;">7.120 s</td>
+<td style="text-align: right;">0.788</td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td>FP16 + TRT autocast</td>
+<td style="text-align: right;">21 chars</td>
+<td style="text-align: right;">0.507 s</td>
+<td style="text-align: right;">4.435 s</td>
+<td style="text-align: right;">5.640 s</td>
+<td style="text-align: right;">0.786</td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td><strong>FP16 + TRT autocast average</strong></td>
+<td style="text-align: right;"><strong>-</strong></td>
+<td style="text-align: right;"><strong>0.613 s</strong></td>
+<td style="text-align: right;"><strong>5.852 s</strong></td>
+<td style="text-align: right;"><strong>6.520 s</strong></td>
+<td style="text-align: right;"><strong>0.893</strong></td>
 </tr>
 </tbody>
 </table>

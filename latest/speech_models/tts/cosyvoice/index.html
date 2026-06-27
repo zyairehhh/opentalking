@@ -5601,12 +5601,15 @@ venv 中的 <code>site-packages/tensorrt_libs</code> 加入 <code>LD_LIBRARY_PAT
 </span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;text&quot;:&quot;你好，这是一次 CosyVoice 本地语音测试。&quot;}&#39;</span>
 </span></code></pre></div>
 <h2 id="benchmark">Benchmark 基线<a class="headerlink" href="#benchmark" title="Permanent link">&para;</a></h2>
-<p>测试环境为 NVIDIA RTX 3090 Linux 服务器、CosyVoice3 独立 sidecar venv，已加载
-<code>FP16 + LOAD_TRT=1</code> 和 autocast fp16 TensorRT plan。测试直接请求 sidecar
-<code>/synthesize</code>，TTFB 按第一批 PCM 字节到达时间计算。</p>
+<p>测试直接请求 sidecar <code>/synthesize</code>，TTFB 按第一批 PCM 字节到达时间计算。
+3090 基线使用 CosyVoice3 独立 sidecar venv，已加载 <code>FP16 + LOAD_TRT=1</code>
+和 autocast fp16 TensorRT plan。4090 数据在同一套 OpenTalking sidecar 上测得，
+streaming 参数为 <code>TOKEN_HOP_LEN=8</code>、<code>TOKEN_MAX_HOP_LEN=16</code>、<code>STREAM_SCALE_FACTOR=1</code>。</p>
 <table>
 <thead>
 <tr>
+<th>设备</th>
+<th>模式</th>
 <th style="text-align: right;">文本长度</th>
 <th style="text-align: right;">TTFB</th>
 <th style="text-align: right;">总耗时</th>
@@ -5616,6 +5619,8 @@ venv 中的 <code>site-packages/tensorrt_libs</code> 加入 <code>LD_LIBRARY_PAT
 </thead>
 <tbody>
 <tr>
+<td>RTX 3090</td>
+<td>FP16 + TRT autocast</td>
 <td style="text-align: right;">43 字</td>
 <td style="text-align: right;">0.683 s</td>
 <td style="text-align: right;">6.215 s</td>
@@ -5623,6 +5628,8 @@ venv 中的 <code>site-packages/tensorrt_libs</code> 加入 <code>LD_LIBRARY_PAT
 <td style="text-align: right;">0.863</td>
 </tr>
 <tr>
+<td>RTX 3090</td>
+<td>FP16 + TRT autocast</td>
 <td style="text-align: right;">42 字</td>
 <td style="text-align: right;">0.642 s</td>
 <td style="text-align: right;">5.858 s</td>
@@ -5630,6 +5637,8 @@ venv 中的 <code>site-packages/tensorrt_libs</code> 加入 <code>LD_LIBRARY_PAT
 <td style="text-align: right;">0.842</td>
 </tr>
 <tr>
+<td>RTX 3090</td>
+<td>FP16 + TRT autocast</td>
 <td style="text-align: right;">29 字</td>
 <td style="text-align: right;">0.639 s</td>
 <td style="text-align: right;">5.771 s</td>
@@ -5637,11 +5646,85 @@ venv 中的 <code>site-packages/tensorrt_libs</code> 加入 <code>LD_LIBRARY_PAT
 <td style="text-align: right;">0.885</td>
 </tr>
 <tr>
-<td style="text-align: right;"><strong>平均</strong></td>
+<td>RTX 3090</td>
+<td><strong>平均</strong></td>
+<td style="text-align: right;"><strong>-</strong></td>
 <td style="text-align: right;"><strong>0.655 s</strong></td>
 <td style="text-align: right;"><strong>5.948 s</strong></td>
 <td style="text-align: right;"><strong>6.893 s</strong></td>
 <td style="text-align: right;"><strong>0.863</strong></td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td>FP16 CUDA</td>
+<td style="text-align: right;">39 字</td>
+<td style="text-align: right;">1.316 s</td>
+<td style="text-align: right;">11.662 s</td>
+<td style="text-align: right;">6.800 s</td>
+<td style="text-align: right;">1.715</td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td>FP16 CUDA</td>
+<td style="text-align: right;">38 字</td>
+<td style="text-align: right;">0.895 s</td>
+<td style="text-align: right;">11.199 s</td>
+<td style="text-align: right;">7.120 s</td>
+<td style="text-align: right;">1.573</td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td>FP16 CUDA</td>
+<td style="text-align: right;">21 字</td>
+<td style="text-align: right;">1.110 s</td>
+<td style="text-align: right;">9.493 s</td>
+<td style="text-align: right;">5.640 s</td>
+<td style="text-align: right;">1.683</td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td><strong>FP16 CUDA 平均</strong></td>
+<td style="text-align: right;"><strong>-</strong></td>
+<td style="text-align: right;"><strong>1.107 s</strong></td>
+<td style="text-align: right;"><strong>10.785 s</strong></td>
+<td style="text-align: right;"><strong>6.520 s</strong></td>
+<td style="text-align: right;"><strong>1.657</strong></td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td>FP16 + TRT autocast</td>
+<td style="text-align: right;">39 字</td>
+<td style="text-align: right;">0.772 s</td>
+<td style="text-align: right;">7.507 s</td>
+<td style="text-align: right;">6.800 s</td>
+<td style="text-align: right;">1.104</td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td>FP16 + TRT autocast</td>
+<td style="text-align: right;">38 字</td>
+<td style="text-align: right;">0.560 s</td>
+<td style="text-align: right;">5.613 s</td>
+<td style="text-align: right;">7.120 s</td>
+<td style="text-align: right;">0.788</td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td>FP16 + TRT autocast</td>
+<td style="text-align: right;">21 字</td>
+<td style="text-align: right;">0.507 s</td>
+<td style="text-align: right;">4.435 s</td>
+<td style="text-align: right;">5.640 s</td>
+<td style="text-align: right;">0.786</td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td><strong>FP16 + TRT autocast 平均</strong></td>
+<td style="text-align: right;"><strong>-</strong></td>
+<td style="text-align: right;"><strong>0.613 s</strong></td>
+<td style="text-align: right;"><strong>5.852 s</strong></td>
+<td style="text-align: right;"><strong>6.520 s</strong></td>
+<td style="text-align: right;"><strong>0.893</strong></td>
 </tr>
 </tbody>
 </table>
