@@ -834,6 +834,13 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/latesten/speech_models/tts/cosyvoice/"/>
     </url>
     <url>
+        <loc>https://datascale-ai.github.io/opentalking/latest/speech_models/tts/f5-tts/</loc>
+        <lastmod>2026-06-28</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/latest/speech_models/tts/f5-tts/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/latesten/speech_models/tts/f5-tts/"/>
+    </url>
+    <url>
         <loc>https://datascale-ai.github.io/opentalking/latest/speech_models/tts/indextts/</loc>
         <lastmod>2026-06-28</lastmod>
         <changefreq>daily</changefreq>
@@ -1854,6 +1861,13 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/latest/en/speech_models/tts/cosyvoice/"/>
         <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/latestspeech_models/tts/cosyvoice/"/>
+    </url>
+    <url>
+        <loc>https://datascale-ai.github.io/opentalking/latest/en/speech_models/tts/f5-tts/</loc>
+        <lastmod>2026-06-28</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://datascale-ai.github.io/opentalking/latest/en/speech_models/tts/f5-tts/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://datascale-ai.github.io/opentalking/latestspeech_models/tts/f5-tts/"/>
     </url>
     <url>
         <loc>https://datascale-ai.github.io/opentalking/latest/en/speech_models/tts/indextts/</loc>
