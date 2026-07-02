@@ -312,14 +312,21 @@ OpenTalking uses an OpenAI-compatible interface for LLMs. Point `OPENTALKING_LLM
 - [Model adapter](https://datascale-ai.github.io/opentalking/latest/en/developer-guide/model-adapter/)
 - [Contributing](CONTRIBUTING.md) (dev environment, CLI tools, ruff / mypy / pytest)
 
-Join the QQ community to discuss real-time digital humans, FlashTalk, OmniRT, model deployment, and product scenarios.
+Join the QQ or WeChat community to discuss real-time digital humans, FlashTalk, OmniRT, model deployment, and product scenarios.
+
+<table align="center">
+  <tr>
+    <td align="center"><b>QQ</b></td>
+    <td align="center"><b>WeChat</b><br><b>微信</b></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/assets/images/qq_group_qrcode.png" alt="AI digital human QQ group QR code" width="260"></td>
+    <td align="center"><img src="docs/assets/images/wechat_group_qrcode.png" alt="AI digital human WeChat group QR code" width="260"></td>
+  </tr>
+</table>
 
 <p align="center">
-  <img src="docs/assets/images/qq_group_qrcode.png" alt="AI digital human QQ group QR code" width="280">
-</p>
-
-<p align="center">
-  <b>AI Digital Human Community</b> · Group ID: <code>1103327938</code>
+  <b>AI Digital Human Community</b> · QQ Group ID: <code>1103327938</code> · WeChat
 </p>
 
 ## Acknowledgements
