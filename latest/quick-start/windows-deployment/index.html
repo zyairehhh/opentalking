@@ -6710,8 +6710,8 @@
 </tr>
 <tr>
 <td>浏览器访问方式</td>
-<td><code>http://&lt;WSL2-IP&gt;:5280</code></td>
-<td><code>http://localhost:5280</code></td>
+<td><code>http://&lt;WSL2-IP&gt;:5173</code></td>
+<td><code>http://localhost:5173</code></td>
 </tr>
 <tr>
 <td>麦克风权限</td>
@@ -6734,9 +6734,9 @@
 <p><strong>NAT 模式下浏览器麦克风启用</strong>：</p>
 <p>由于非 localhost 的 HTTP 地址不被浏览器视为安全上下文，<code>getUserMedia</code>（麦克风）会被阻止。任选一种方式解决：</p>
 <ul>
-<li><strong>Edge</strong>：地址栏输入 <code>edge://flags/#unsafely-treat-insecure-origin-as-secure</code>，填入 <code>http://&lt;WSL2-IP&gt;:5280</code>，设为 Enabled 并重启。</li>
+<li><strong>Edge</strong>：地址栏输入 <code>edge://flags/#unsafely-treat-insecure-origin-as-secure</code>，填入 <code>http://&lt;WSL2-IP&gt;:5173</code>，设为 Enabled 并重启。</li>
 <li><strong>Chrome</strong>：关闭所有窗口后，PowerShell 中执行：
-  <div class="language-powershell highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">&amp;</span> <span class="s2">&quot;C:\Program Files\Google\Chrome\Application\chrome.exe&quot;</span> <span class="p">-</span><span class="n">-unsafely-treat-insecure-origin</span><span class="o">-as</span><span class="n">-secure</span><span class="p">=</span><span class="s2">&quot;http://&lt;WSL2-IP&gt;:5280&quot;</span> <span class="p">-</span><span class="n">-user-data-dir</span><span class="p">=</span><span class="s2">&quot;%TEMP%\chrome-opentalking&quot;</span>
+  <div class="language-powershell highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">&amp;</span> <span class="s2">&quot;C:\Program Files\Google\Chrome\Application\chrome.exe&quot;</span> <span class="p">-</span><span class="n">-unsafely-treat-insecure-origin</span><span class="o">-as</span><span class="n">-secure</span><span class="p">=</span><span class="s2">&quot;http://&lt;WSL2-IP&gt;:5173&quot;</span> <span class="p">-</span><span class="n">-user-data-dir</span><span class="p">=</span><span class="s2">&quot;%TEMP%\chrome-opentalking&quot;</span>
 </span></code></pre></div></li>
 </ul>
 <hr />
