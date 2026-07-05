@@ -2680,6 +2680,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#opentalking" class="md-nav__link">
+    <span class="md-ellipsis">
+      准备 OpenTalking 源码与运行环境
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
       启动命令
@@ -2701,6 +2710,15 @@
   <a href="#_5" class="md-nav__link">
     <span class="md-ellipsis">
       常见错误
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      关闭服务
     </span>
   </a>
   
@@ -5413,6 +5431,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#opentalking" class="md-nav__link">
+    <span class="md-ellipsis">
+      准备 OpenTalking 源码与运行环境
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
       启动命令
@@ -5434,6 +5461,15 @@
   <a href="#_5" class="md-nav__link">
     <span class="md-ellipsis">
       常见错误
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      关闭服务
     </span>
   </a>
   
@@ -6062,6 +6098,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#opentalking" class="md-nav__link">
+    <span class="md-ellipsis">
+      准备 OpenTalking 源码与运行环境
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
       启动命令
@@ -6083,6 +6128,15 @@
   <a href="#_5" class="md-nav__link">
     <span class="md-ellipsis">
       常见错误
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      关闭服务
     </span>
   </a>
   
@@ -6121,32 +6175,75 @@
 </ul>
 <h2 id="_2">权重准备<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <p>MuseTalk local 需要模型权重、官方源码和预处理 Python：</p>
-<div class="language-bash highlight"><span class="filename">终端</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">DIGITAL_HUMAN_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/digital-human&quot;</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MODEL_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/models&quot;</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_ROOT</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/model-repos&quot;</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span><span class="s2">&quot;huggingface_hub[cli]&quot;</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="nb">export</span><span class="w"> </span><span class="nv">HF_ENDPOINT</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">HF_ENDPOINT</span><span class="k">:-</span><span class="nv">https</span><span class="p">://hf-mirror.com</span><span class="si">}</span><span class="s2">&quot;</span>
+<div class="language-bash highlight"><span class="filename">终端</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># 改成你自己的部署根目录</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">DIGITAL_HUMAN_HOME</span><span class="o">=</span>/path/to/digital_human
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MODEL_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/models&quot;</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MODEL_REPO_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/model-repos&quot;</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_RUNTIME_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/runtimes&quot;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_ROOT</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_REPO_ROOT</span><span class="s2">&quot;</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>hf<span class="w"> </span>download<span class="w"> </span>TMElyralab/MuseTalk<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span>--local-dir<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_ROOT</span><span class="s2">&quot;</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/TMElyralab/MuseTalk.git<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/model-repos/MuseTalk&quot;</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nb">export</span><span class="w"> </span><span class="nv">HF_ENDPOINT</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">HF_ENDPOINT</span><span class="k">:-</span><span class="nv">https</span><span class="p">://hf-mirror.com</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1"># 如果没有 hf 命令，先执行：</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># python3 -m pip install --user -U &quot;huggingface_hub[cli]&quot;</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># export PATH=&quot;$HOME/.local/bin:$PATH&quot;</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>hf<span class="w"> </span>download<span class="w"> </span>TMElyralab/MuseTalk<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span>--local-dir<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_ROOT</span><span class="s2">&quot;</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_ROOT</span><span class="s2">/musetalkV15/unet.pth&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_ROOT</span><span class="s2">/musetalk&quot;</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span>ln<span class="w"> </span>-sf<span class="w"> </span>../musetalkV15/unet.pth<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_ROOT</span><span class="s2">/musetalk/pytorch_model.bin&quot;</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span>cp<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_ROOT</span><span class="s2">/musetalkV15/musetalk.json&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_ROOT</span><span class="s2">/musetalk/musetalk.json&quot;</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="k">fi</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/TMElyralab/MuseTalk.git<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">  </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_REPO_ROOT</span><span class="s2">/MuseTalk&quot;</span>
 </span></code></pre></div>
-<p>最终需要能在模型根目录找到 <code>musetalk/</code>、<code>sd-vae-ft-mse/</code>、<code>whisper/</code>、<code>dwpose/</code>、<code>face-parse-bisenet/</code> 等目录。推荐使用仓库脚本检查预处理环境：</p>
-<div class="language-bash highlight"><span class="filename">终端</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/opentalking&quot;</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>bash<span class="w"> </span>scripts/quickstart/prepare_local_musetalk.sh
+<p>最终需要能在模型根目录找到 <code>musetalk/pytorch_model.bin</code>、<code>musetalk/musetalk.json</code>、<code>sd-vae-ft-mse/</code>、<code>whisper/</code>、<code>dwpose/</code>、<code>face-parse-bisenet/</code> 等目录。然后使用仓库脚本创建并检查 MuseTalk 官方预处理环境：</p>
+<h2 id="opentalking">准备 OpenTalking 源码与运行环境<a class="headerlink" href="#opentalking" title="Permanent link">&para;</a></h2>
+<p>如果 Python 包下载较慢，可以在运行 <code>uv</code> / <code>pip</code> 命令前临时设置
+<code>UV_DEFAULT_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple</code> 和
+<code>PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple</code>。MuseTalk 预处理环境中的
+<code>torch==2.0.1+cu118</code> 仍由脚本通过 PyTorch CUDA wheel 源安装；若下载中断，保留
+venv 后重跑准备脚本即可续装。</p>
+<div class="language-bash highlight"><span class="filename">终端</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/opentalking&quot;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">&quot;</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_HOME</span><span class="s2">/.git&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/datascale-ai/opentalking.git<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_HOME</span><span class="s2">&quot;</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">fi</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_HOME</span><span class="s2">&quot;</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>dev<span class="w"> </span>--extra<span class="w"> </span>models<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.11
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pip<span class="w"> </span><span class="s2">&quot;setuptools&lt;81&quot;</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MUSETALK_MODEL_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_ROOT</span><span class="s2">&quot;</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MUSETALK_REPO</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_REPO_ROOT</span><span class="s2">/MuseTalk&quot;</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MUSETALK_PREPROCESS_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_RUNTIME_ROOT</span><span class="s2">/musetalk-preprocess&quot;</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MUSETALK_PREPROCESS_PYTHON</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MUSETALK_PREPROCESS_ROOT</span><span class="s2">/venv/bin/python&quot;</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>bash<span class="w"> </span>scripts/quickstart/prepare_local_musetalk.sh
 </span></code></pre></div>
+<p><code>prepare_local_musetalk.sh</code> 会创建独立的 Python 3.10 预处理 venv，并在其中安装 <code>torch==2.0.1+cu118</code>、full <code>mmcv</code>、<code>mmdet</code>、<code>mmpose</code> 等官方预处理依赖；不要把这个环境和 OpenTalking 主 <code>.venv</code> 混用。</p>
 <h2 id="_3">启动命令<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><span class="filename">终端</span><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/opentalking&quot;</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>dev<span class="w"> </span>--extra<span class="w"> </span>models<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.11
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MUSETALK_MODEL_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/models&quot;</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MUSETALK_REPO</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/model-repos/MuseTalk&quot;</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MUSETALK_PREPROCESS_PYTHON</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/runtimes/musetalk-preprocess/venv/bin/python&quot;</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>bash<span class="w"> </span>scripts/start_unified.sh<span class="w"> </span>--backend<span class="w"> </span><span class="nb">local</span><span class="w"> </span>--model<span class="w"> </span>musetalk<span class="w"> </span>--api-port<span class="w"> </span><span class="m">18000</span><span class="w"> </span>--web-port<span class="w"> </span><span class="m">18173</span>
+<div class="language-bash highlight"><span class="filename">终端</span><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/opentalking&quot;</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">&quot;</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_HOME</span><span class="s2">/.git&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/datascale-ai/opentalking.git<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_HOME</span><span class="s2">&quot;</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">fi</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_HOME</span><span class="s2">&quot;</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>dev<span class="w"> </span>--extra<span class="w"> </span>models<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.11
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MODEL_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/models&quot;</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MODEL_REPO_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/model-repos&quot;</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_RUNTIME_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/runtimes&quot;</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MUSETALK_MODEL_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_ROOT</span><span class="s2">&quot;</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MUSETALK_REPO</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MODEL_REPO_ROOT</span><span class="s2">/MuseTalk&quot;</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MUSETALK_PREPROCESS_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_RUNTIME_ROOT</span><span class="s2">/musetalk-preprocess&quot;</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MUSETALK_PREPROCESS_PYTHON</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_MUSETALK_PREPROCESS_ROOT</span><span class="s2">/venv/bin/python&quot;</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>bash<span class="w"> </span>scripts/start_unified.sh<span class="w"> </span>--backend<span class="w"> </span><span class="nb">local</span><span class="w"> </span>--model<span class="w"> </span>musetalk<span class="w"> </span>--api-port<span class="w"> </span><span class="m">18000</span><span class="w"> </span>--web-port<span class="w"> </span><span class="m">18173</span>
 </span></code></pre></div>
 <p>创建会话时，如果 avatar 缺少 <code>prepared/prepared_info.json</code>，OpenTalking 会先运行 MuseTalk 官方预处理，然后再加载会话。</p>
 <h2 id="_4">验证命令<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
@@ -6168,6 +6265,14 @@
 <td>预处理 Python 需要 full <code>mmcv</code>，不能只装 <code>mmcv-lite</code>。</td>
 </tr>
 <tr>
+<td><code>python -m pip</code> 或 <code>pkg_resources</code> 缺失</td>
+<td>先在主 <code>.venv</code> 中运行 <code>uv pip install pip "setuptools&lt;81"</code>，再执行准备脚本。</td>
+</tr>
+<tr>
+<td>下载 <code>torch==2.0.1+cu118</code> 中断</td>
+<td>保留预处理 venv 后重跑准备脚本；网络不稳定时可临时设置 <code>PIP_DEFAULT_TIMEOUT=120 PIP_RETRIES=10</code>。</td>
+</tr>
+<tr>
 <td>预处理失败</td>
 <td>检查 <code>OPENTALKING_MUSETALK_REPO</code>、<code>dwpose</code>、<code>face-parse-bisenet</code>。</td>
 </tr>
@@ -6181,6 +6286,11 @@
 </tr>
 </tbody>
 </table>
+<h2 id="_6">关闭服务<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<p>停止由 <code>scripts/start_unified.sh</code> 或 quickstart 辅助脚本启动的 OpenTalking API、WebUI 和本地模型进程：</p>
+<div class="language-bash highlight"><span class="filename">终端</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/opentalking&quot;</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>bash<span class="w"> </span>scripts/quickstart/stop_all.sh
+</span></code></pre></div>
 
 
 
