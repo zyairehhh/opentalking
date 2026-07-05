@@ -5964,13 +5964,14 @@
 <h4 id="3-opentalking-wav2lip">3. 启动 OpenTalking（推理后端为 Wav2Lip）<a class="headerlink" href="#3-opentalking-wav2lip" title="Permanent link">&para;</a></h4>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_MODEL_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OPENTALKING_MODEL_ROOT</span><span class="k">:-</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="p">/models</span><span class="si">}</span><span class="s2">&quot;</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_WAV2LIP_MODEL_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OPENTALKING_WAV2LIP_MODEL_ROOT</span><span class="k">:-</span><span class="nv">$OPENTALKING_MODEL_ROOT</span><span class="p">/wav2lip</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_WAV2LIP_DEVICE</span><span class="o">=</span>cuda
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_WAV2LIP_BATCH_SIZE</span><span class="o">=</span><span class="m">16</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_WAV2LIP_MAX_LONG_EDGE</span><span class="o">=</span><span class="m">832</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_WAV2LIP_FACE_DET_DEVICE</span><span class="o">=</span>cpu
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_HOME</span><span class="s2">&quot;</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>bash<span class="w"> </span>scripts/start_unified.sh<span class="w"> </span>--backend<span class="w"> </span><span class="nb">local</span><span class="w"> </span>--model<span class="w"> </span>wav2lip<span class="w"> </span>--api-port<span class="w"> </span><span class="m">8210</span><span class="w"> </span>--web-port<span class="w"> </span><span class="m">5280</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_WAV2LIP_DEVICE</span><span class="o">=</span>cuda:0
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_WAV2LIP_BATCH_SIZE</span><span class="o">=</span><span class="m">16</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_WAV2LIP_MAX_LONG_EDGE</span><span class="o">=</span><span class="m">832</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_WAV2LIP_FACE_DET_DEVICE</span><span class="o">=</span>cpu
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_HOME</span><span class="s2">&quot;</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>bash<span class="w"> </span>scripts/start_unified.sh<span class="w"> </span>--backend<span class="w"> </span><span class="nb">local</span><span class="w"> </span>--model<span class="w"> </span>wav2lip<span class="w"> </span>--api-port<span class="w"> </span><span class="m">8210</span><span class="w"> </span>--web-port<span class="w"> </span><span class="m">5280</span>
 </span></code></pre></div>
 <p>打开 <code>http://localhost:5280</code>，选择一个可用形象和 <code>wav2lip</code> 模型，然后开始对话。若不指定 <code>--web-port</code>，默认前端地址为 <code>http://localhost:5173</code>。首次加载会初始化 Wav2Lip checkpoint、S3FD 人脸检测器和形象缓存，可能需要几十秒。</p>
 <p>local Wav2Lip 默认使用 <code>easy_improved</code> 后处理。前端提供 <code>auto</code>、<code>basic</code>、<code>opentalking_improved</code>、<code>easy_improved</code> 四个普通选项；后端仍接受 <code>easy_enhanced</code> 用于 API/env 测试，但该模式需要安装 GFPGAN 并通过 <code>OPENTALKING_WAV2LIP_GFPGAN_CHECKPOINT</code> 指向 checkpoint。</p>
@@ -5987,8 +5988,8 @@
 <tbody>
 <tr>
 <td><code>OPENTALKING_WAV2LIP_DEVICE</code></td>
-<td><code>cuda</code></td>
-<td>指定 Wav2Lip runtime 设备；调试时可设 <code>cpu</code></td>
+<td><code>cuda:0</code></td>
+<td>指定 Wav2Lip runtime 设备；如需固定物理 GPU，优先设置 <code>CUDA_VISIBLE_DEVICES</code>；调试时可设 <code>cpu</code></td>
 </tr>
 <tr>
 <td><code>OPENTALKING_WAV2LIP_BATCH_SIZE</code></td>

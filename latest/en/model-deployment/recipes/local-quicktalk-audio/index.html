@@ -5976,12 +5976,14 @@
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>OPENTALKING_TTS_LOCAL_COSYVOICE_MODEL_DIR=$OPENTALKING_LOCAL_AUDIO_MODEL_ROOT/FunAudioLLM__Fun-CosyVoice3-0.5B-2512
 </span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>OPENTALKING_TTS_LOCAL_COSYVOICE_RUNTIME_DIR=$OPENTALKING_MODEL_REPO_ROOT/CosyVoice
 </span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URL=http://127.0.0.1:19090/synthesize
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>OPENTALKING_TTS_LOCAL_COSYVOICE_DEVICE=cuda:0
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>OPENTALKING_QUICKTALK_BACKEND=local
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>OPENTALKING_QUICKTALK_ASSET_ROOT=$OPENTALKING_MODEL_ROOT/quicktalk
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>OPENTALKING_QUICKTALK_WORKER_CACHE=1
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>OPENTALKING_TORCH_DEVICE=cuda:0
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a># Change 1 to the physical GPU you want to use; keep the in-process device as cuda:0.
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>CUDA_VISIBLE_DEVICES=1
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>OPENTALKING_TTS_LOCAL_COSYVOICE_DEVICE=cuda:0
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>OPENTALKING_QUICKTALK_BACKEND=local
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>OPENTALKING_QUICKTALK_ASSET_ROOT=$OPENTALKING_MODEL_ROOT/quicktalk
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>OPENTALKING_QUICKTALK_WORKER_CACHE=1
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>OPENTALKING_TORCH_DEVICE=cuda:0
 </span></code></pre></div>
 <p><code>*_DEFAULT_PROVIDER</code> only controls the default selection. It is not a fallback chain. If the frontend lets users choose API STT/TTS, configure provider-specific keys explicitly:</p>
 <div class="language-text highlight"><span class="filename">.env</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>OPENTALKING_STT_DASHSCOPE_API_KEY=&lt;dashscope-stt-key&gt;

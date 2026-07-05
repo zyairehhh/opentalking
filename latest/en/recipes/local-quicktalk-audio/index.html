@@ -6340,14 +6340,16 @@ OpenTalking main <code>.venv</code>.</p>
 </span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>OPENTALKING_TTS_LOCAL_COSYVOICE_MODEL_DIR=$OPENTALKING_LOCAL_AUDIO_MODEL_ROOT/FunAudioLLM__Fun-CosyVoice3-0.5B-2512
 </span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>OPENTALKING_TTS_LOCAL_COSYVOICE_RUNTIME_DIR=$OPENTALKING_MODEL_REPO_ROOT/CosyVoice
 </span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>OPENTALKING_TTS_LOCAL_COSYVOICE_SERVICE_URL=http://127.0.0.1:19090/synthesize
-</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>OPENTALKING_TTS_LOCAL_COSYVOICE_DEVICE=cuda:0
-</span><span id="__span-6-23"><a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>
-</span><span id="__span-6-24"><a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a># Video: QuickTalk local
-</span><span id="__span-6-25"><a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>OPENTALKING_DEFAULT_MODEL=quicktalk
-</span><span id="__span-6-26"><a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>OPENTALKING_QUICKTALK_BACKEND=local
-</span><span id="__span-6-27"><a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>OPENTALKING_QUICKTALK_ASSET_ROOT=$OPENTALKING_MODEL_ROOT/quicktalk
-</span><span id="__span-6-28"><a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>OPENTALKING_QUICKTALK_WORKER_CACHE=1
-</span><span id="__span-6-29"><a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>OPENTALKING_QUICKTALK_DEVICE=cuda:0
+</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a># Change 1 to the physical GPU you want to use; keep the in-process device as cuda:0.
+</span><span id="__span-6-23"><a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>CUDA_VISIBLE_DEVICES=1
+</span><span id="__span-6-24"><a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>OPENTALKING_TTS_LOCAL_COSYVOICE_DEVICE=cuda:0
+</span><span id="__span-6-25"><a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>
+</span><span id="__span-6-26"><a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a># Video: QuickTalk local
+</span><span id="__span-6-27"><a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>OPENTALKING_DEFAULT_MODEL=quicktalk
+</span><span id="__span-6-28"><a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>OPENTALKING_QUICKTALK_BACKEND=local
+</span><span id="__span-6-29"><a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>OPENTALKING_QUICKTALK_ASSET_ROOT=$OPENTALKING_MODEL_ROOT/quicktalk
+</span><span id="__span-6-30"><a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>OPENTALKING_QUICKTALK_WORKER_CACHE=1
+</span><span id="__span-6-31"><a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a>OPENTALKING_QUICKTALK_DEVICE=cuda:0
 </span></code></pre></div>
 <p>If users can switch the frontend to API STT/TTS, configure the provider-specific keys explicitly:</p>
 <div class="language-text highlight"><span class="filename">.env</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>OPENTALKING_STT_DASHSCOPE_API_KEY=&lt;dashscope-stt-key&gt;

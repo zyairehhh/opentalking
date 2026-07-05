@@ -6429,14 +6429,16 @@ QuickTalk 权重，适合消费级 CUDA GPU 单机验证。</p>
 </div>
 
 <h3 id="5-quicktalk">5. 启动 QuickTalk 模式<a class="headerlink" href="#5-quicktalk" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_TORCH_DEVICE</span><span class="o">=</span>cuda:0
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_QUICKTALK_ASSET_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OPENTALKING_QUICKTALK_ASSET_ROOT</span><span class="k">:-</span><span class="nv">$OPENTALKING_MODEL_ROOT</span><span class="p">/quicktalk</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_QUICKTALK_WORKER_CACHE</span><span class="o">=</span><span class="m">1</span>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/opentalking&quot;</span>
-</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="c1"># 如果改过 OPENTALKING_QUICKTALK_DEVICE，先停止同端口旧服务，避免复用旧进程。</span>
-</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>bash<span class="w"> </span>scripts/quickstart/stop_all.sh
-</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>bash<span class="w"> </span>scripts/start_unified.sh<span class="w"> </span>--backend<span class="w"> </span><span class="nb">local</span><span class="w"> </span>--model<span class="w"> </span>quicktalk
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># 将 1 改成要使用的物理 GPU；进程内仍使用 cuda:0。</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_QUICKTALK_DEVICE</span><span class="o">=</span>cuda:0
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_QUICKTALK_ASSET_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OPENTALKING_QUICKTALK_ASSET_ROOT</span><span class="k">:-</span><span class="nv">$OPENTALKING_MODEL_ROOT</span><span class="p">/quicktalk</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_QUICKTALK_WORKER_CACHE</span><span class="o">=</span><span class="m">1</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DIGITAL_HUMAN_HOME</span><span class="s2">/opentalking&quot;</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="c1"># 如果改过 CUDA_VISIBLE_DEVICES 或 OPENTALKING_QUICKTALK_DEVICE，先停止同端口旧服务，避免复用旧进程。</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>bash<span class="w"> </span>scripts/quickstart/stop_all.sh
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>bash<span class="w"> </span>scripts/start_unified.sh<span class="w"> </span>--backend<span class="w"> </span><span class="nb">local</span><span class="w"> </span>--model<span class="w"> </span>quicktalk
 </span></code></pre></div>
 <p>如果需要指定端口：</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>bash<span class="w"> </span>scripts/start_unified.sh<span class="w"> </span><span class="se">\</span>
@@ -6481,10 +6483,12 @@ QuickTalk 权重，适合消费级 CUDA GPU 单机验证。</p>
 </span></code></pre></div>
 <h3 id="quicktalk-device">QuickTalk device 没有变化<a class="headerlink" href="#quicktalk-device" title="Permanent link">&para;</a></h3>
 <p>同端口已有 OpenTalking API 进程时，启动脚本会复用旧进程。修改
-<code>OPENTALKING_QUICKTALK_DEVICE</code> 后，先执行：</p>
+<code>CUDA_VISIBLE_DEVICES</code> 或 <code>OPENTALKING_QUICKTALK_DEVICE</code> 后，先执行：</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>bash<span class="w"> </span>scripts/quickstart/stop_all.sh
 </span></code></pre></div>
-<p>再重新运行 QuickTalk 启动命令，并用 <code>/health</code> 确认 <code>quicktalk_device</code>。</p>
+<p>再重新运行 QuickTalk 启动命令，并用 <code>/health</code> 确认 <code>quicktalk_device</code>。
+如果要固定到某张物理 GPU，优先设置 <code>CUDA_VISIBLE_DEVICES=&lt;物理 GPU 编号&gt;</code>，
+并保持 <code>OPENTALKING_QUICKTALK_DEVICE=cuda:0</code>。</p>
 <h3 id="llm">LLM 鉴权失败<a class="headerlink" href="#llm" title="Permanent link">&para;</a></h3>
 <p>检查 <code>.env</code> 中的 <code>OPENTALKING_LLM_BASE_URL</code>、<code>OPENTALKING_LLM_API_KEY</code> 和
 <code>OPENTALKING_LLM_MODEL</code>。如果使用 DashScope compatible mode，确认 URL 包含

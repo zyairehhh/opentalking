@@ -6203,7 +6203,8 @@ keep the sidecar venv on Python 3.11.</p>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>OPENTALKING_TTS_LOCAL_INDEXTTS_RUNTIME_DIR=$OPENTALKING_MODEL_REPO_ROOT/index-tts
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>OPENTALKING_INDEXTTS_VENV_DIR=$OPENTALKING_RUNTIME_ROOT/index-tts/venv
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>OPENTALKING_TTS_LOCAL_INDEXTTS_SERVICE_URL=http://127.0.0.1:19092/synthesize
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>OPENTALKING_TTS_VOICE=indextts-xiaoxiao-cn
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>OPENTALKING_TTS_LOCAL_INDEXTTS_DEVICE=cuda:0
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>OPENTALKING_TTS_VOICE=indextts-xiaoxiao-cn
 </span></code></pre></div>
 <p><code>OPENTALKING_TTS_LOCAL_INDEXTTS_SERVICE_URL</code> is the sidecar URL read by
 OpenTalking's local IndexTTS adapter. Port <code>19092</code> matches the default port in
@@ -6223,7 +6224,9 @@ OmniRT owns model loading, segmented streaming, and token-window streaming:</p>
 <p>Start the IndexTTS sidecar first, then start OpenTalking. The sidecar HTTP path
 and port must match <code>OPENTALKING_TTS_LOCAL_INDEXTTS_SERVICE_URL</code>.</p>
 <div class="language-bash highlight"><span class="filename">Terminal</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_HOME</span><span class="s2">&quot;</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="s2">&quot;</span><span class="nv">$OPENTALKING_RUNTIME_ROOT</span><span class="s2">/index-tts/venv/bin/python&quot;</span><span class="w"> </span>scripts/local_indextts_service.py<span class="w"> </span>--host<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>--port<span class="w"> </span><span class="m">19092</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span><span class="w">  </span><span class="c1"># Change this to the physical GPU; the sidecar still uses cuda:0.</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_TTS_LOCAL_INDEXTTS_DEVICE</span><span class="o">=</span>cuda:0
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="s2">&quot;</span><span class="nv">$OPENTALKING_RUNTIME_ROOT</span><span class="s2">/index-tts/venv/bin/python&quot;</span><span class="w"> </span>scripts/local_indextts_service.py<span class="w"> </span>--host<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>--port<span class="w"> </span><span class="m">19092</span>
 </span></code></pre></div>
 <p>Then start OpenTalking:</p>
 <div class="language-bash highlight"><span class="filename">Terminal</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENTALKING_HOME</span><span class="s2">&quot;</span>
