@@ -1081,10 +1081,6 @@
       
         
       
-        
-      
-        
-      
     
     
       
@@ -1158,27 +1154,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/customer-support/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    AI 客服数字人
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../examples/product-demo-live-sales/" class="md-nav__link">
         
   
@@ -1205,27 +1180,6 @@
   
   <span class="md-ellipsis">
     课程与新闻口播
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../examples/private-assistant/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    私有数字人助手
   </span>
   
 
@@ -3834,10 +3788,6 @@
       
         
       
-        
-      
-        
-      
     
     
       
@@ -3911,27 +3861,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/customer-support/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    AI 客服数字人
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../examples/product-demo-live-sales/" class="md-nav__link">
         
   
@@ -3958,27 +3887,6 @@
   
   <span class="md-ellipsis">
     课程与新闻口播
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../examples/private-assistant/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    私有数字人助手
   </span>
   
 
@@ -6274,12 +6182,7 @@ local MuseTalk 实时推理；官方预处理会自动用 <code>OPENTALKING_MUSE
 </span></code></pre></div>
 <h2 id="_6">启动命令<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <p>指向已提供 MuseTalk 的 OmniRT：</p>
-<div class="language-bash highlight"><span class="filename">终端</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>bash<span class="w"> </span>scripts/start_unified.sh<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>--backend<span class="w"> </span>omnirt<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>--model<span class="w"> </span>musetalk<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span>--omnirt<span class="w"> </span>http://127.0.0.1:9000<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span>--api-port<span class="w"> </span><span class="m">8000</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span>--web-port<span class="w"> </span><span class="m">5173</span>
+<div class="language-bash highlight"><span class="filename">终端</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>bash<span class="w"> </span>scripts/quickstart/start_all.sh<span class="w"> </span>--omnirt<span class="w"> </span>http://127.0.0.1:9000
 </span></code></pre></div>
 <p>local 模式：</p>
 <div class="language-bash highlight"><span class="filename">终端</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>bash<span class="w"> </span>scripts/start_unified.sh<span class="w"> </span>--backend<span class="w"> </span><span class="nb">local</span><span class="w"> </span>--model<span class="w"> </span>musetalk<span class="w"> </span>--api-port<span class="w"> </span><span class="m">18000</span><span class="w"> </span>--web-port<span class="w"> </span><span class="m">18173</span><span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0
@@ -6289,8 +6192,7 @@ local MuseTalk 实时推理；官方预处理会自动用 <code>OPENTALKING_MUSE
 会先运行 MuseTalk 官方预处理，产物写到 <code>examples/avatars/&lt;avatar_id&gt;/prepared/</code> 或上传头像目录的
 <code>prepared/</code>，然后再加载会话。</p>
 <h2 id="models"><code>/models</code> 验证<a class="headerlink" href="#models" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><span class="filename">终端</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nv">API_PORT</span><span class="o">=</span><span class="m">8000</span><span class="w">  </span><span class="c1"># 如果使用上面的 local 命令，改为 18000</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;http://127.0.0.1:</span><span class="si">${</span><span class="nv">API_PORT</span><span class="si">}</span><span class="s2">/models&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.statuses[] | select(.id==&quot;musetalk&quot;)&#39;</span>
+<div class="language-bash highlight"><span class="filename">终端</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>curl<span class="w"> </span>-s<span class="w"> </span>http://127.0.0.1:18000/models<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.statuses[] | select(.id==&quot;musetalk&quot;)&#39;</span>
 </span></code></pre></div>
 <p>OmniRT 或 local runtime 可用时应返回 <code>connected=true</code>。local 模式示例：</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;musetalk&quot;</span><span class="p">,</span><span class="nt">&quot;backend&quot;</span><span class="p">:</span><span class="s2">&quot;local&quot;</span><span class="p">,</span><span class="nt">&quot;connected&quot;</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="s2">&quot;local_runtime&quot;</span><span class="p">}</span>

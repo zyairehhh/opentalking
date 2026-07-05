@@ -1113,15 +1113,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#indextts" class="md-nav__link">
-    <span class="md-ellipsis">
-      IndexTTS
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -1286,10 +1277,6 @@
       
         
       
-        
-      
-        
-      
     
     
       
@@ -1363,27 +1350,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/customer-support/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    AI Customer Support
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../examples/product-demo-live-sales/" class="md-nav__link">
         
   
@@ -1410,27 +1376,6 @@
   
   <span class="md-ellipsis">
     Course and News Presenter
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../examples/private-assistant/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Private Digital Human Assistant
   </span>
   
 
@@ -3969,15 +3914,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#indextts" class="md-nav__link">
-    <span class="md-ellipsis">
-      IndexTTS
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -4141,10 +4077,6 @@
       
         
       
-        
-      
-        
-      
     
     
       
@@ -4218,27 +4150,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/customer-support/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    AI Customer Support
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../examples/product-demo-live-sales/" class="md-nav__link">
         
   
@@ -4265,27 +4176,6 @@
   
   <span class="md-ellipsis">
     Course and News Presenter
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../examples/private-assistant/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Private Digital Human Assistant
   </span>
   
 
@@ -6362,15 +6252,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#indextts" class="md-nav__link">
-    <span class="md-ellipsis">
-      IndexTTS
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -6476,7 +6357,7 @@
 <li>How to think about TTS providers and voices.</li>
 <li>How to start with the default voice.</li>
 <li>How to switch and preview voices in WebUI.</li>
-<li>How to clone voices with DashScope / Qwen, CosyVoice, or IndexTTS.</li>
+<li>How to clone voices with DashScope / Qwen or CosyVoice.</li>
 <li>How to troubleshoot unavailable voices, preview failures, and clone failures.</li>
 </ul>
 <h2 id="tts-provider-selection">TTS Provider Selection<a class="headerlink" href="#tts-provider-selection" title="Permanent link">&para;</a></h2>
@@ -6486,7 +6367,6 @@
 <li><code>edge</code>: good for quick validation.</li>
 <li><code>dashscope</code> / <code>qwen</code>: for DashScope / Tongyi TTS capabilities.</li>
 <li><code>cosyvoice</code>: for CosyVoice voices and voice cloning.</li>
-<li><code>indextts</code>: for local controllable speech, emotion control, and reference-audio voice cloning; the actual runtime is selected through the <code>local</code> or <code>omnirt</code> backend.</li>
 <li><code>sambert</code>: for compatibility with existing Sambert setups.</li>
 </ul>
 <p>For the first run, use the default provider and voice. Configure cloud providers or cloned voices when a business-specific voice is needed.</p>
@@ -6506,12 +6386,15 @@
 </span></code></pre></div>
 <p>If the voice identifier is invalid, the provider may return a missing voice, invalid parameter, or authorization error.</p>
 <h2 id="preview-voice">Preview Voice<a class="headerlink" href="#preview-voice" title="Permanent link">&para;</a></h2>
-<p>WebUI supports voice preview before session creation. Keep preview text short; the current preview endpoint accepts up to 1000 characters.</p>
-<p><img alt="Voice and TTS panel in WebUI." src="../../../../assets/images/usage/webui/voice-tts-panel.png" /></p>
-<p><em>Voice and TTS panel in WebUI. Select a provider and voice, then click the preview button.</em></p>
+<p>WebUI supports voice preview before session creation. Keep preview text short; the current preview endpoint accepts up to 240 characters.</p>
+<div class="ot-figure-placeholder">
+  <strong>Screenshot placeholder: voice preview</strong>
+  <span>To be added: TTS provider, voice selector, and preview button.</span>
+</div>
+
 <p>If preview fails, check provider credentials, network access, voice identifier, and backend logs.</p>
 <h2 id="voice-cloning">Voice Cloning<a class="headerlink" href="#voice-cloning" title="Permanent link">&para;</a></h2>
-<p>Voice cloning creates a new voice from sample audio. The current WebUI clone flow supports DashScope / Qwen, CosyVoice, IndexTTS, and Xiaomi MiMo.</p>
+<p>Voice cloning creates a new voice from sample audio. The current WebUI clone flow focuses on DashScope / Qwen and CosyVoice.</p>
 <h3 id="prepare-sample-audio">Prepare Sample Audio<a class="headerlink" href="#prepare-sample-audio" title="Permanent link">&para;</a></h3>
 <p>Recommended sample qualities:</p>
 <ul>
@@ -6529,8 +6412,6 @@
 <h3 id="cosyvoice">CosyVoice<a class="headerlink" href="#cosyvoice" title="Permanent link">&para;</a></h3>
 <p>CosyVoice cloning usually requires the provider to access the sample audio URL. For local deployments, configure <code>OPENTALKING_PUBLIC_BASE_URL</code> if the external service cannot reach local temporary URLs.</p>
 <p>If cloning fails, check public access, upload status, provider health, and backend logs.</p>
-<h3 id="indextts">IndexTTS<a class="headerlink" href="#indextts" title="Permanent link">&para;</a></h3>
-<p>IndexTTS cloning stores the reference audio in the local voice directory and marks the voice asset as <code>provider=indextts</code>. Synthesis can later use either the same-host sidecar or the OmniRT backend; switching backend does not require cloning the voice again.</p>
 <h2 id="use-voice-in-webui">Use Voice in WebUI<a class="headerlink" href="#use-voice-in-webui" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Select a TTS provider.</li>

@@ -1081,10 +1081,6 @@
       
         
       
-        
-      
-        
-      
     
     
       
@@ -1158,27 +1154,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/customer-support/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    AI Customer Support
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../examples/product-demo-live-sales/" class="md-nav__link">
         
   
@@ -1205,27 +1180,6 @@
   
   <span class="md-ellipsis">
     Course and News Presenter
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../examples/private-assistant/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Private Digital Human Assistant
   </span>
   
 
@@ -3834,10 +3788,6 @@
       
         
       
-        
-      
-        
-      
     
     
       
@@ -3911,27 +3861,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/customer-support/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    AI Customer Support
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../examples/product-demo-live-sales/" class="md-nav__link">
         
   
@@ -3958,27 +3887,6 @@
   
   <span class="md-ellipsis">
     Course and News Presenter
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../examples/private-assistant/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Private Digital Human Assistant
   </span>
   
 
@@ -6278,12 +6186,7 @@ MuseTalk realtime inference. Official preprocessing is executed through
 </span></code></pre></div>
 <h2 id="start">Start<a class="headerlink" href="#start" title="Permanent link">&para;</a></h2>
 <p>Point OpenTalking at an OmniRT service that exposes MuseTalk:</p>
-<div class="language-bash highlight"><span class="filename">Terminal</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>bash<span class="w"> </span>scripts/start_unified.sh<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>--backend<span class="w"> </span>omnirt<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>--model<span class="w"> </span>musetalk<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span>--omnirt<span class="w"> </span>http://127.0.0.1:9000<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span>--api-port<span class="w"> </span><span class="m">8000</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span>--web-port<span class="w"> </span><span class="m">5173</span>
+<div class="language-bash highlight"><span class="filename">Terminal</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>bash<span class="w"> </span>scripts/quickstart/start_all.sh<span class="w"> </span>--omnirt<span class="w"> </span>http://127.0.0.1:9000
 </span></code></pre></div>
 <p>Local mode:</p>
 <div class="language-bash highlight"><span class="filename">Terminal</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>bash<span class="w"> </span>scripts/start_unified.sh<span class="w"> </span>--backend<span class="w"> </span><span class="nb">local</span><span class="w"> </span>--model<span class="w"> </span>musetalk<span class="w"> </span>--api-port<span class="w"> </span><span class="m">18000</span><span class="w"> </span>--web-port<span class="w"> </span><span class="m">18173</span><span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0
@@ -6295,8 +6198,7 @@ conversation and creates a session, OpenTalking checks the selected avatar. If
 preprocessing first, writes the assets to the avatar's <code>prepared/</code> directory, and
 then loads the session.</p>
 <h2 id="models-verification"><code>/models</code> Verification<a class="headerlink" href="#models-verification" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><span class="filename">Terminal</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nv">API_PORT</span><span class="o">=</span><span class="m">8000</span><span class="w">  </span><span class="c1"># use 18000 for the local command above</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;http://127.0.0.1:</span><span class="si">${</span><span class="nv">API_PORT</span><span class="si">}</span><span class="s2">/models&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.statuses[] | select(.id==&quot;musetalk&quot;)&#39;</span>
+<div class="language-bash highlight"><span class="filename">Terminal</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>curl<span class="w"> </span>-s<span class="w"> </span>http://127.0.0.1:18000/models<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.statuses[] | select(.id==&quot;musetalk&quot;)&#39;</span>
 </span></code></pre></div>
 <p>When OmniRT or the local runtime provides the model, it should report
 <code>connected=true</code>. For local mode:</p>

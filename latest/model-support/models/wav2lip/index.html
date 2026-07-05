@@ -1081,10 +1081,6 @@
       
         
       
-        
-      
-        
-      
     
     
       
@@ -1158,27 +1154,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/customer-support/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    AI 客服数字人
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../examples/product-demo-live-sales/" class="md-nav__link">
         
   
@@ -1205,27 +1180,6 @@
   
   <span class="md-ellipsis">
     课程与新闻口播
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../examples/private-assistant/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    私有数字人助手
   </span>
   
 
@@ -3933,10 +3887,6 @@
       
         
       
-        
-      
-        
-      
     
     
       
@@ -4010,27 +3960,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/customer-support/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    AI 客服数字人
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../examples/product-demo-live-sales/" class="md-nav__link">
         
   
@@ -4057,27 +3986,6 @@
   
   <span class="md-ellipsis">
     课程与新闻口播
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../examples/private-assistant/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    私有数字人助手
   </span>
   
 
@@ -6500,14 +6408,14 @@
 </ul>
 <h2 id="_2">准备权重<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <p>默认模型目录：</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$OPENTALKING_MODEL_ROOT/wav2lip
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>./avatar_models/wav2lip
 </span></code></pre></div>
 <p>可调整：</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_WAV2LIP_MODEL_ROOT</span><span class="o">=</span><span class="nv">$OPENTALKING_MODEL_ROOT</span>/wav2lip
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_WAV2LIP_CHECKPOINT</span><span class="o">=</span><span class="nv">$OPENTALKING_MODEL_ROOT</span>/wav2lip/wav2lip384.pth
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_WAV2LIP_MODEL_ROOT</span><span class="o">=</span>./avatar_models/wav2lip
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENTALKING_WAV2LIP_CHECKPOINT</span><span class="o">=</span>./avatar_models/wav2lip/wav2lip384.pth
 </span></code></pre></div>
 <p><code>s3fd.pth</code> 可以放在：</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$OPENTALKING_MODEL_ROOT/wav2lip/s3fd.pth
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>./avatar_models/wav2lip/s3fd.pth
 </span></code></pre></div>
 <h2 id="avatar">准备 Avatar 派生产物<a class="headerlink" href="#avatar" title="Permanent link">&para;</a></h2>
 <p>如需提前为 Wav2Lip 生成图片帧资产：</p>
@@ -6542,12 +6450,12 @@
 </tr>
 <tr>
 <td><code>OPENTALKING_WAV2LIP_DEVICE</code></td>
-<td><code>cuda:0</code></td>
-<td>Wav2Lip 推理设备；如需固定物理 GPU，优先设置 <code>CUDA_VISIBLE_DEVICES</code></td>
+<td><code>cuda</code></td>
+<td>Wav2Lip 推理设备</td>
 </tr>
 <tr>
 <td><code>OPENTALKING_WAV2LIP_MODEL_ROOT</code></td>
-<td><code>$OPENTALKING_MODEL_ROOT/wav2lip</code></td>
+<td><code>./avatar_models/wav2lip</code></td>
 <td>权重目录</td>
 </tr>
 <tr>
@@ -6710,7 +6618,7 @@
 <h3 id="checkpoint">提示缺少 checkpoint<a class="headerlink" href="#checkpoint" title="Permanent link">&para;</a></h3>
 <p>检查 <code>OPENTALKING_WAV2LIP_MODEL_ROOT</code> 和 <code>OPENTALKING_WAV2LIP_CHECKPOINT</code>。</p>
 <h3 id="s3fdpth">提示缺少 <code>s3fd.pth</code><a class="headerlink" href="#s3fdpth" title="Permanent link">&para;</a></h3>
-<p>把 <code>s3fd.pth</code> 放到 <code>$OPENTALKING_MODEL_ROOT/wav2lip/</code> 下。</p>
+<p>把 <code>s3fd.pth</code> 放到 <code>models/wav2lip/</code> 下。</p>
 <h3 id="_10">嘴部区域不自然<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
 <p>尝试调整 <code>OPENTALKING_WAV2LIP_PADS</code>、后处理模式和 Avatar 参考图。参考图越清晰、脸部角度越正，效果越稳定。</p>
 
