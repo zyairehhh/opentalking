@@ -333,6 +333,62 @@ def test_avatar_summary_orders_numbered_duo_dialog_assets_together(tmp_path: Pat
     ]
 
 
+def test_avatar_summary_groups_renamed_duo_dialog_assets_together(tmp_path: Path) -> None:
+    def write_avatar(dirname: str, name: str, *, duo: bool) -> None:
+        avatar_dir = tmp_path / dirname
+        avatar_dir.mkdir()
+        (avatar_dir / "preview.png").write_bytes(_png_bytes())
+        (avatar_dir / "reference.png").write_bytes(_png_bytes())
+        metadata = {"person_mode": "single"}
+        if duo:
+            metadata = {
+                "person_mode": "double",
+                "duo_dialog": {
+                    "speaker_faces": {"female": "left", "male": "right"},
+                    "default_voices": {
+                        "female": "zh-CN-XiaoxiaoNeural",
+                        "male": "zh-CN-YunxiNeural",
+                    },
+                },
+            }
+        (avatar_dir / "manifest.json").write_text(
+            json.dumps(
+                {
+                    "id": dirname,
+                    "name": name,
+                    "model_type": "quicktalk" if duo else "flashtalk",
+                    "fps": 25,
+                    "sample_rate": 16000,
+                    "width": 64,
+                    "height": 48,
+                    "version": "1.0",
+                    "metadata": metadata,
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    write_avatar("a-single", "主播", duo=False)
+    write_avatar("b-video-call", "视频通话", duo=True)
+    write_avatar("c-news-duo", "新闻双人主播", duo=True)
+    write_avatar("d-single", "女主持", duo=False)
+    write_avatar("e-hd-news-duo", "高清新闻双人主播", duo=True)
+
+    app = FastAPI()
+    app.state.settings = SimpleNamespace(avatars_dir=str(tmp_path))
+    app.include_router(avatars.router)
+    response = TestClient(app).get("/avatars")
+
+    assert response.status_code == 200
+    assert [item["name"] for item in response.json()] == [
+        "主播",
+        "视频通话",
+        "新闻双人主播",
+        "高清新闻双人主播",
+        "女主持",
+    ]
+
+
 def test_builtin_female_host_transparent_avatar_asset_is_ready() -> None:
     avatar_dir = REPO_ROOT / "examples" / "avatars" / "female-host-transparent"
     manifest = json.loads((avatar_dir / "manifest.json").read_text(encoding="utf-8"))

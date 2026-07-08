@@ -176,25 +176,25 @@ def _summary_from_dir(path: Path) -> AvatarSummary:
 
 
 def _sort_avatar_summaries(summaries: list[AvatarSummary]) -> list[AvatarSummary]:
-    duo_rows: list[tuple[int, int, AvatarSummary]] = []
+    duo_rows: list[tuple[int, tuple[int, int | str, str, str], AvatarSummary]] = []
     for index, summary in enumerate(summaries):
+        if summary.person_mode != "double" or summary.duo_dialog is None:
+            continue
         name = (summary.name or "").strip()
         match = re.fullmatch(r"双人对话(\d+)", name)
-        if summary.duo_dialog is not None and match:
-            duo_rows.append((index, int(match.group(1)), summary))
+        sort_key: tuple[int, int | str, str, str]
+        if match:
+            sort_key = (0, int(match.group(1)), name, summary.id)
+        else:
+            sort_key = (1, index, name, summary.id)
+        duo_rows.append((index, sort_key, summary))
 
     if len(duo_rows) < 2:
         return summaries
 
     duo_indices = {index for index, _, _ in duo_rows}
     anchor = min(duo_indices)
-    ordered_duo = [
-        summary
-        for _, _, summary in sorted(
-            duo_rows,
-            key=lambda item: (item[1], item[2].name or "", item[2].id),
-        )
-    ]
+    ordered_duo = [summary for _, _, summary in sorted(duo_rows, key=lambda item: item[1])]
     remaining = [summary for index, summary in enumerate(summaries) if index not in duo_indices]
     return remaining[:anchor] + ordered_duo + remaining[anchor:]
 
