@@ -2366,27 +2366,6 @@ export default function App() {
     }
   }, [connection, fasterliveportraitConfig, model, notify]);
 
-  const handleSavePrompt = useCallback(async () => {
-    setPromptSaving(true);
-    try {
-      await apiPost("/sessions/customize/prompt", {
-        avatar_id: avatarId,
-        llm_system_prompt: llmSystemPrompt,
-      });
-      const sid = sessionIdRef.current;
-      if (sid) await releaseSession(sid);
-      resetLiveState(true);
-      setConnection("idle");
-      notify("System Prompt 已保存，页面即将刷新并在新会话生效。", "success");
-      window.setTimeout(() => window.location.reload(), 900);
-    } catch (e) {
-      console.warn("save prompt failed", e);
-      notify("保存 Prompt 失败，请查看后端日志。", "error");
-    } finally {
-      setPromptSaving(false);
-    }
-  }, [avatarId, llmSystemPrompt, notify, releaseSession, resetLiveState]);
-
   const handleCreateCustomAvatar = useCallback(async (
     file: File,
     name: string,
@@ -2859,7 +2838,6 @@ export default function App() {
   const selectedVoiceLabel = isEdgeTts(ttsProvider)
     ? EDGE_ZH_VOICES.find((voice) => voice.id === edgeVoice)?.label ?? edgeVoice
     : bailianVoices.find((voice) => voice.id === qwenVoice)?.label ?? (qwenVoice || "暂无音色");
-  const selectedMemoryLibrary = memoryLibraries.find((library) => library.id === memoryLibraryId) ?? null;
   const runtimeConfigTtsProvider = runtimeConfig?.tts.provider ?? "";
   const runtimeConfigTtsReady = Boolean(
     runtimeConfig?.tts.api_key_set
@@ -2877,11 +2855,6 @@ export default function App() {
       && runtimeConfig.mem0?.llm.api_key_set
       && runtimeConfig.mem0?.embedder.api_key_set,
   );
-  const memorySummary = {
-    enabled: memoryEnabled && Boolean(selectedMemoryLibrary),
-    libraryName: selectedMemoryLibrary?.name || selectedMemoryLibrary?.id || null,
-    memoryCount: selectedMemoryLibrary ? selectedMemoryLibrary.memory_count : null,
-  };
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 lg:h-screen lg:overflow-hidden">
       <audio ref={audioRef} autoPlay playsInline className="hidden" />
